@@ -1,4 +1,5 @@
 import charsRaw from '~~/public/data/chars.json?raw'
+import { plainReading } from '~~/shared/readings.ts'
 import { varietyOf } from '~~/shared/row.ts'
 import {
   REGIONS,
@@ -105,16 +106,6 @@ export const TIERS: { region: Region; tier: number; id: string }[] = [
 ]
 
 const CODEPOINT = /^u\+?([\da-f]{4,6})$/i
-
-const COMBINING = /\p{Diacritic}/gu
-
-/** Lower-cased and stripped of tone marks, so nian matches nián and lv matches lǚ. */
-const plainReading = (text: string) =>
-  text
-    .normalize('NFD')
-    .replaceAll(COMBINING, '')
-    .toLowerCase()
-    .replaceAll('ü', 'v')
 
 export const rowsByKey = new Map(data.rows.map((row) => [row.key, row]))
 
