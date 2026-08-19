@@ -1,0 +1,155 @@
+import type { zhCN } from './zh-cn.ts'
+
+export const zhHK: typeof zhCN = {
+  meta: {
+    title: '漢智',
+    name: 'Hanji',
+    description:
+      '中國大陸、香港、台灣、日本四地常用漢字的字形對照。同一個字，各地寫出來常常不一樣。',
+  },
+  region: {
+    cn: { short: '中', full: '中國大陸' },
+    hk: { short: '港', full: '香港' },
+    tw: { short: '台', full: '台灣' },
+    jp: { short: '日', full: '日本' },
+    old: { short: '舊字體', full: '日本舊字體' },
+  },
+  hero: {
+    title: '一個漢字四種寫法',
+    body: '中國大陸、香港、台灣、日本，同一個字寫出來常常不一樣。',
+    split: '拆開看',
+    merge: '疊回去',
+  },
+  nav: {
+    about: '關於',
+    theme: '切換深淺色',
+    back: '返回字表',
+    options: '顯示選項',
+  },
+  options: {
+    title: '顯示選項',
+    language: '介面語言',
+    emoji: '用旗幟顯示地區',
+    emojiHint: '把「中港台日」換成對應的旗幟符號。',
+    outline: '疊印用空心字',
+    outlineHint: '把疊在一起的字形改成描邊，筆畫不再糊成一團，分歧處更清楚。',
+  },
+  style: {
+    label: '字體',
+    sans: '黑',
+    serif: '宋',
+    sansFull: '黑體',
+    serifFull: '宋體',
+  },
+  filter: {
+    dimension: '比較',
+    glyph: '字形',
+    cp: '碼點',
+    glyphHint: '按寫出來的樣子比較。四地用同一個碼點但筆畫不同，也算不同。',
+    cpHint: '只按Unicode碼點比較。骨這類同碼點異字形的字會歸為相同。',
+    search: '搜尋',
+    searchPlaceholder: '漢字 / 讀音 / U+9AA8',
+    strokes: '筆畫',
+    common: '常用於',
+    pattern: '差異模式',
+    tier: '收錄於',
+    variety: '{n}種寫法',
+    identical: '四地同形',
+    clear: '清除篩選',
+    matched: '{n}字',
+  },
+  sort: {
+    label: '排序',
+    common: '常用',
+    strokes: '筆畫',
+    cp: '碼點',
+    freq: '字頻',
+  },
+  table: {
+    strokes: '筆畫',
+    freq: '字頻',
+    old: '舊',
+    empty: '沒有符合條件的字。放寬筆畫範圍，或換一個差異模式。',
+    page: '第{page}/{total}頁',
+    prev: '上一頁',
+    next: '下一頁',
+    showAll: '顯示全部{n}字',
+    paginate: '分頁顯示',
+  },
+  char: {
+    codePoint: 'Unicode碼點',
+    strokes: '筆畫',
+    freq: '大陸字頻',
+    reading: '讀音',
+    mandarin: '普通話',
+    cantonese: '粵語',
+    on: '日語音讀',
+    kun: '日語訓讀',
+    listed: '收錄',
+    variety: '有{n}種寫法',
+    identical: '寫法一致',
+    onePicked: '只選了一欄，沒有可比較的對象',
+    also: '另見',
+    alsoOut: '{region}用字「{char}」另有條目',
+    alsoIn: '也是「{char}」的{region}用字',
+    stacked: '疊印',
+    split: '並排',
+    dict: '外部字典',
+    tierCn: { 1: '一級字', 2: '二級字', 3: '三級字' },
+    tierTw: { 1: '常用國字', 2: '次常用國字' },
+    tierHk: { 1: '常用字' },
+    tierJp: { 1: '常用漢字', 2: '教育漢字' },
+  },
+  about: {
+    title: '關於',
+    nameTitle: '名字的由來',
+    name1:
+      '「Hanji」跟漢字在各地的叫法各差一個字母：漢語拼音的 hanzi 差一個 z，日語的 kanji 差一個 k，韓語的 hanja 差一個 a。同一件東西，每個地方都改掉一點點——這正是這個應用在講的事。',
+    name2:
+      '它同時也是閩南語「漢字」的實際讀音 hàn-jī，所以它並不是憑空造出來的詞，而是又一地的讀法。中文名「漢智」取其音。',
+    methodTitle: '字形差異是怎樣判定的',
+    scopeTitle: '收錄範圍',
+    sourcesTitle: '數據來源',
+    limitTitle: '這份數據的局限',
+    noticeTitle: '聲明',
+    thanksTitle: '鳴謝',
+    dataTitle: '取用數據',
+    use: '用途',
+    source: '來源',
+    license: '授權',
+    method1:
+      'Source Han Sans與Source Han Serif（也就是Noto Sans CJK與Noto Serif CJK）各自的五個地區共用同一個字形池，每個地區有一份「碼點→CID」對應。同一個池子裏CID相同就是同一個字形，所以把中國大陸、香港、台灣、日本四份對應擺在一起比對，就能判斷這四地把一個字寫成了幾種樣子。',
+    method2:
+      '判定取兩種字體的並集：只要黑體或宋體之中有任何一方認為兩地同形，就算同形。因為Source Han Sans給日本單獨畫了約五分之一常用字的字形，其中兩百來個宋體並沒有跟着分——了、人、子、水、金都在其中。只有一種字體作出的區分是那套字體的設計取捨，不是地區規範的差異。',
+    method3:
+      '代價是：那些被合併的格子會改用同組代表地區的字體來繪製，也就不會顯示Noto Sans JP自己那個略有出入的字形。這是「視為一樣」的應有之義——頁面上寫着相同的兩格，畫出來也必須真的相同。',
+    scope1:
+      '收錄《通用規範漢字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）四份字表的並集，把簡繁、日本新舊字體這類跨碼點的對應合併成一行，共{rows}行。',
+    scope2:
+      '其中{identical}行四地寫法完全一致，{allDiffer}行四地各不相同。寫法相同的字同樣收錄——這裏是四地漢字的字表，字形差異只是其中一個維度。',
+    limit1:
+      '這裏測的是Source Han系列的地區字形設計，不是各地標準本身。它是個高質素的代理，因為Adobe的地區字形分別依據大陸《印刷通用漢字字形表》、台灣教育部《國字標準字體》、香港教育局《常用字字形表》、日本JIS X 0208/0213（JIS2004字形）。',
+    limit2:
+      'Source Han的香港字形覆蓋並不完整，所以「只有香港不同」這一類可能少報。',
+    limit3:
+      '筆畫數逐地區取，先看Unihan的kAlternateTotalStrokes（它按IRG來源分別給數，最準，但只覆蓋一百來個碼點），日本再退到kRSAdobe_Japan1_6（它分析的是Adobe-Japan1-6收的日本字形，所以突是8畫而不是9畫），都沒有才用kTotalStrokes——後者至多區分zh-Hans與zh-Hant兩檔，港台共用後一檔。',
+    limit4:
+      '於是日本那一欄常與其餘三地不同，其中約五分之一其實字形一模一樣，只是數法不同：日本把阝數作三畫、ネ數作五畫，所以那四地寫法相同，筆畫卻是6/6/6/7。',
+    limit5:
+      'OpenCC與各地規範字表衝突時以規範字表為準：臺灣《常用國字標準字體表》收脣與祕，OpenCC卻把它們轉成唇、秘，那兩欄就寫規範表的形。跨碼點的對應關係來自OpenCC。它的異體表裏混着兩種關係：地區寫法不同的同一個字（裏/裡），和一個字代用另一個字（台灣用著兼表著與着，日本用欠代缺、缶代罐）。後者若照反，被代用的那個現行漢字就會被吞掉，所以判據是「某地區的字表分開收錄了這兩個字，就不合併」——著、欠、缶、糸都因此保住了自己的條目，並與代用它的那一組互相連結。',
+    notice1:
+      '這裏的數據不是權威數據。漢字的收錄、字形、筆畫、讀音，各地標準之間本來就有分歧，也不存在一份能讓所有人滿意的數據。',
+    notice2:
+      '為了不讓這裏變成一個需要長期人手維護的字表，本項目盡量貼着已有的公共數據走——Unicode Unihan、各地文化教育主管部門發布的規範字表、Adobe與Google公開的字體資源——原樣取用。判定規則都寫在上面，沒有個人取捨，也不代表任何立場。',
+    notice3:
+      '正式場合請以原始規範與詞典為準。每個字的詳情頁都列了該地區自己的字典，可以逐條對照。',
+    notice4: '漢字數量龐大，出錯難免。發現數據有誤，請透過{issues}回報。',
+    data1: '本站的字表數據以JSON提供，可直接取用：',
+    thanks:
+      '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da《現代漢語單字頻率列表》、Adobe Source Han與Noto CJK的維護者。逐字對照工具{tofu}是本項目的先行者，同樣用Noto系列區分四地字形。',
+  },
+  footer: {
+    sources: '數據來源',
+    detail: '完整說明與鳴謝',
+  },
+}

@@ -1,0 +1,54 @@
+{
+  "name": "hanji",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.22.0",
+  "description": "中国大陆、香港、台湾、日本四地汉字数据",
+  "author": "Kevin Deng <sxzz@sxzz.moe>",
+  "license": "MIT",
+  "engines": {
+    "node": "^24.0.0 || >=26.0.0"
+  },
+  "scripts": {
+    "dev": "nuxt dev",
+    "build": "nuxt build",
+    "generate": "nuxt generate",
+    "preview": "nuxt preview",
+    "typecheck": "nuxt typecheck",
+    "lint": "eslint --cache",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "build:data": "node scripts/build-data.ts && node scripts/build-fonts.ts",
+    "postinstall": "nuxt prepare"
+  },
+  "dependencies": {
+    "@iconify-json/ooui": "catalog:",
+    "@iconify-json/ri": "catalog:",
+    "@iconify-json/simple-icons": "catalog:",
+    "@unocss/nuxt": "catalog:",
+    "@unocss/reset": "catalog:",
+    "@vueuse/core": "catalog:",
+    "@vueuse/nuxt": "catalog:",
+    "@vueuse/router": "catalog:",
+    "nuxt": "catalog:",
+    "unocss": "catalog:",
+    "vue": "catalog:"
+  },
+  "devDependencies": {
+    "@sxzz/eslint-config": "catalog:",
+    "@sxzz/prettier-config": "catalog:",
+    "@types/fontkit": "catalog:",
+    "@types/node": "catalog:",
+    "@unocss/eslint-plugin": "catalog:",
+    "eslint": "catalog:",
+    "fflate": "catalog:",
+    "fontkit": "catalog:",
+    "prettier": "catalog:",
+    "subset-font": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:",
+    "vue-tsc": "catalog:"
+  },
+  "prettier": "@sxzz/prettier-config"
+}

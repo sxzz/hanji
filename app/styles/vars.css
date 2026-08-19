@@ -1,0 +1,81 @@
+/*
+ * Proof-sheet palette.
+ * The four accents encode grouping, not region: regional identity comes from
+ * column position and its label. The primary signal for grouping is the gap
+ * between runs, with color as a redundant second channel, so the grouping
+ * stays readable in grayscale and with color vision deficiency.
+ */
+:root {
+  --c-ink: #16151a; /* ink, softer and slightly cooler than black */
+  --c-ink-soft: #4a4852;
+  --c-ink-mute: #86838d;
+  --c-paper: #fbfaf7; /* paper, a faintly warm off-white */
+  --c-paper-sunk: #f2f0ea;
+  --c-rule: #dfdcd4; /* rules and hairlines */
+
+  --c-g1: #c4342a; /* proof red */
+  --c-g2: #2e5ea6; /* blue pencil */
+  --c-g3: #b07b12; /* ochre */
+  --c-g4: #7a4a9e; /* violet */
+  --c-g5: #177a70; /* verdigris -- only the kyujitai ever reaches a fifth group */
+
+  /* Overprint: multiply on light (ink over ink darkens), screen on dark */
+  --overprint-blend: multiply;
+
+  /* Interface body type, which follows the interface language: a page about
+     glyph differences must not itself set its own copy in the wrong regional
+     forms. 'UI zh-CN Sans' is our subset of that copy; the Google family
+     behind it is the safety net for anything the subset missed. */
+  --font-ui:
+    'Noto Sans', 'UI zh-CN Sans', 'Noto Sans SC', ui-sans-serif, system-ui,
+    sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+html[lang='zh-TW'] {
+  --font-ui:
+    'Noto Sans', 'UI zh-TW Sans', 'Noto Sans TC', 'Noto Sans SC', ui-sans-serif,
+    system-ui, sans-serif;
+}
+
+html[lang='zh-HK'] {
+  --font-ui:
+    'Noto Sans', 'UI zh-HK Sans', 'Noto Sans HK', 'Noto Sans SC', ui-sans-serif,
+    system-ui, sans-serif;
+}
+
+/* The typeface switch reaches the whole interface, not only the table. The
+   language pairs stay more specific so they keep winning. */
+html[data-style='serif'] {
+  --font-ui:
+    'Noto Serif', 'UI zh-CN Serif', 'Noto Serif SC', ui-serif, Georgia, serif;
+}
+
+html[data-style='serif'][lang='zh-TW'] {
+  --font-ui:
+    'Noto Serif', 'UI zh-TW Serif', 'Noto Serif TC', 'Noto Serif SC', ui-serif,
+    Georgia, serif;
+}
+
+html[data-style='serif'][lang='zh-HK'] {
+  --font-ui:
+    'Noto Serif', 'UI zh-HK Serif', 'Noto Serif HK', 'Noto Serif SC', ui-serif,
+    Georgia, serif;
+}
+
+html.dark {
+  --c-ink: #e9e7e2;
+  --c-ink-soft: #a6a39d;
+  --c-ink-mute: #74716c;
+  --c-paper: #121215;
+  --c-paper-sunk: #1b1b1f;
+  --c-rule: #2f2f35;
+
+  --c-g1: #ec6d5f;
+  --c-g2: #6f9de2;
+  --c-g3: #d9a63c;
+  --c-g4: #b48ada;
+  --c-g5: #4fb3a6;
+
+  --overprint-blend: screen;
+}

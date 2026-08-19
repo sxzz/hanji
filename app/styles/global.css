@@ -1,0 +1,182 @@
+html {
+  color-scheme: light;
+  background: var(--c-paper);
+}
+html.dark {
+  color-scheme: dark;
+}
+
+body {
+  font-family: var(--font-ui);
+  /* Spaces between Han and Latin/digits are the renderer's job, so the copy
+     itself carries none. Browsers without support simply set it tight. */
+  text-autospace: normal;
+  color: var(--c-ink);
+  background: var(--c-paper);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: var(--c-g3);
+  color: var(--c-paper);
+}
+
+/* Figures must line up in the table */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/*
+ * The four table columns, pinned to their own region and never following the
+ * interface language. scripts/build-fonts.ts generates the @font-face rules
+ * into /fonts/kanji.css, chunked by unicode-range so the browser fetches only
+ * the chunks holding characters currently on screen.
+ */
+/*
+ * The four Han columns. The fallback is deliberately a generic family and
+ * never --font-ui: listing a webfont here would make every table character a
+ * candidate for it, and the browser would pull dozens of that font's
+ * unicode-range chunks. The lang attribute on each cell drives the system's
+ * own CJK fallback instead.
+ *
+ * The typeface is chosen by `data-style` on the root rather than by a class
+ * binding. The root attribute is set by an inline script before first paint,
+ * so a reader who chose serif sees serif immediately -- whereas a class
+ * binding would be rendered as sans at prerender time and hydration does not
+ * rewrite it.
+ *
+ * scripts/build-fonts.ts generates the @font-face rules into
+ * /fonts/fonts-sans.css and /fonts/fonts-serif.css, chunked by unicode-range
+ * so the browser fetches only the chunks holding characters on screen.
+ */
+.hanji-cn {
+  font-family: 'Hanji Sans CN', sans-serif;
+}
+.hanji-hk {
+  font-family: 'Hanji Sans HK', sans-serif;
+}
+.hanji-tw {
+  font-family: 'Hanji Sans TW', sans-serif;
+}
+.hanji-jp {
+  font-family: 'Hanji Sans JP', sans-serif;
+}
+
+html[data-style='serif'] .hanji-cn {
+  font-family: 'Hanji Serif CN', serif;
+}
+html[data-style='serif'] .hanji-hk {
+  font-family: 'Hanji Serif HK', serif;
+}
+html[data-style='serif'] .hanji-tw {
+  font-family: 'Hanji Serif TW', serif;
+}
+html[data-style='serif'] .hanji-jp {
+  font-family: 'Hanji Serif JP', serif;
+}
+
+/*
+ * Table grid. The four Han columns keep their shape at every width -- the run
+ * underline has to span all four for "count the runs" to work, so narrow
+ * screens scale the characters down rather than reflowing into 2x2.
+ */
+.row-grid {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) 2.25rem;
+}
+
+@media (min-width: 640px) {
+  .row-grid {
+    grid-template-columns: 3.75rem minmax(0, 1fr) 4.5rem 4.5rem;
+  }
+}
+
+/*
+ * Keyboard focus. Written by hand rather than composed from utilities because
+ * outline-width alone does nothing while outline-style is still `none`.
+ */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--c-g2);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/*
+ * Flag emoji have a smaller optical size than Han characters at the same font
+ * size, so a row mixing them with text labels looks uneven without this.
+ */
+.flag-label {
+  display: inline-block;
+  transform: scale(1.35);
+  transform-origin: center;
+}
+
+/*
+ * The hero's stacked-to-split toggle. Each form carries a view-transition-name
+ * shared between the overprint layer and the character it separates into, so
+ * the browser moves the actual glyph rather than fading one picture into
+ * another. These pseudo-elements live on the root, out of reach of scoped
+ * styles.
+ */
+::view-transition-group(*) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}
+
+/* See the comment in StyleToggle.vue: the active option is chosen by the root
+   attribute so it survives prerendering. */
+/* Each half is set in the face it names, whichever one is currently active. */
+.style-option {
+  color: var(--c-ink-mute);
+}
+.style-option[data-option='sans'] {
+  font-family: 'Hanji Face Sans', sans-serif;
+}
+.style-option[data-option='serif'] {
+  font-family: 'Hanji Face Serif', serif;
+}
+button:hover .style-option {
+  color: var(--c-ink-soft);
+}
+html[data-style='sans'] .style-option[data-option='sans'],
+html[data-style='serif'] .style-option[data-option='serif'] {
+  color: var(--c-ink);
+}
+
+/* See the comment in ThemeToggle.vue: which icon shows follows the root class
+   rather than a binding, so it survives prerendering. */
+.theme-icon {
+  display: none;
+}
+.theme-icon-light,
+html.dark .theme-icon-dark {
+  display: block;
+}
+html.dark .theme-icon-light {
+  display: none;
+}
+
+/* Nav links say where you are by weight of color, not by a rule underneath. */
+.nav-link:hover,
+.nav-link.router-link-exact-active {
+  color: var(--c-ink);
+}
