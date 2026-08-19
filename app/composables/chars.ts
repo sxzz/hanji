@@ -19,6 +19,8 @@ import { useStyle } from './style.ts'
 
 const data: CharsData = JSON.parse(charsRaw)
 
+export const stats = data.stats
+
 export const DIMENSIONS = ['glyph', 'cp'] as const
 export type Dimension = (typeof DIMENSIONS)[number]
 
@@ -402,7 +404,7 @@ export function useChars() {
   }
 
   return {
-    stats: data.stats,
+    stats,
     rows,
     pageRows,
     pageCount,
