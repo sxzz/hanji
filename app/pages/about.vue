@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ISSUES_URL } from '~~/shared/links.ts'
-import { useChars } from '~/composables/chars.ts'
+import { stats } from '~/composables/chars.ts'
 
 const { t } = useT()
-const { stats } = useChars()
 
 const numbers = computed(() => ({
   rows: stats.rows.toLocaleString(),
