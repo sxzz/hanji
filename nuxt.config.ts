@@ -43,8 +43,8 @@ export default defineNuxtConfig({
   },
 
   experimental: {
-    // Route changes run through startViewTransition where it exists; browsers
-    // without it navigate normally, with no animation and no error.
+    // Install Nuxt's View Transition integration. app.viewTransition below
+    // leaves it off until the global route middleware opts in per navigation.
     viewTransition: true,
   },
 
@@ -66,6 +66,9 @@ export default defineNuxtConfig({
   ],
 
   app: {
+    // Only home <-> character detail opts in; every other route change is
+    // deliberately immediate.
+    viewTransition: false,
     head: {
       htmlAttrs: { lang: 'zh-CN', 'data-style': 'sans' },
       // Chunked Han subsets. Keeping the @font-face rules in their own
