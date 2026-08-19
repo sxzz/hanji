@@ -29,6 +29,15 @@ export interface ListedAlternative {
   kind: 'primary' | 'glossed'
 }
 
+export interface UncertainRelation {
+  /** The other row whose relationship to this row needs more evidence. */
+  key: string
+  /** The regional form that caused the two rows to be compared. */
+  char: string
+  /** Regions whose conversion data produced that form. */
+  regions: Region[]
+}
+
 export interface CharRow {
   /** Orthodox (traditional) form; row identity and the /char/[key] segment. */
   key: string
@@ -36,9 +45,10 @@ export interface CharRow {
   chars: Quad<string>
   /**
    * Japan's pre-reform form, present only when Japan writes a shinjitai. It is
-   * always the row key, and it joins the comparison as a fifth column: its
-   * `glyph` is a group of the same partition, numbered beyond the four when it
-   * is written like none of them.
+   * the row key when JPShinjitaiCharacters explicitly maps that key to the
+   * Japanese column. It joins the comparison as a fifth column: its `glyph`
+   * is a group of the same partition, numbered beyond the four when it is
+   * written like none of them.
    */
   old?: { char: string; glyph: number; strokes: number }
   /**
@@ -53,6 +63,12 @@ export interface CharRow {
    * while the column displays the more common level-1 `秘`.
    */
   alternatives?: Partial<Record<Region, ListedAlternative[]>>
+  /**
+   * Conservative, bidirectional links to groups that conversion data might
+   * connect, but that the regional lists do not corroborate strongly enough
+   * to merge. These are display-only: they are not names or forms of the row.
+   */
+  uncertain?: UncertainRelation[]
   /** Codepoint partition signature; "0000" when all four share a codepoint. */
   cp: string
   /**
@@ -74,6 +90,8 @@ export interface CharRow {
   /** Listing level per region: cn 0-3, hk 0/1, tw 0 none / 1 common /
    * 2 secondary, jp 0 none / 1 joyo / 2 kyoiku. */
   tier: Quad<number>
+  /** How each selected regional form appears in that region's source lists. */
+  listing: Quad<'primary' | 'glossed' | 'unlisted'>
   /** How many regions list it among their common characters, 1-4. */
   common: number
   /** Readings per language; absent languages simply have no entry. */

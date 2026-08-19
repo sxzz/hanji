@@ -30,7 +30,9 @@ import type {
   CharRow,
   ListedAlternative,
   Quad,
+  Region,
   Stats,
+  UncertainRelation,
 } from '../shared/types.ts'
 
 const dict = async (name: string) =>
@@ -374,16 +376,11 @@ function buildRow(
   const serifCids = codePoints.map((cp, i) => serifCMaps[i]!.get(cp))
 
   /**
-   * Japan's pre-reform form, drawn and judged from Japan's own faces. It joins
-   * the comparison as a fifth participant, so a reader can see at a glance
-   * that the kyujitai is the character Hong Kong and Taiwan still write.
-   *
-   * It is the row key: the key is the orthodox form, and this branch is only
-   * reached when Japan writes something else. Reading it off OpenCC's
-   * shinjitai table instead would take in pairs that are nothing of the kind
-   * -- 群/羣 is Hong Kong's standard form, 稜/棱 a simplification.
+   * Japan's pre-reform form must be an explicit JPShinjitaiCharacters pair.
+   * A different key and Japanese column alone proves nothing: it can also be
+   * a regional substitution or a conservative unlisted fallback.
    */
-  const oldChar = chars[3] === key ? undefined : key
+  const oldChar = standardToJp.get(key)?.includes(chars[3]) ? key : undefined
   const oldPoint = oldChar?.codePointAt(0)
   const oldSans =
     oldPoint === undefined ? undefined : sansCMaps[3]!.get(oldPoint)
@@ -399,6 +396,10 @@ function buildRow(
   const cp = partitionSignature(codePoints)
 
   const tier = tierOf(chars)
+  const listing = chars.map((char, region) => {
+    const entry = listingOf(region, char)
+    return entry ? (entry.primary ? 'primary' : 'glossed') : 'unlisted'
+  }) as CharRow['listing']
   // Readings belong to the character, and each region's own codepoint carries
   // its own: 国 has the Mandarin reading, 国 the Japanese one.
   const readings = {
@@ -428,6 +429,7 @@ function buildRow(
     strokes: strokesOf(chars),
     ...(frequency.has(chars[0]) ? { freq: frequency.get(chars[0]) } : {}),
     tier,
+    listing,
     common: tier.filter(Boolean).length,
     ...(Object.keys(readings).length > 0 ? { readings } : {}),
   }
@@ -493,18 +495,47 @@ function listingOf(region: number, char: string): Listing | undefined {
   }
 }
 
-/**
- * Every character some table enters in its own right, secondary lists
- * included.
- *
- * This separates a form that is written somewhere -- 檯 sits in 次常用國字表,
- * and Japan simply has no character for it -- from one nobody writes at all,
- * which is what the pre-reform shapes OpenCC records are: 郞, 硏, 晄, 襃. Only
- * the second kind is worth replacing with another form of the group.
- */
-const WRITTEN_ANYWHERE = new Set(
-  Object.values(entries).flatMap((list) => [...list]),
-)
+interface PendingUncertain {
+  from: string
+  to: string
+  char: string
+  region: Region
+}
+
+const pendingUncertain: PendingUncertain[] = []
+const rootsByRow = new WeakMap<CharRow, string[]>()
+
+const listedRegions = (char: string) =>
+  REGION_IDS.filter((_, region) => listingOf(region, char) !== undefined).length
+
+/** Row-generating common lists, with bracketed forms included. */
+const addressListedRegions = (char: string) =>
+  [
+    cn1.has(char) || cn2.has(char) || cn3.has(char),
+    hk.has(char),
+    twCommon.has(char),
+    jpJoyo.has(char),
+  ].filter(Boolean).length
+
+/** Prefer a group name; use a proven-safe displayed form only as a fallback. */
+function chooseKey(
+  names: string[],
+  chars: Quad<string>,
+  fallback: string[] = [],
+): string {
+  const eligible = names.filter(
+    (name) => chars.includes(name) || addressListedRegions(name) > 0,
+  )
+  const candidates =
+    eligible.length > 0 ? eligible : fallback.length > 0 ? fallback : names
+  return candidates.toSorted(
+    (a, b) =>
+      chars.filter((char) => char === b).length -
+        chars.filter((char) => char === a).length ||
+      addressListedRegions(b) - addressListedRegions(a) ||
+      a.codePointAt(0)! - b.codePointAt(0)!,
+  )[0]!
+}
 
 /**
  * Fold the rows that name one character into a single one.
@@ -537,8 +568,27 @@ function fold(all: CharRow[]): CharRow[] {
     groups.set(id, [...(groups.get(id) ?? []), row])
   }
 
+  const groupRoots = new Set(groups.keys())
+  const namedRoots = new Map<string, Set<string>>()
+  for (const [root, group] of groups)
+    for (const name of group.flatMap((row) => [row.key, ...(row.aka ?? [])]))
+      namedRoots.set(name, new Set([...(namedRoots.get(name) ?? []), root]))
+  const normalizedRoots = new Map<string, Set<string>>()
+  const rootsOf = (char: string): Set<string> => {
+    const held = normalizedRoots.get(char)
+    if (held) return held
+    const roots = new Set([
+      ...(namedRoots.get(char) ?? []),
+      ...normalize(char)
+        .map(rootName)
+        .filter((root) => groupRoots.has(root)),
+    ])
+    normalizedRoots.set(char, roots)
+    return roots
+  }
+
   const out: CharRow[] = []
-  for (const group of groups.values()) {
+  for (const [groupRoot, group] of groups) {
     const names = [...new Set(group.flatMap((r) => [r.key, ...(r.aka ?? [])]))]
     /** All OpenCC candidates survive until the regional form is selected. */
     const regionalCandidates = CMAP_REGION.map((_, region) => [
@@ -552,12 +602,51 @@ function fold(all: CharRow[]): CharRow[] {
       ),
     ]) as Quad<string[]>
 
-    /**
-     * Every form the group knows about: what OpenCC produced for any column,
-     * and the orthodox names themselves.
-     */
-    const pool = [...new Set([...group.flatMap((row) => row.chars), ...names])]
-    const candidatePool = [...new Set([...regionalCandidates.flat(), ...names])]
+    const ownersOf = (char: string): Set<string> => {
+      // A name is authoritative for its own group even when that spelling is
+      // also a simplification standing for other characters (台, 后, 里).
+      if (names.includes(char)) return new Set([groupRoot])
+      const owners = rootsOf(char)
+      // A form known only through this group's explicit regional mapping has
+      // no competing final group, so it belongs here unless evidence appears.
+      return owners.size > 0 ? owners : new Set([groupRoot])
+    }
+    const belongsOnlyHere = (char: string) => {
+      const owners = ownersOf(char)
+      return owners.size === 1 && owners.has(groupRoot)
+    }
+
+    /** Forms safe to carry across regions because no other final group owns them. */
+    const safeForms = [
+      ...new Set([...names, ...regionalCandidates.flat()]),
+    ].filter(belongsOnlyHere)
+    const support = REGION_IDS.filter((_, region) =>
+      safeForms.some((char) => listingOf(region, char) !== undefined),
+    ).length
+
+    const reference = names.toSorted(
+      (a, b) =>
+        listedRegions(b) - listedRegions(a) ||
+        a.codePointAt(0)! - b.codePointAt(0)!,
+    )[0]!
+
+    const allowed = regionalCandidates.map((candidates, region) =>
+      candidates.filter((char) => {
+        // The conservative split applies to a group attested in exactly one
+        // region. A zero-attestation normalization target still needs its
+        // source region's explicit form in order to represent that source.
+        if (belongsOnlyHere(char) || support !== 1) return true
+        for (const other of ownersOf(char))
+          if (other !== groupRoot)
+            pendingUncertain.push({
+              from: groupRoot,
+              to: other,
+              char,
+              region: REGION_IDS[region]!,
+            })
+        return false
+      }),
+    ) as Quad<string[]>
 
     /**
      * What each region writes. OpenCC's answer wins when that region's own
@@ -573,25 +662,28 @@ function fold(all: CharRow[]): CharRow[] {
      * level of zero to match.
      */
     const chars = CMAP_REGION.map((_, region) => {
-      const produced = group.map((row) => row.chars[region]!)
+      const produced = allowed[region]!
       return (
-        // OpenCC's answer, when this region's own table enters it
+        // This region's explicit mapping, when its own table enters it
         produced.find((char) => listsChar(region, char)) ??
-        // failing that, an orthodox name of the group that it enters
+        // A group name or uniquely-owned form may safely cross regions
         names.find((name) => listsChar(region, name)) ??
-        // otherwise keep OpenCC's answer, as long as it is a form somewhere
-        // writes -- a region filing it under a secondary list is not a reason
-        // to swap in a different character
-        (WRITTEN_ANYWHERE.has(produced[0]!)
-          ? produced[0]!
-          : (pool.find((char) => listsChar(region, char)) ?? produced[0]!))
+        safeForms.find((char) => listsChar(region, char)) ??
+        // Otherwise retain a drawable form from this region's own mapping
+        produced.find((char) => sansCMaps[region]!.has(char.codePointAt(0)!)) ??
+        // With no listing evidence, preserve the group's inherited name
+        reference
       )
     }) as Quad<string>
 
     const alternatives: NonNullable<CharRow['alternatives']> = {}
     for (const [region, id] of REGION_IDS.entries()) {
       const selected = chars[region]!
-      const listed = candidatePool
+      const candidates = [
+        ...new Set([...regionalCandidates[region]!, ...safeForms]),
+      ]
+      const listed = candidates
+        .filter(belongsOnlyHere)
         .filter((char) => char !== selected)
         .map((char) => listingOf(region, char))
         .filter((entry): entry is Listing => entry !== undefined)
@@ -603,36 +695,27 @@ function fold(all: CharRow[]): CharRow[] {
       if (listed.length > 0) alternatives[id] = listed
     }
 
-    // The key is the form most of the four columns actually use, then the one
-    // the most tables list, then the lower codepoint so the choice is stable.
-    const fills = (name: string) => chars.filter((c) => c === name).length
-    const listed = (name: string) =>
-      REGION_LISTS.filter((lists) => lists.some((l) => l.has(name))).length
-    /**
-     * The orthodox name keeps the address as long as some region writes it,
-     * which is what makes 國 rather than 国 the name of that row. Only when
-     * no name survives into a column -- the pre-reform shapes above, which no
-     * region writes at all -- does the address fall to the written form.
-     */
-    const rank = (forms: string[]) =>
-      forms.toSorted(
-        (a, b) =>
-          fills(b) - fills(a) ||
-          listed(b) - listed(a) ||
-          a.codePointAt(0)! - b.codePointAt(0)!,
-      )
-    const written = names.filter((name) => chars.includes(name))
-    const key = rank(written.length > 0 ? written : pool)[0]!
+    const key = chooseKey(
+      names,
+      chars,
+      [...new Set(chars)].filter(belongsOnlyHere),
+    )
     const aka = names.filter((name) => name !== key)
 
     const folded = buildRow(key!, chars, aka, regionalCandidates, alternatives)
-    if (folded) out.push(folded)
-    else if (group.length === 1) out.push(group[0]!)
+    if (!folded)
+      throw new Error(
+        `cannot render folded row ${key}: ${REGION_IDS.map((id, region) => `${id}:${chars[region]}`).join(' ')}; names=${names.join(' ')} candidates=${JSON.stringify(regionalCandidates)}`,
+      )
+    rootsByRow.set(folded, [groupRoot])
+    out.push(folded)
   }
   return out
 }
 
-rows = fold(rows)
+// A normalization target that no region lists and that accounts for no source
+// entry is not a row of its own (戱 is already represented by 戯 under 戲).
+rows = fold(rows).filter((row) => row.common > 0)
 
 /**
  * Every primary source entry must be represented as either the displayed form
@@ -662,11 +745,13 @@ for (const [region, source] of rowEntries.entries())
     if (accountsFor(region, char)) continue
     const chars = REGION_IDS.map(() => char) as Quad<string>
     const fallback = buildRow(char, chars)
-    if (fallback) rows.push(fallback)
-    else unrenderable.push(`${REGION_IDS[region]}:${char}`)
+    if (fallback) {
+      rootsByRow.set(fallback, [rootName(char)])
+      rows.push(fallback)
+    } else unrenderable.push(`${REGION_IDS[region]}:${char}`)
   }
 if (unrenderable.length > 0)
-  console.error(`unrenderable source entries: ${unrenderable.join(' ')}`)
+  throw new Error(`unrenderable source entries: ${unrenderable.join(' ')}`)
 
 /**
  * Substituting a form can leave two rows with the same four columns -- one of
@@ -700,17 +785,96 @@ if (unrenderable.length > 0)
           }
       if (listed.size > 0) alternatives[id] = [...listed.values()]
     }
-    return {
-      ...first!,
-      aka: [
-        ...new Set([
-          ...(first!.aka ?? []),
-          ...rest.flatMap((r) => [r.key, ...(r.aka ?? [])]),
-        ]),
-      ],
-      ...(Object.keys(alternatives).length > 0 ? { alternatives } : {}),
-    }
+    const names = [
+      ...new Set(group.flatMap((row) => [row.key, ...(row.aka ?? [])])),
+    ]
+    const key = chooseKey(names, first!.chars)
+    const merged = buildRow(
+      key,
+      first!.chars,
+      names.filter((name) => name !== key),
+      undefined,
+      alternatives,
+    )
+    if (!merged) throw new Error(`cannot render merged row ${key}`)
+    rootsByRow.set(merged, [
+      ...new Set(group.flatMap((row) => rootsByRow.get(row) ?? [])),
+    ])
+    return merged
   })
+}
+
+/** Resolve conservative relationships only after every root has its final key. */
+{
+  const rowByRoot = new Map<string, CharRow>()
+  for (const row of rows)
+    for (const root of rootsByRow.get(row) ?? []) rowByRoot.set(root, row)
+
+  const held = new Map<CharRow, Map<string, UncertainRelation>>()
+  const add = (row: CharRow, other: CharRow, char: string, region: Region) => {
+    if (row === other) return
+    const relations = held.get(row) ?? new Map<string, UncertainRelation>()
+    const id = `${other.key}\0${char}`
+    const relation = relations.get(id) ?? {
+      key: other.key,
+      char,
+      regions: [],
+    }
+    if (!relation.regions.includes(region)) relation.regions.push(region)
+    relations.set(id, relation)
+    held.set(row, relations)
+  }
+
+  for (const relation of pendingUncertain) {
+    const from = rowByRoot.get(relation.from)
+    const to = rowByRoot.get(relation.to)
+    if (!from || !to) continue
+    add(from, to, relation.char, relation.region)
+    add(to, from, relation.char, relation.region)
+  }
+
+  for (const [row, relations] of held) {
+    row.uncertain = [...relations.values()]
+      .map((relation) => ({
+        ...relation,
+        regions: REGION_IDS.filter((region) =>
+          relation.regions.includes(region),
+        ),
+      }))
+      .toSorted(
+        (a, b) =>
+          a.key.codePointAt(0)! - b.key.codePointAt(0)! ||
+          a.char.codePointAt(0)! - b.char.codePointAt(0)!,
+      )
+  }
+}
+
+/** Duplicate identities make aliases and row lookup silently overwrite data. */
+{
+  const keysSeen = new Set<string>()
+  const quadsSeen = new Set<string>()
+  for (const row of rows) {
+    if (keysSeen.has(row.key)) throw new Error(`duplicate row key: ${row.key}`)
+    keysSeen.add(row.key)
+    const quad = row.chars.join('\0')
+    if (quadsSeen.has(quad))
+      throw new Error(`duplicate regional columns: ${row.chars.join(' / ')}`)
+    quadsSeen.add(quad)
+  }
+  const namedBy = new Map<string, string>()
+  for (const row of rows)
+    for (const name of [row.key, ...(row.aka ?? [])])
+      if (!namedBy.has(name)) namedBy.set(name, row.key)
+  for (const row of rows)
+    for (const region of REGION_IDS)
+      for (const alternative of row.alternatives?.[region] ?? [])
+        if (
+          namedBy.has(alternative.char) &&
+          namedBy.get(alternative.char) !== row.key
+        )
+          throw new Error(
+            `${row.key}.${region} alternative belongs to row ${namedBy.get(alternative.char)}`,
+          )
 }
 
 for (const row of rows) {

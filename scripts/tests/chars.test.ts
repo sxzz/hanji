@@ -9,7 +9,13 @@ import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { dictGroups, dictLinks, formsOf } from '../../shared/links.ts'
 import { REGIONS, type CharRow, type CharsData } from '../../shared/types.ts'
-import { DATA_DIR, parsePrimaryCharList, RAW_DIR } from '../sources.ts'
+import {
+  DATA_DIR,
+  parseCharList,
+  parseDict,
+  parsePrimaryCharList,
+  RAW_DIR,
+} from '../sources.ts'
 
 const data: CharsData = JSON.parse(
   readFileSync(join(DATA_DIR, 'chars.json'), 'utf8'),
@@ -20,6 +26,32 @@ const row = (key: string): CharRow => {
   if (!found) throw new Error(`${key} is not listed`)
   return found
 }
+
+const LIST_NAMES = [
+  'cn-1',
+  'cn-2',
+  'cn-3',
+  'hk-common',
+  'tw-common',
+  'tw-sub',
+  'jp-joyo',
+  'jp-grade',
+] as const
+type ListName = (typeof LIST_NAMES)[number]
+const listText = (name: ListName) =>
+  readFileSync(join(RAW_DIR, 'charlist', `${name}.txt`), 'utf8')
+const covered = Object.fromEntries(
+  LIST_NAMES.map((name) => [name, new Set(parseCharList(listText(name)))]),
+) as Record<ListName, Set<string>>
+const entered = Object.fromEntries(
+  LIST_NAMES.map((name) => [
+    name,
+    new Set(parsePrimaryCharList(listText(name))),
+  ]),
+) as Record<ListName, Set<string>>
+const jpShinjitai = parseDict(
+  readFileSync(join(RAW_DIR, 'opencc', 'JPShinjitaiCharacters.txt'), 'utf8'),
+)
 
 describe('glyph partitions, columns in CN HK TW JP order', () => {
   it.each([
@@ -203,9 +235,22 @@ describe('the pre-reform form as a fifth column', () => {
     expect(row('國').strokes[3]).toBe(8)
     expect(row('國').old?.strokes).toBe(11)
   })
+
+  it('requires an explicit Japanese shinjitai relationship', () => {
+    expect(row('柺').old).toBeUndefined()
+    for (const entry of data.rows)
+      if (entry.old)
+        expect(jpShinjitai.get(entry.chars[3])).toContain(entry.old.char)
+  })
 })
 
 describe('what counts as one character group', () => {
+  it('keeps 拐 and 柺 as independently addressable groups', () => {
+    expect(row('拐').chars).toEqual(['拐', '拐', '拐', '拐'])
+    expect(row('柺').chars).toEqual(['拐', '枴', '枴', '柺'])
+    expect(row('柺').old).toBeUndefined()
+  })
+
   it('keeps a row for a character its own region lists separately', () => {
     // Taiwan writes 着 as 著, but 著 is an entry of its own in the mainland,
     // Hong Kong and Japanese lists -- 著名 is not 看着
@@ -310,6 +355,40 @@ describe('what counts as one character group', () => {
     expect(formsOf(row('逕')).map((form) => form.char)).toContain('迳')
   })
 
+  it('does not carry a candidate into regions or groups that do not own it', () => {
+    const hasAlternative = (
+      key: string,
+      region: (typeof REGIONS)[number],
+      char: string,
+    ) =>
+      row(key).alternatives?.[region]?.some((entry) => entry.char === char) ??
+      false
+
+    expect(hasAlternative('像', 'cn', '象')).toBe(false)
+    for (const region of ['hk', 'tw', 'jp'] as const)
+      expect(hasAlternative('剋', region, '克')).toBe(false)
+    for (const region of ['cn', 'hk', 'jp'] as const)
+      expect(hasAlternative('着', region, '著')).toBe(false)
+    expect(hasAlternative('逕', 'jp', '径')).toBe(false)
+  })
+
+  it('splits one-region ambiguity and links both groups without naming it', () => {
+    expect(row('鎗').chars).toEqual(['鎗', '鎗', '鎗', '鎗'])
+    expect(row('鎗').uncertain).toContainEqual({
+      key: '槍',
+      char: '枪',
+      regions: ['cn'],
+    })
+    expect(row('槍').uncertain).toContainEqual({
+      key: '鎗',
+      char: '枪',
+      regions: ['cn'],
+    })
+    expect(formsOf(row('鎗')).map((form) => form.char)).not.toContain('枪')
+    expect(row('鎗').aka).toBeUndefined()
+    expect(row('鎗').alternatives).toBeUndefined()
+  })
+
   it('never shows a region a form its own table does not enter', () => {
     // JPShinjitaiCharacters records pre-reform shapes -- 郎 -> 郞, 研 -> 硏,
     // 晃 -> 晄 -- as plain orthodox forms, and they used to become the key and
@@ -347,6 +426,79 @@ describe('what counts as one character group', () => {
     const quads = new Set(data.rows.map((r) => r.chars.join('')))
     expect(quads.size).toBe(data.rows.length)
   })
+
+  it('leaves no two rows with the same key', () => {
+    expect(new Set(data.rows.map((entry) => entry.key)).size).toBe(
+      data.rows.length,
+    )
+  })
+})
+
+describe('regional listing state', () => {
+  const state = (tier: number, primary: boolean) => ({
+    tier,
+    listing: tier ? (primary ? 'primary' : 'glossed') : 'unlisted',
+  })
+  const expected = (region: number, char: string) => {
+    switch (region) {
+      case 0:
+        return state(
+          covered['cn-1'].has(char)
+            ? 1
+            : covered['cn-2'].has(char)
+              ? 2
+              : covered['cn-3'].has(char)
+                ? 3
+                : 0,
+          entered['cn-1'].has(char) ||
+            entered['cn-2'].has(char) ||
+            entered['cn-3'].has(char),
+        )
+      case 1:
+        return state(
+          covered['hk-common'].has(char) ? 1 : 0,
+          entered['hk-common'].has(char),
+        )
+      case 2:
+        return state(
+          covered['tw-common'].has(char)
+            ? 1
+            : covered['tw-sub'].has(char)
+              ? 2
+              : 0,
+          entered['tw-common'].has(char) || entered['tw-sub'].has(char),
+        )
+      default:
+        return state(
+          covered['jp-grade'].has(char)
+            ? 2
+            : covered['jp-joyo'].has(char)
+              ? 1
+              : 0,
+          entered['jp-joyo'].has(char) || entered['jp-grade'].has(char),
+        )
+    }
+  }
+
+  it('matches primary, bracketed and absent source data for every cell', () => {
+    for (const entry of data.rows)
+      for (const [region, char] of entry.chars.entries()) {
+        const wanted = expected(region, char)
+        expect(entry.tier[region], `${entry.key}.${REGIONS[region]} tier`).toBe(
+          wanted.tier,
+        )
+        expect(
+          entry.listing[region],
+          `${entry.key}.${REGIONS[region]} listing`,
+        ).toBe(wanted.listing)
+      }
+  })
+
+  it('exposes all three states', () => {
+    expect(row('國').listing[0]).toBe('primary')
+    expect(row('麵').listing[1]).toBe('glossed')
+    expect(row('鎗').listing[0]).toBe('unlisted')
+  })
 })
 
 describe('source-entry accounting', () => {
@@ -383,11 +535,7 @@ describe('source-entry accounting', () => {
 
   it('fills gaps in TSCharacters from the reverse ST mapping', () => {
     expect(row('暱').chars[0]).toBe('昵')
-    expect(row('穭').alternatives?.cn).toContainEqual({
-      char: '稆',
-      tier: 3,
-      kind: 'primary',
-    })
+    expect(row('穭').chars[0]).toBe('稆')
   })
 
   it('keeps drawable entries when their mapped form cannot be rendered', () => {
@@ -409,5 +557,35 @@ describe('source-entry accounting', () => {
           alternatives.length,
         )
       }
+  })
+
+  it('never assigns an alternative to another final group', () => {
+    const namedBy = new Map(
+      data.rows.flatMap((entry) =>
+        [entry.key, ...(entry.aka ?? [])].map(
+          (name) => [name, entry.key] as const,
+        ),
+      ),
+    )
+    for (const entry of data.rows)
+      for (const region of REGIONS)
+        for (const alternative of entry.alternatives?.[region] ?? [])
+          expect(
+            !namedBy.has(alternative.char) ||
+              namedBy.get(alternative.char) === entry.key,
+            `${entry.key}.${region}:${alternative.char}`,
+          ).toBe(true)
+  })
+
+  it('keeps Taiwan secondary-only characters outside row generation', () => {
+    const represented = new Set(
+      data.rows.flatMap((entry) => formsOf(entry).map((form) => form.char)),
+    )
+    const outside = [...entered['tw-sub']].filter(
+      (char) => !represented.has(char),
+    )
+    expect(entered['tw-sub'].size).toBe(6343)
+    expect(outside).toHaveLength(3599)
+    expect(outside).toContain('丌')
   })
 })

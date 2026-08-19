@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import type { CharsData } from './shared/types.ts'
+import { REGIONS, type CharsData } from './shared/types.ts'
 
 /**
  * Character pages worth prerendering: those a reader is most likely to land on
@@ -22,7 +22,14 @@ const KEYS = new Set(chars.rows.map((row) => row.key))
  */
 const ALIASES = new Map<string, string>()
 for (const row of chars.rows)
-  for (const char of [...row.chars, row.old?.char ?? '', ...(row.aka ?? [])])
+  for (const char of [
+    ...row.chars,
+    row.old?.char ?? '',
+    ...(row.aka ?? []),
+    ...REGIONS.flatMap((region) =>
+      (row.alternatives?.[region] ?? []).map((entry) => entry.char),
+    ),
+  ])
     if (char && !KEYS.has(char) && !ALIASES.has(char))
       ALIASES.set(char, row.key)
 
