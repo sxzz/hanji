@@ -54,17 +54,38 @@ pnpm generate     # 静态站点
 
 字表 `public/data/chars.json` 提交在仓库里，也是站点的开放数据地址 `/data/chars.json`。字体子集约 12MB，**不提交**，由 `pnpm build:data` 生成——所以构建前必须先跑一次。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`），已 gitignore。
 
+## 部署
+
+静态站点，`.output/public` 直接丢给任意静态托管即可。Cloudflare Pages 的设置：
+
+|           |                                    |
+| --------- | ---------------------------------- |
+| 构建命令  | `pnpm build:data && pnpm generate` |
+| 输出目录  | `.output/public`                   |
+| Node 版本 | LTS（`.node-version`）             |
+
+`public/_redirects` 把没有预渲染的单字页交回给应用（静态文件优先，预渲染的 4 千多页仍按文件直出），`public/_headers` 给带内容哈希的 `_nuxt/*` 设了长缓存。
+
+构建时 `pnpm build:data` 会下载约 **168 MB** 原始数据（其中 156 MB 是八份 Noto CJK 字体），CI 上每次构建都要重下。若嫌慢，可改为本地构建后直传：
+
+```bash
+pnpm build:data && pnpm generate
+pnpm dlx wrangler pages deploy .output/public
+```
+
 ## 数据来源
 
 <!-- sources:start -->
-| 用途 | 来源 | 许可 |
-| --- | --- | --- |
-| 判定四地字形差异 | [Adobe Source Han Sans / Serif（CMap 资源）](https://github.com/adobe-fonts/source-han-sans) | [SIL OFL 1.1](https://openfontlicense.org/) |
-| 页面展示用字体 | [Noto Sans CJK / Noto Serif CJK](https://github.com/notofonts/noto-cjk) | [SIL OFL 1.1](https://openfontlicense.org/) |
-| 简繁、港台异体、日本新旧字体对应 | [OpenCC 开放中文转换](https://github.com/BYVoid/OpenCC) | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) |
-| 四地标准字表 | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars) | [仓库未声明](https://github.com/zispace/hanzi-chars) |
-| 笔画数、读音 | [Unicode Han Database (Unihan)](https://www.unicode.org/reports/tr38/) | [Unicode License v3](https://www.unicode.org/license.txt) |
-| 大陆字频排名 | [hanziDB.csv（Jun Da《现代汉语单字频率列表》）](https://github.com/ruddfawcett/hanziDB.csv) | [MIT](https://opensource.org/licenses/MIT) |
+
+| 用途                             | 来源                                                                                         | 许可                                                      |
+| -------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| 判定四地字形差异                 | [Adobe Source Han Sans / Serif（CMap 资源）](https://github.com/adobe-fonts/source-han-sans) | [SIL OFL 1.1](https://openfontlicense.org/)               |
+| 页面展示用字体                   | [Noto Sans CJK / Noto Serif CJK](https://github.com/notofonts/noto-cjk)                      | [SIL OFL 1.1](https://openfontlicense.org/)               |
+| 简繁、港台异体、日本新旧字体对应 | [OpenCC 开放中文转换](https://github.com/BYVoid/OpenCC)                                      | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) |
+| 四地标准字表                     | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars)                                | [仓库未声明](https://github.com/zispace/hanzi-chars)      |
+| 笔画数、读音                     | [Unicode Han Database (Unihan)](https://www.unicode.org/reports/tr38/)                       | [Unicode License v3](https://www.unicode.org/license.txt) |
+| 大陆字频排名                     | [hanziDB.csv（Jun Da《现代汉语单字频率列表》）](https://github.com/ruddfawcett/hanziDB.csv)  | [MIT](https://opensource.org/licenses/MIT)                |
+
 <!-- sources:end -->
 
 原始规范出处：《通用规范汉字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）与《学年別漢字配当表》（2017）。
