@@ -25,4 +25,5 @@ catalog:
   vue-tsc: ^3.3.10
 allowBuilds:
   esbuild: true
+enableGlobalVirtualStore: true
 minimumReleaseAge: 0
