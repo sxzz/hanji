@@ -97,7 +97,28 @@ const frequency = parseFrequency(await rawText('frequency/hanziDB.csv'))
 // shinjitai -> orthodox, so it needs no reversing.
 const twToStandard = reverseDict(twVariants)
 const hkToStandard = reverseDict(hkVariants)
-const standardToJp = reverseDict(jpShinjitai)
+/**
+ * Orthodox form -> the shinjitai Japan writes.
+ *
+ * Several shinjitai can share one orthodox form, and taking whichever came
+ * first hands Japan a character its tables never mention: 鹽 came back as 䀋
+ * rather than 塩, 莊 as 庄 rather than 荘. Japan's own tables break the tie.
+ */
+const standardToJp = ((): Map<string, string> => {
+  const japanese = new Set([...covers['jp-joyo'], ...covers['jp-grade']])
+  const out = new Map<string, string>()
+  for (const [shinjitai, orthodox] of jpShinjitai)
+    for (const form of orthodox) {
+      if (form === shinjitai) continue
+      const held = out.get(form)
+      if (
+        held === undefined ||
+        (!japanese.has(held) && japanese.has(shinjitai))
+      )
+        out.set(form, shinjitai)
+    }
+  return out
+})()
 
 /**
  * The lists that generate rows, grouped by the region publishing them.
@@ -324,6 +345,11 @@ function buildRow(
    * Japan's pre-reform form, drawn and judged from Japan's own faces. It joins
    * the comparison as a fifth participant, so a reader can see at a glance
    * that the kyujitai is the character Hong Kong and Taiwan still write.
+   *
+   * It is the row key: the key is the orthodox form, and this branch is only
+   * reached when Japan writes something else. Reading it off OpenCC's
+   * shinjitai table instead would take in pairs that are nothing of the kind
+   * -- 群/羣 is Hong Kong's standard form, 稜/棱 a simplification.
    */
   const oldChar = chars[3] === key ? undefined : key
   const oldPoint = oldChar?.codePointAt(0)
@@ -383,6 +409,19 @@ const listsChar = (region: number, char: string) =>
   REGION_LISTS[region]!.some((list) => list.has(char))
 
 /**
+ * Every character some table enters in its own right, secondary lists
+ * included.
+ *
+ * This separates a form that is written somewhere -- 檯 sits in 次常用國字表,
+ * and Japan simply has no character for it -- from one nobody writes at all,
+ * which is what the pre-reform shapes OpenCC records are: 郞, 硏, 晄, 襃. Only
+ * the second kind is worth replacing with another form of the group.
+ */
+const WRITTEN_ANYWHERE = new Set(
+  Object.values(entries).flatMap((list) => [...list]),
+)
+
+/**
  * Fold the rows that name one character into a single one.
  *
  * Two things can put a character in the table twice. The tables can disagree
@@ -418,17 +457,37 @@ function fold(all: CharRow[]): CharRow[] {
     const names = [...new Set(group.flatMap((r) => [r.key, ...(r.aka ?? [])]))]
 
     /**
+     * Every form the group knows about: what OpenCC produced for any column,
+     * and the orthodox names themselves.
+     */
+    const pool = [...new Set([...group.flatMap((row) => row.chars), ...names])]
+
+    /**
      * What each region writes. OpenCC's answer wins when that region's own
-     * table lists it; otherwise the table's own form does, because the
-     * standard tables are what this site is built on. 臺灣《常用國字標準字體表》
-     * lists 脣 and 祕 where OpenCC converts to 唇 and 秘.
+     * table lists it; otherwise whichever form of the group the table does
+     * list, because the standard tables are what this site is built on.
+     *
+     * Looking across the whole group rather than at one column matters:
+     * `JPShinjitaiCharacters` records Japanese pre-reform shapes -- 郎 -> 郞,
+     * 研 -> 硏, 晃 -> 晄 -- as plain orthodox forms, and unlike 群 -> 群 羣 it
+     * does not name the character itself, so the pre-reform shape became the
+     * key and OpenCC had nothing to convert it back to for the other three
+     * columns. They ended up showing a form no region writes, with a listing
+     * level of zero to match.
      */
     const chars = CMAP_REGION.map((_, region) => {
       const produced = group.map((row) => row.chars[region]!)
       return (
+        // OpenCC's answer, when this region's own table enters it
         produced.find((char) => listsChar(region, char)) ??
+        // failing that, an orthodox name of the group that it enters
         names.find((name) => listsChar(region, name)) ??
-        produced[0]!
+        // otherwise keep OpenCC's answer, as long as it is a form somewhere
+        // writes -- a region filing it under a secondary list is not a reason
+        // to swap in a different character
+        (WRITTEN_ANYWHERE.has(produced[0]!)
+          ? produced[0]!
+          : (pool.find((char) => listsChar(region, char)) ?? produced[0]!))
       )
     }) as Quad<string>
 
@@ -437,12 +496,22 @@ function fold(all: CharRow[]): CharRow[] {
     const fills = (name: string) => chars.filter((c) => c === name).length
     const listed = (name: string) =>
       REGION_LISTS.filter((lists) => lists.some((l) => l.has(name))).length
-    const [key, ...aka] = names.toSorted(
-      (a, b) =>
-        fills(b) - fills(a) ||
-        listed(b) - listed(a) ||
-        a.codePointAt(0)! - b.codePointAt(0)!,
-    )
+    /**
+     * The orthodox name keeps the address as long as some region writes it,
+     * which is what makes 國 rather than 国 the name of that row. Only when
+     * no name survives into a column -- the pre-reform shapes above, which no
+     * region writes at all -- does the address fall to the written form.
+     */
+    const rank = (forms: string[]) =>
+      forms.toSorted(
+        (a, b) =>
+          fills(b) - fills(a) ||
+          listed(b) - listed(a) ||
+          a.codePointAt(0)! - b.codePointAt(0)!,
+      )
+    const written = names.filter((name) => chars.includes(name))
+    const key = rank(written.length > 0 ? written : pool)[0]!
+    const aka = names.filter((name) => name !== key)
 
     const folded = buildRow(key!, chars, aka)
     if (folded) out.push(folded)
@@ -452,6 +521,31 @@ function fold(all: CharRow[]): CharRow[] {
 }
 
 rows = fold(rows)
+
+/**
+ * Substituting a form can leave two rows with the same four columns -- one of
+ * them named by a pre-reform shape nobody writes. One group, one row.
+ */
+{
+  const byQuad = new Map<string, CharRow[]>()
+  for (const row of rows) {
+    const id = row.chars.join('')
+    byQuad.set(id, [...(byQuad.get(id) ?? []), row])
+  }
+  rows = [...byQuad.values()].map(([first, ...rest]) =>
+    rest.length === 0
+      ? first!
+      : {
+          ...first!,
+          aka: [
+            ...new Set([
+              ...(first!.aka ?? []),
+              ...rest.flatMap((r) => [r.key, ...(r.aka ?? [])]),
+            ]),
+          ],
+        },
+  )
+}
 
 for (const row of rows) {
   byGlyph[row.glyph] = (byGlyph[row.glyph] ?? 0) + 1

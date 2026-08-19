@@ -12,7 +12,7 @@
 
 ## 收录范围
 
-收录《通用规范汉字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）四份字表的并集，把简繁、日本新旧字体这类跨码点的对应合并成一行，共 **8,446 行**——其中 1,706 行四地写法完全一致，596 行四地各不相同。什么算一个字组、哪些字曾被误并，见 [docs/known-issues.md](docs/known-issues.md)。
+收录《通用规范汉字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）四份字表的并集，把简繁、日本新旧字体这类跨码点的对应合并成一行，共 **8,444 行**——其中 1,709 行四地写法完全一致，594 行四地各不相同。什么算一个字组、哪些字曾被误并，见 [docs/known-issues.md](docs/known-issues.md)。
 
 ## 字形差异是怎么判定的
 
@@ -76,14 +76,16 @@ pnpm dlx wrangler pages deploy .output/public
 ## 数据来源
 
 <!-- sources:start -->
-| 用途 | 来源 | 许可 |
-| --- | --- | --- |
-| 判定四地字形差异 | [Adobe Source Han Sans / Serif（CMap 资源）](https://github.com/adobe-fonts/source-han-sans) | [SIL OFL 1.1](https://openfontlicense.org/) |
-| 页面展示用字体 | [Noto Sans / Noto Serif（含 CJK）](https://github.com/notofonts/noto-cjk) | [SIL OFL 1.1](https://openfontlicense.org/) |
-| 简繁、港台异体、日本新旧字体对应 | [OpenCC 开放中文转换](https://github.com/BYVoid/OpenCC) | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) |
-| 四地标准字表 | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars) | [仓库未声明](https://github.com/zispace/hanzi-chars) |
-| 笔画数、读音 | [Unicode Han Database (Unihan)](https://www.unicode.org/reports/tr38/) | [Unicode License v3](https://www.unicode.org/license.txt) |
-| 大陆字频排名 | [hanziDB.csv（Jun Da《现代汉语单字频率列表》）](https://github.com/ruddfawcett/hanziDB.csv) | [MIT](https://opensource.org/licenses/MIT) |
+
+| 用途                             | 来源                                                                                         | 许可                                                      |
+| -------------------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
+| 判定四地字形差异                 | [Adobe Source Han Sans / Serif（CMap 资源）](https://github.com/adobe-fonts/source-han-sans) | [SIL OFL 1.1](https://openfontlicense.org/)               |
+| 页面展示用字体                   | [Noto Sans / Noto Serif（含 CJK）](https://github.com/notofonts/noto-cjk)                    | [SIL OFL 1.1](https://openfontlicense.org/)               |
+| 简繁、港台异体、日本新旧字体对应 | [OpenCC 开放中文转换](https://github.com/BYVoid/OpenCC)                                      | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) |
+| 四地标准字表                     | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars)                                | [仓库未声明](https://github.com/zispace/hanzi-chars)      |
+| 笔画数、读音                     | [Unicode Han Database (Unihan)](https://www.unicode.org/reports/tr38/)                       | [Unicode License v3](https://www.unicode.org/license.txt) |
+| 大陆字频排名                     | [hanziDB.csv（Jun Da《现代汉语单字频率列表》）](https://github.com/ruddfawcett/hanziDB.csv)  | [MIT](https://opensource.org/licenses/MIT)                |
+
 <!-- sources:end -->
 
 原始规范出处：《通用规范汉字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）与《学年別漢字配当表》（2017）。

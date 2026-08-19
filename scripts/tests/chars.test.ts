@@ -276,6 +276,39 @@ describe('what counts as one character group', () => {
     expect(row('復').aka).toBeUndefined()
   })
 
+  it('never shows a region a form its own table does not enter', () => {
+    // JPShinjitaiCharacters records pre-reform shapes -- 郎 -> 郞, 研 -> 硏,
+    // 晃 -> 晄 -- as plain orthodox forms, and they used to become the key and
+    // then fill three columns no place writes, with a listing level of zero
+    for (const key of ['郎', '研', '晃', '萌', '慎', '概', '瓶', '翻'])
+      expect(row(key).chars).toEqual([key, key, key, key])
+    expect(row('郎').tier).toEqual([1, 1, 1, 1])
+    expect(rows.has('郞')).toBe(false)
+    expect(row('郎').aka).toEqual(['郞'])
+  })
+
+  it('keeps a form a region files under a secondary list', () => {
+    // 檯 is 次常用國字, so Taiwan writes it even though the primary table has
+    // only 台 -- swapping in 台 would be a different character
+    expect(row('檯').chars).toEqual(['台', '枱', '檯', '檯'])
+    expect(row('台').chars).toEqual(['台', '台', '台', '台'])
+  })
+
+  it('hands Japan a shinjitai its own tables carry', () => {
+    // Several shinjitai share one orthodox form; taking whichever came first
+    // gave 鹽 the unlisted 䀋 and 莊 the unlisted 庄
+    expect(row('鹽').chars[3]).toBe('塩')
+    expect(row('莊').chars[3]).toBe('荘')
+  })
+
+  it('lists every row under at least one region', () => {
+    for (const r of data.rows) {
+      expect(r.common).toBeGreaterThanOrEqual(1)
+      expect(r.common).toBeLessThanOrEqual(4)
+      expect(r.common).toBe(r.tier.filter(Boolean).length)
+    }
+  })
+
   it('leaves no two rows carrying the same four characters', () => {
     const quads = new Set(data.rows.map((r) => r.chars.join('')))
     expect(quads.size).toBe(data.rows.length)
