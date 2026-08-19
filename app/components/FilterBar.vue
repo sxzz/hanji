@@ -109,7 +109,7 @@ function toggleRegion(region: string) {
         <input
           v-model="chars.query.value"
           type="search"
-          class="w-52 border border-rule rounded-md bg-sunk px-2.5 py-1 text-sm placeholder:text-mute focus-ring"
+          class="h-7 w-52 border border-rule rounded-md bg-sunk px-2.5 text-sm placeholder:text-mute focus-ring"
           :placeholder="t('filter.searchPlaceholder')"
         />
       </label>
@@ -121,7 +121,7 @@ function toggleRegion(region: string) {
           type="number"
           :min="lo"
           :max="hi"
-          class="tabular w-14 border border-rule rounded-md bg-sunk px-2 py-1 text-center text-xs font-mono focus-ring"
+          class="tabular h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono focus-ring"
         />
         <span class="text-mute">–</span>
         <input
@@ -129,7 +129,7 @@ function toggleRegion(region: string) {
           type="number"
           :min="lo"
           :max="hi"
-          class="tabular w-14 border border-rule rounded-md bg-sunk px-2 py-1 text-center text-xs font-mono focus-ring"
+          class="tabular h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono focus-ring"
         />
       </label>
 
