@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { LISTING_OPTIONS } from '~~/shared/listings.ts'
 import { REGIONS } from '~~/shared/types.ts'
 import {
   injectChars,
   PATTERNS_BY_VARIETY,
-  TIERS,
   type Dimension,
   type SortKey,
 } from '~/composables/chars.ts'
@@ -58,13 +58,20 @@ const strokeHigh = computed({
     ]),
 })
 
-/** Tier labels live under char.tierCn and friends, keyed by region. */
-const tierOptions = computed(() =>
-  TIERS.map((entry) => ({
+/** Tier labels live under char.tierCn and friends; old forms use region.old. */
+const listingOptions = computed(() =>
+  LISTING_OPTIONS.map((entry) => ({
     ...entry,
-    label: t(
-      `char.tier${entry.region[0]!.toUpperCase()}${entry.region[1]}.${entry.tier}`,
-    ),
+    label:
+      entry.kind === 'old'
+        ? t('region.old.short')
+        : t(
+            `char.tier${entry.region[0]!.toUpperCase()}${entry.region[1]}.${entry.tier}`,
+          ),
+    title:
+      entry.kind === 'old'
+        ? t('region.old.full')
+        : t(`region.${entry.region}.full`),
   })),
 )
 
@@ -168,7 +175,7 @@ function toggleRegion(region: string) {
     <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
       <span class="w-20 shrink-0 eyebrow">{{ t('filter.tier') }}</span>
       <button
-        v-for="option in tierOptions"
+        v-for="option in listingOptions"
         :key="option.id"
         type="button"
         class="h-7 flex items-center gap-1.5 border rounded-md px-2 text-xs transition-colors duration-150 focus-ring"
@@ -177,7 +184,7 @@ function toggleRegion(region: string) {
             ? 'border-$c-ink bg-$c-ink text-$c-paper'
             : 'border-rule bg-paper text-soft hover:border-ink/30'
         "
-        :title="t(`region.${option.region}.full`)"
+        :title="option.title"
         :aria-pressed="chars.tiers.value.includes(option.id)"
         @click="toggleTier(option.id)"
       >

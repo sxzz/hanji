@@ -1,4 +1,5 @@
 import charsRaw from '~~/public/data/chars.json?raw'
+import { createListingMatcher } from '~~/shared/listings.ts'
 import { plainReading } from '~~/shared/readings.ts'
 import { varietyOf } from '~~/shared/row.ts'
 import {
@@ -91,22 +92,6 @@ export const PATTERNS_BY_VARIETY: { variety: number; patterns: string[] }[] =
       .toSorted((a, b) => a[0] - b[0])
       .map(([variety, patterns]) => ({ variety, patterns }))
   })()
-
-/**
- * The listing levels each region publishes. Selecting several within one
- * region widens the match; selecting across regions narrows it, so `cn1,jp2`
- * means a first-level mainland character that is also a Japanese kyoiku one.
- */
-export const TIERS: { region: Region; tier: number; id: string }[] = [
-  { region: 'cn', tier: 1, id: 'cn1' },
-  { region: 'cn', tier: 2, id: 'cn2' },
-  { region: 'cn', tier: 3, id: 'cn3' },
-  { region: 'hk', tier: 1, id: 'hk1' },
-  { region: 'tw', tier: 1, id: 'tw1' },
-  { region: 'tw', tier: 2, id: 'tw2' },
-  { region: 'jp', tier: 1, id: 'jp1' },
-  { region: 'jp', tier: 2, id: 'jp2' },
-]
 
 const CODEPOINT = /^u\+?([\da-f]{4,6})$/i
 
@@ -261,26 +246,14 @@ export function useChars() {
     const required = common.value
       .map((r) => REGIONS.indexOf(r as Region))
       .filter((i) => i >= 0)
-
-    // Chosen tiers, grouped by region: any within a region, all across them
-    const wanted = new Map<number, Set<number>>()
-    for (const id of tiers.value) {
-      const entry = TIERS.find((t) => t.id === id)
-      if (!entry) continue
-      const index = REGIONS.indexOf(entry.region)
-      const set = wanted.get(index) ?? new Set<number>()
-      set.add(entry.tier)
-      wanted.set(index, set)
-    }
+    const matchesListings = createListingMatcher(tiers.value)
 
     return data.rows.filter((row, index) => {
       if (hits && !hits.has(index)) return false
       if (!wide && row.strokes.every((n) => !(n >= lo) || !(n <= hi)))
         return false
       for (const i of required) if (!row.tier[i]) return false
-      for (const [index, levels] of wanted)
-        if (!levels.has(row.tier[index]!)) return false
-      return true
+      return matchesListings(row)
     })
   })
 
