@@ -122,13 +122,8 @@ html[data-style='serif'] .hanji-jp {
   transform-origin: center;
 }
 
-/*
- * The hero's stacked-to-split toggle. Each form carries a view-transition-name
- * shared between the overprint layer and the character it separates into, so
- * the browser moves the actual glyph rather than fading one picture into
- * another. These pseudo-elements live on the root, out of reach of scoped
- * styles.
- */
+/* Named character thumbnails morph into their detail-page stack. These
+   pseudo-elements live on the root, out of reach of scoped styles. */
 ::view-transition-group(*) {
   animation-duration: 420ms;
   animation-timing-function: cubic-bezier(0.32, 0.72, 0, 1);

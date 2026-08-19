@@ -7,12 +7,9 @@ const props = withDefaults(
     row: CharRow
     /** Font size in px, or any CSS length. */
     size?: number | string
-    /** Stagger the layers in on mount. Used once, in the hero. */
-    animate?: boolean
     /**
-     * A view-transition-name. On the hero it is a prefix, one name per layer,
-     * so the layers can fly apart individually; `morphWhole` instead names the
-     * stack as one, which is what carries a row into its detail page.
+     * A view-transition-name. It prefixes one name per layer unless
+     * `morphWhole` names the stack as one for a route transition.
      */
     morph?: string
     morphWhole?: boolean
@@ -25,7 +22,6 @@ const props = withDefaults(
   }>(),
   {
     size: 32,
-    animate: false,
     morph: undefined,
     only: undefined,
     withOld: false,
@@ -109,19 +105,15 @@ const activeFocus = computed(() =>
     role="img"
   >
     <span
-      v-for="(layer, index) in layers"
+      v-for="layer in layers"
       :key="layer.group"
       class="layer"
       :class="[
         `hanji-${layer.region}`,
-        {
-          animate,
-          veiled: activeFocus !== undefined && layer.group !== activeFocus,
-        },
+        { veiled: activeFocus !== undefined && layer.group !== activeFocus },
       ]"
       :style="{
         '--layer-color': colorOf(layer.group),
-        animationDelay: `${index * 90}ms`,
         viewTransitionName:
           morph && !morphWhole ? `${morph}-${layer.group}` : undefined,
       }"
@@ -162,24 +154,5 @@ const activeFocus = computed(() =>
 .outlined .layer {
   color: transparent;
   -webkit-text-stroke: max(0.6px, 0.014em) var(--layer-color);
-}
-
-/* The one orchestrated moment on the page: an ink-black character grows its
-   colored fringes as the regional layers arrive. */
-.layer.animate {
-  animation: settle 620ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
-}
-
-@keyframes settle {
-  from {
-    opacity: 0;
-    transform: translateY(0.06em) scale(1.02);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .layer.animate {
-    animation: none;
-  }
 }
 </style>
