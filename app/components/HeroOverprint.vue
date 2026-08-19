@@ -1,21 +1,31 @@
 <script setup lang="ts">
+import { projectSignature } from '~~/shared/row.ts'
 import { REGIONS, type CharRow } from '~~/shared/types.ts'
 
 const props = defineProps<{ row: CharRow }>()
 
 const { t, list } = useT()
-const { regionLabel, labelClass, outlineOn } = usePrefs()
+const { regionLabel, labelClass, outlineOn, visibleRegions, regionIndices } =
+  usePrefs()
 const split = ref(false)
 
-/** One persistent node per region. CSS moves these same four nodes between the
+/**
+ * Groups over the regions on show, so the opening claim counts what the reader
+ * is actually being shown rather than the four this row happens to carry.
+ */
+const groups = computed(() =>
+  projectSignature(props.row.glyph, regionIndices.value),
+)
+
+/** One persistent node per region. CSS moves these same nodes between the
  * overprint and the separated row, so toggling never needs a DOM swap. */
 const forms = computed(() =>
-  REGIONS.map((region, index) => ({
+  visibleRegions.value.map((region, position) => ({
     region,
-    char: props.row.chars[index]!,
-    group: Number(props.row.glyph[index]),
+    char: props.row.chars[REGIONS.indexOf(region)]!,
+    group: Number(groups.value[position]),
     /** Shared forms only draw once while stacked, then duplicate when split. */
-    lead: props.row.glyph.indexOf(props.row.glyph[index]!) === index,
+    lead: groups.value.indexOf(groups.value[position]!) === position,
   })),
 )
 
@@ -33,6 +43,14 @@ const label = computed(() =>
   ),
 )
 
+/** The places on show, named in full: what the standfirst enumerates. */
+const places = computed(() =>
+  list(
+    visibleRegions.value.map((region) => t(`region.${region}.full`)),
+    'narrow',
+  ),
+)
+
 function toggle() {
   split.value = !split.value
 }
@@ -42,6 +60,7 @@ function toggle() {
   <section
     class="hero grid gap-8 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center"
     :class="{ split, outlined: outlineOn }"
+    :style="{ '--n': forms.length }"
   >
     <div class="hero-stage">
       <div class="hero-plane" :title="label" :aria-label="label" role="img">
@@ -51,6 +70,7 @@ function toggle() {
           class="hero-form"
           :class="{ duplicate: !form.lead }"
           :style="{
+            '--i': index,
             '--layer-color': colorOf(form.group),
             '--arrival-delay': `${index * 90}ms`,
           }"
@@ -67,12 +87,16 @@ function toggle() {
     </div>
 
     <div class="max-w-lg">
-      <h2 class="text-2xl leading-snug sm:text-3xl">{{ t('hero.title') }}</h2>
+      <h2 class="text-2xl leading-snug sm:text-3xl">
+        {{ t('hero.title', { n: hanNumber(groupCount) }) }}
+      </h2>
       <p class="mt-3 text-sm text-soft leading-relaxed sm:text-base">
-        {{ t('hero.body') }}
+        {{ t('hero.body', { regions: places }) }}
       </p>
 
+      <!-- Nothing to pull apart when a single column is left on show -->
       <button
+        v-if="forms.length > 1"
         type="button"
         class="mt-4 inline-flex items-center gap-1.5 border border-rule rounded-md px-3 py-1.5 text-sm text-soft transition-colors duration-150 hover:border-ink/25 hover:text-ink focus-ring"
         :aria-pressed="split"
@@ -92,6 +116,16 @@ function toggle() {
 .hero {
   --hero-duration: 420ms;
   --hero-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /*
+   * Geometry of the separated row, sized from the number of columns on show:
+   * hiding a region narrows the row rather than leaving a hole where it stood.
+   * --stack-scale blows one slot up to the 11rem the stacked plane occupies.
+   */
+  --form-size: 3.25rem;
+  --form-step: 3.5rem;
+  --stack-scale: 3.384615;
+  --split-width: calc(var(--form-step) * (var(--n) - 1) + var(--form-size));
 }
 
 /* Padding and minimum height preserve the original 176px overprint's exact
@@ -115,13 +149,13 @@ function toggle() {
 }
 
 .hero-form {
-  --split-x: 0rem;
+  --split-x: calc((var(--i) - (var(--n) - 1) / 2) * var(--form-step));
 
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 3.25rem;
-  height: 3.25rem;
+  width: var(--form-size);
+  height: var(--form-size);
   color: var(--layer-color);
   mix-blend-mode: var(--overprint-blend);
   transform: translate3d(-50%, -50%, 0);
@@ -135,30 +169,14 @@ function toggle() {
   opacity: 0;
 }
 
-.hero-form:nth-child(1) {
-  --split-x: -5.25rem;
-}
-
-.hero-form:nth-child(2) {
-  --split-x: -1.75rem;
-}
-
-.hero-form:nth-child(3) {
-  --split-x: 1.75rem;
-}
-
-.hero-form:nth-child(4) {
-  --split-x: 5.25rem;
-}
-
 .hero-glyph {
   display: grid;
   width: 100%;
   height: 100%;
   place-items: center;
-  font-size: 3.25rem;
+  font-size: var(--form-size);
   line-height: 1;
-  transform: scale(3.384615);
+  transform: scale(var(--stack-scale));
   transform-origin: center;
   transition: transform var(--hero-duration) var(--hero-ease);
   animation: hero-arrive 620ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
@@ -178,7 +196,7 @@ function toggle() {
 }
 
 .hero.split .hero-plane {
-  width: 13.75rem;
+  width: var(--split-width);
 }
 
 .hero.split .hero-form {
@@ -213,44 +231,21 @@ function toggle() {
 }
 
 @media (min-width: 640px) {
+  .hero {
+    --form-size: 4.5rem;
+    --form-step: 5.25rem;
+    --stack-scale: 2.444444;
+  }
+
   .hero-stage {
     width: 12rem;
     justify-content: flex-start;
     transition: width var(--hero-duration) var(--hero-ease);
   }
 
+  /* The stage carries the plane plus its own 0.5rem of padding on each side. */
   .hero.split .hero-stage {
-    width: 21.25rem;
-  }
-
-  .hero.split .hero-plane {
-    width: 20.25rem;
-  }
-
-  .hero-form {
-    width: 4.5rem;
-    height: 4.5rem;
-  }
-
-  .hero-form:nth-child(1) {
-    --split-x: -7.875rem;
-  }
-
-  .hero-form:nth-child(2) {
-    --split-x: -2.625rem;
-  }
-
-  .hero-form:nth-child(3) {
-    --split-x: 2.625rem;
-  }
-
-  .hero-form:nth-child(4) {
-    --split-x: 7.875rem;
-  }
-
-  .hero-glyph {
-    font-size: 4.5rem;
-    transform: scale(2.444444);
+    width: calc(var(--split-width) + 1rem);
   }
 }
 

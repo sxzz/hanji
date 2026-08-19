@@ -1,6 +1,16 @@
 <script setup lang="ts">
-import { fontRegionOf } from '~~/shared/row.ts'
-import { COLUMNS, REGIONS, type CharRow, type Column } from '~~/shared/types.ts'
+import {
+  fontRegionOf,
+  glyphSignature,
+  projectSignature,
+} from '~~/shared/row.ts'
+import {
+  COLUMNS,
+  REGIONS,
+  type CharRow,
+  type Column,
+  type Region,
+} from '~~/shared/types.ts'
 
 const props = withDefaults(
   defineProps<{
@@ -29,6 +39,28 @@ const props = withDefaults(
   },
 )
 
+const { list } = useT()
+const { outlineOn, visibleColumns, visibleRegions } = usePrefs()
+
+/**
+ * The columns this stack is numbered against: everything the reader keeps on
+ * show that the row actually has. `only` narrows what gets drawn but not the
+ * numbering, so the colors still line up with a table showing every column.
+ */
+const basis = computed(() =>
+  (props.withOld ? visibleColumns.value : visibleRegions.value).filter(
+    (column) => column !== 'old' || props.row.old,
+  ),
+)
+
+/** Group per basis column, renumbered over the columns on show. */
+const groups = computed(() =>
+  projectSignature(
+    glyphSignature(props.row),
+    basis.value.map((column) => COLUMNS.indexOf(column)),
+  ),
+)
+
 /**
  * One layer per group, not per region. Regions in a group draw the identical
  * shape, so stacking them twice would just make that group darker than the
@@ -39,26 +71,22 @@ const layers = computed(() => {
     number,
     { char: string; region: string; group: number }
   >()
-  const allowed = props.only ?? COLUMNS
-  for (const [index, digit] of [...props.row.glyph].entries()) {
+  for (const [position, column] of basis.value.entries()) {
+    if (props.only && !props.only.includes(column)) continue
+    const group = Number(groups.value[position])
+    if (seen.has(group)) continue
+    if (column === 'old') {
+      // The kyujitai is Japan's own, so Japan's font draws it
+      seen.set(group, { char: props.row.old!.char, region: 'jp', group })
+      continue
+    }
+    const index = REGIONS.indexOf(column as Region)
     const char = props.row.chars[index]
-    const group = Number(digit)
-    if (!char || seen.has(group) || !allowed.includes(REGIONS[index]!)) continue
-    seen.set(group, {
-      char,
-      region: fontRegionOf(props.row, index),
-      group,
-    })
+    if (!char) continue
+    seen.set(group, { char, region: fontRegionOf(props.row, index), group })
   }
-  // The kyujitai is Japan's own, so Japan's font draws it
-  const old = props.withOld ? props.row.old : undefined
-  if (old && allowed.includes('old') && !seen.has(old.glyph))
-    seen.set(old.glyph, { char: old.char, region: 'jp', group: old.glyph })
   return [...seen.values()]
 })
-
-const { list } = useT()
-const { outlineOn } = usePrefs()
 /** Read aloud in place of the stack, so the forms are enumerated for a locale
  * rather than punctuated by hand. */
 const label = computed(() =>

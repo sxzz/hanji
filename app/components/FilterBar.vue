@@ -1,16 +1,14 @@
 <script setup lang="ts">
-import { LISTING_OPTIONS } from '~~/shared/listings.ts'
-import { REGIONS } from '~~/shared/types.ts'
+import { listingOptionsFor } from '~~/shared/listings.ts'
 import {
   injectChars,
-  PATTERNS_BY_VARIETY,
   type Dimension,
   type SortKey,
 } from '~/composables/chars.ts'
 
 const chars = injectChars()
 const { t } = useT()
-const { regionLabel, labelClass } = usePrefs()
+const { regionLabel, labelClass, visibleColumns, visibleRegions } = usePrefs()
 
 // Every label has to be computed, not built once: t() reads the active locale
 // and the reader can change it after the component is set up
@@ -30,14 +28,16 @@ const sorts = computed<{ value: SortKey; label: string }[]>(() =>
 
 /** Only show patterns that actually occur in the chosen dimension. */
 const varieties = computed(() =>
-  PATTERNS_BY_VARIETY.map(({ variety, patterns }) => ({
-    variety,
-    label:
-      variety === 1
-        ? t('filter.identical')
-        : t('filter.variety', { n: variety }),
-    patterns: patterns.filter((p) => p in chars.counts.value),
-  })).filter((group) => group.patterns.length > 0),
+  chars.patternGroups.value
+    .map(({ variety, patterns }) => ({
+      variety,
+      label:
+        variety === 1
+          ? t('filter.identical', { n: hanNumber(visibleRegions.value.length) })
+          : t('filter.variety', { n: variety }),
+      patterns: patterns.filter((p) => p in chars.counts.value),
+    }))
+    .filter((group) => group.patterns.length > 0),
 )
 
 const [lo, hi] = chars.strokeBounds
@@ -60,7 +60,7 @@ const strokeHigh = computed({
 
 /** Tier labels live under char.tierCn and friends; old forms use region.old. */
 const listingOptions = computed(() =>
-  LISTING_OPTIONS.map((entry) => ({
+  listingOptionsFor(visibleColumns.value).map((entry) => ({
     ...entry,
     label:
       entry.kind === 'old'
@@ -144,7 +144,7 @@ function toggleRegion(region: string) {
         <span class="eyebrow">{{ t('filter.common') }}</span>
         <div class="flex gap-1">
           <button
-            v-for="region in REGIONS"
+            v-for="region in visibleRegions"
             :key="region"
             type="button"
             class="size-7 border rounded-md text-xs transition-colors duration-150 focus-ring"
@@ -196,9 +196,10 @@ function toggleRegion(region: string) {
     </div>
 
     <!--
-      The fifteen partitions, grouped by how many distinct forms they describe.
-      The chip is the same run graphic used under the four cells, so no wording
-      is needed: "CN+HK | TW | JP" reads slower than seeing three runs.
+      Every partition the columns on show can describe -- fifteen of them for
+      four columns, five for three -- grouped by how many distinct forms each
+      one names. The chip is the same run graphic used under the cells, so no
+      wording is needed: "CN+HK | TW | JP" reads slower than seeing three runs.
     -->
     <div class="flex flex-col gap-2">
       <div

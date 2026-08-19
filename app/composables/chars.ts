@@ -1,7 +1,7 @@
 import charsRaw from '~~/public/data/chars.json?raw'
-import { createListingMatcher } from '~~/shared/listings.ts'
+import { createListingMatcher, listingOptionsFor } from '~~/shared/listings.ts'
 import { plainReading } from '~~/shared/readings.ts'
-import { varietyOf } from '~~/shared/row.ts'
+import { projectSignature, varietyOf } from '~~/shared/row.ts'
 import {
   REGIONS,
   type CharRow,
@@ -9,6 +9,7 @@ import {
   type Region,
 } from '~~/shared/types.ts'
 import { isUnicodeScalarValue } from '~/utils/unicode.ts'
+import { useColumnVisibility } from './prefs.ts'
 import {
   asList,
   asOneOf,
@@ -73,28 +74,33 @@ const charIndex = ((): Map<string, number[]> => {
   return index
 })()
 
-/** A row's partition signature under the chosen comparison dimension. */
-export const signatureOf = (row: CharRow, dimension: Dimension): string =>
-  dimension === 'glyph' ? row.glyph : row.cp
+/**
+ * A row's partition signature under the chosen comparison dimension, read over
+ * the columns on show. Hiding a column repartitions what is left, so a row
+ * whose four regions ran CN | HK+TW | JP becomes a two-form row once Japan is
+ * out -- and lands under the chip that says so.
+ */
+export const signatureOf = (
+  row: CharRow,
+  dimension: Dimension,
+  columns: readonly number[],
+): string =>
+  projectSignature(dimension === 'glyph' ? row.glyph : row.cp, columns)
 
-/** Group the 14 patterns by how many distinct ways of writing they describe.
+/** Group patterns by how many distinct ways of writing they describe.
  * Run count is variety count, which is the real structure of the content. */
-export const PATTERNS_BY_VARIETY: { variety: number; patterns: string[] }[] =
-  (() => {
-    const all = new Set<string>()
-    for (const row of data.rows) {
-      all.add(row.glyph)
-      all.add(row.cp)
-    }
-    const groups = new Map<number, string[]>()
-    for (const pattern of [...all].toSorted()) {
-      const variety = varietyOf(pattern)
-      groups.set(variety, [...(groups.get(variety) ?? []), pattern])
-    }
-    return [...groups]
-      .toSorted((a, b) => a[0] - b[0])
-      .map(([variety, patterns]) => ({ variety, patterns }))
-  })()
+function byVariety(
+  patterns: Iterable<string>,
+): { variety: number; patterns: string[] }[] {
+  const groups = new Map<number, string[]>()
+  for (const pattern of [...patterns].toSorted()) {
+    const variety = varietyOf(pattern)
+    groups.set(variety, [...(groups.get(variety) ?? []), pattern])
+  }
+  return [...groups]
+    .toSorted((a, b) => a[0] - b[0])
+    .map(([variety, patterns]) => ({ variety, patterns }))
+}
 
 const CODEPOINT = /^u\+?([\da-f]{4,6})$/i
 
@@ -154,6 +160,12 @@ export const morphName = (key: string) =>
 export const HERO_ROW = rowsByKey.get('返')!
 
 export function useChars() {
+  const {
+    columns: visibleColumns,
+    regions: visibleRegions,
+    regionIndices,
+  } = useColumnVisibility()
+
   const asDimension = asOneOf(DIMENSIONS)
   const dimension = useQueryState(
     'd',
@@ -241,19 +253,37 @@ export function useChars() {
     return hits
   })
 
-  /** Everything except the pattern filter, so chip counts react to the rest. */
+  /** Choices whose column is still on show; the rest have nothing to narrow. */
+  const availableListings = computed(
+    () => new Set(listingOptionsFor(visibleColumns.value).map((o) => o.id)),
+  )
+
+  /**
+   * Everything except the pattern filter, so chip counts react to the rest.
+   *
+   * A hidden column takes its own controls off the page, so its share of the
+   * selection is left out of the match too -- rather than narrowing the list
+   * from behind a control the reader can no longer see. The selection itself
+   * is kept, and comes back with the column.
+   */
   const base = computed(() => {
     const hits = searchHits.value
     const [lo, hi] = strokes.value
     const wide = lo <= STROKE_BOUNDS[0] && hi >= STROKE_BOUNDS[1]
+    const shown = regionIndices.value
     const required = common.value
       .map((r) => REGIONS.indexOf(r as Region))
-      .filter((i) => i >= 0)
-    const matchesListings = createListingMatcher(tiers.value)
+      .filter((i) => shown.includes(i))
+    const matchesListings = createListingMatcher(
+      tiers.value.filter((id) => availableListings.value.has(id)),
+    )
 
     return data.rows.filter((row, index) => {
       if (hits && !hits.has(index)) return false
-      if (!wide && row.strokes.every((n) => !(n >= lo) || !(n <= hi)))
+      if (
+        !wide &&
+        shown.every((i) => !(row.strokes[i]! >= lo) || !(row.strokes[i]! <= hi))
+      )
         return false
       for (const i of required) if (!row.tier[i]) return false
       return matchesListings(row)
@@ -263,26 +293,48 @@ export function useChars() {
   const counts = computed(() => {
     const tally: Record<string, number> = {}
     for (const row of base.value) {
-      const signature = signatureOf(row, dimension.value)
+      const signature = signatureOf(row, dimension.value, regionIndices.value)
       tally[signature] = (tally[signature] ?? 0) + 1
     }
     return tally
   })
 
+  /**
+   * The partitions the chips offer. Four columns describe fifteen of them,
+   * three describe five, so the grid is rebuilt whenever a column goes.
+   */
+  const patternGroups = computed(() => {
+    const all = new Set<string>()
+    for (const row of data.rows)
+      for (const dim of DIMENSIONS)
+        all.add(signatureOf(row, dim, regionIndices.value))
+    return byVariety(all)
+  })
+
   const FREQ_LAST = Number.MAX_SAFE_INTEGER
+  /** How many of the columns on show list the character among their common. */
+  const listedIn = (row: CharRow) =>
+    regionIndices.value.filter((i) => row.tier[i]).length
+  /** The stroke count the row leads with, which is the first column on show. */
+  const leadStrokes = (row: CharRow) => row.strokes[regionIndices.value[0] ?? 0]
   const comparators: Record<SortKey, (a: CharRow, b: CharRow) => number> = {
     common: (a, b) =>
-      b.common - a.common || (a.freq ?? FREQ_LAST) - (b.freq ?? FREQ_LAST),
-    strokes: (a, b) => (a.strokes[0] || 99) - (b.strokes[0] || 99),
+      listedIn(b) - listedIn(a) ||
+      (a.freq ?? FREQ_LAST) - (b.freq ?? FREQ_LAST),
+    strokes: (a, b) => (leadStrokes(a) || 99) - (leadStrokes(b) || 99),
     cp: (a, b) => a.key.codePointAt(0)! - b.key.codePointAt(0)!,
     freq: (a, b) => (a.freq ?? FREQ_LAST) - (b.freq ?? FREQ_LAST),
   }
 
   const rows = computed(() => {
-    const chosen = new Set(patterns.value)
+    // A selection made against a different set of columns describes partitions
+    // that no longer exist; it waits, unapplied, until those columns return.
+    const chosen = new Set(
+      patterns.value.filter((p) => p.length === visibleRegions.value.length),
+    )
     const filtered = chosen.size
       ? base.value.filter((row) =>
-          chosen.has(signatureOf(row, dimension.value)),
+          chosen.has(signatureOf(row, dimension.value, regionIndices.value)),
         )
       : base.value
 
@@ -389,6 +441,7 @@ export function useChars() {
     canShowAll,
     style,
     counts,
+    patternGroups,
     dimension,
     patterns,
     sortKey,

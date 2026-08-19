@@ -3,7 +3,7 @@ import { injectChars } from '~/composables/chars.ts'
 
 const chars = injectChars()
 const { t } = useT()
-const { regionLabel, labelClass, REGIONS } = usePrefs()
+const { regionLabel, labelClass, visibleRegions, columnTracks } = usePrefs()
 const scrollToTop = useScrollToTop()
 
 const list = ref<HTMLElement>()
@@ -20,9 +20,9 @@ function turnTo(page: number) {
       class="row-grid sticky top-0 z-10 items-center gap-2 border-b border-rule bg-paper px-2 py-2 sm:gap-3 sm:px-5"
     >
       <span />
-      <div class="grid grid-cols-4">
+      <div class="grid" :style="{ gridTemplateColumns: columnTracks }">
         <span
-          v-for="region in REGIONS"
+          v-for="region in visibleRegions"
           :key="region"
           class="text-center eyebrow !text-$c-ink-soft"
           :title="t(`region.${region}.full`)"

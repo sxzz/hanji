@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { dictGroups } from '~~/shared/links.ts'
-import { fontRegionOf } from '~~/shared/row.ts'
+import {
+  fontRegionOf,
+  glyphSignature,
+  projectSignature,
+} from '~~/shared/row.ts'
 import { COLUMNS, REGIONS, type Column } from '~~/shared/types.ts'
 import {
   charPath,
@@ -17,7 +21,7 @@ definePageMeta({ layout: 'plain', middleware: 'char-alias' })
 
 const route = useRoute()
 const { t, list } = useT()
-const { regionLabel, labelClass } = usePrefs()
+const { regionLabel, labelClass, visibleColumns, visibleRegions } = usePrefs()
 
 const key = computed(() => decodeURIComponent(String(route.params.key)))
 const row = computed(() => rowsByKey.get(key.value))
@@ -45,9 +49,13 @@ const hex = (char: string) =>
  * where there is one. The kyujitai is compared alongside the rest rather than
  * noted underneath, because it is usually the very character Hong Kong and
  * Taiwan still write, and that reads off the table itself.
+ *
+ * A column the reader has switched off is not on offer at all -- it leaves no
+ * cell to tick and no group to count, so what remains is partitioned among
+ * itself.
  */
 const columns = computed<Column[]>(() =>
-  row.value?.old ? [...COLUMNS] : [...REGIONS],
+  visibleColumns.value.filter((column) => column !== 'old' || row.value?.old),
 )
 
 /**
@@ -58,7 +66,7 @@ const columns = computed<Column[]>(() =>
  */
 const picked = ref<Column[]>([...columns.value])
 const hoveredGroup = ref<number>()
-watch(key, () => {
+watch([key, columns], () => {
   picked.value = [...columns.value]
   hoveredGroup.value = undefined
 })
@@ -84,9 +92,21 @@ function toggle(group: Column[]) {
 /** Where the reader came from, so returning keeps their filters and place. */
 const backTo = computed(() => listPlace.value?.fullPath ?? '/')
 
+/**
+ * Glyph groups renumbered over the columns on show, so the accents start at
+ * the first one and the stack beside the table is colored the same way.
+ */
+const groups = computed(() =>
+  projectSignature(
+    glyphSignature(row.value!),
+    columns.value.map((column) => COLUMNS.indexOf(column)),
+  ),
+)
+
 const cells = computed(() =>
-  columns.value.map((column) => {
+  columns.value.map((column, position) => {
     const here = row.value!
+    const group = Number(groups.value[position])
     if (column === 'old') {
       const old = here.old!
       return {
@@ -99,7 +119,7 @@ const cells = computed(() =>
         strokes: String(old.strokes || '—'),
         tier: 0,
         listing: undefined,
-        group: old.glyph,
+        group,
       }
     }
     const index = REGIONS.indexOf(column)
@@ -112,7 +132,7 @@ const cells = computed(() =>
       strokes: String(here.strokes[index] || '—'),
       tier: here.tier[index]!,
       listing: here.listing[index]!,
-      group: Number(here.glyph[index]),
+      group,
     }
   }),
 )
@@ -230,26 +250,24 @@ const alsoSee = computed(() => {
       out.push({ key, text })
   }
 
-  // A column of this row that heads a group of its own
-  for (const [index, char] of here.chars.entries())
+  // A column of this row that heads a group of its own. Every one of these
+  // names a region, so a region off the page has nothing to say here either.
+  for (const region of visibleRegions.value) {
+    const char = here.chars[REGIONS.indexOf(region)]!
     if (rowsByKey.has(char))
-      add(
-        char,
-        t('char.alsoOut', {
-          region: t(`region.${REGIONS[index]}.full`),
-          char,
-        }),
-      )
+      add(char, t('char.alsoOut', { region: t(`region.${region}.full`), char }))
+  }
 
   // Groups that write one of their columns with this row's key
   for (const other of rowsNaming(here.key)) {
     const index = other.chars.indexOf(here.key)
-    if (index >= 0)
+    const region = REGIONS[index]
+    if (region && visibleRegions.value.includes(region))
       add(
         other.key,
         t('char.alsoIn', {
           char: other.key,
-          region: t(`region.${REGIONS[index]}.full`),
+          region: t(`region.${region}.full`),
         }),
       )
   }
@@ -261,12 +279,16 @@ const alsoSee = computed(() => {
     { chars: Set<string>; regions: Set<(typeof REGIONS)[number]> }
   >()
   for (const relation of here.uncertain ?? []) {
+    const evidence = relation.regions.filter((region) =>
+      visibleRegions.value.includes(region),
+    )
+    if (evidence.length === 0) continue
     const group = uncertain.get(relation.key) ?? {
       chars: new Set<string>(),
       regions: new Set<(typeof REGIONS)[number]>(),
     }
     group.chars.add(relation.char)
-    for (const region of relation.regions) group.regions.add(region)
+    for (const region of evidence) group.regions.add(region)
     uncertain.set(relation.key, group)
   }
   for (const [related, relation] of uncertain)
@@ -284,7 +306,7 @@ const alsoSee = computed(() => {
 })
 
 /** One row of references per character the group is written with. */
-const references = computed(() => dictGroups(row.value!))
+const references = computed(() => dictGroups(row.value!, visibleRegions.value))
 
 /**
  * Receives the morph from the list. The name goes on whatever the thumbnail
