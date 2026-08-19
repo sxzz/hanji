@@ -20,6 +20,15 @@ export type Column = (typeof COLUMNS)[number]
 /** A tuple in REGIONS order. */
 export type Quad<T> = [T, T, T, T]
 
+export interface ListedAlternative {
+  /** A listed form that belongs to this row but is not the displayed form. */
+  char: string
+  /** Its level in this region's source list. */
+  tier: number
+  /** Whether the list enters it directly or only glosses it in brackets. */
+  kind: 'primary' | 'glossed'
+}
+
 export interface CharRow {
   /** Orthodox (traditional) form; row identity and the /char/[key] segment. */
   key: string
@@ -38,6 +47,12 @@ export interface CharRow {
    * the four regions actually write.
    */
   aka?: string[]
+  /**
+   * Listed regional forms accounted for by this row but not selected for its
+   * four display columns. For example, mainland `祕` remains searchable here
+   * while the column displays the more common level-1 `秘`.
+   */
+  alternatives?: Partial<Record<Region, ListedAlternative[]>>
   /** Codepoint partition signature; "0000" when all four share a codepoint. */
   cp: string
   /**

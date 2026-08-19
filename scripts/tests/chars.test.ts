@@ -8,8 +8,8 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { dictGroups, dictLinks, formsOf } from '../../shared/links.ts'
-import { DATA_DIR } from '../sources.ts'
-import type { CharRow, CharsData } from '../../shared/types.ts'
+import { REGIONS, type CharRow, type CharsData } from '../../shared/types.ts'
+import { DATA_DIR, parsePrimaryCharList, RAW_DIR } from '../sources.ts'
 
 const data: CharsData = JSON.parse(
   readFileSync(join(DATA_DIR, 'chars.json'), 'utf8'),
@@ -257,8 +257,23 @@ describe('what counts as one character group', () => {
     // converts all three away, to 唇, 秘 and 群
     expect(row('唇').chars).toEqual(['唇', '脣', '脣', '唇'])
     expect(row('祕').chars).toEqual(['秘', '祕', '祕', '秘'])
+    expect(row('祕').alternatives?.cn).toContainEqual({
+      char: '祕',
+      tier: 3,
+      kind: 'primary',
+    })
     expect(row('群').chars).toEqual(['群', '羣', '群', '群'])
     expect(row('峰').chars).toEqual(['峰', '峯', '峰', '峰'])
+  })
+
+  it('keeps 克 and 剋 as separate entries while accounting for regional forms', () => {
+    expect(row('克').chars).toEqual(['克', '克', '克', '克'])
+    expect(row('剋').chars).toEqual(['克', '剋', '剋', '剋'])
+    expect(row('剋').alternatives?.cn).toContainEqual({
+      char: '剋',
+      tier: 2,
+      kind: 'primary',
+    })
   })
 
   it('folds the forms JPShinjitaiCharacters names alongside themselves', () => {
@@ -274,6 +289,25 @@ describe('what counts as one character group', () => {
     for (const key of ['復', '複', '覆', '蘇', '甦', '囌', '後', '后'])
       expect(rows.has(key)).toBe(true)
     expect(row('復').aka).toBeUndefined()
+  })
+
+  it('accounts for every candidate in a one-to-many OpenCC mapping', () => {
+    expect(row('逕').alternatives?.cn).toContainEqual({
+      char: '迳',
+      tier: 3,
+      kind: 'primary',
+    })
+    expect(row('線').alternatives?.cn).toContainEqual({
+      char: '缐',
+      tier: 3,
+      kind: 'primary',
+    })
+    expect(row('鍾').alternatives?.cn).toContainEqual({
+      char: '锺',
+      tier: 3,
+      kind: 'primary',
+    })
+    expect(formsOf(row('逕')).map((form) => form.char)).toContain('迳')
   })
 
   it('never shows a region a form its own table does not enter', () => {
@@ -312,5 +346,68 @@ describe('what counts as one character group', () => {
   it('leaves no two rows carrying the same four characters', () => {
     const quads = new Set(data.rows.map((r) => r.chars.join('')))
     expect(quads.size).toBe(data.rows.length)
+  })
+})
+
+describe('source-entry accounting', () => {
+  const specifications = [
+    [['cn-1', 'cn-2', 'cn-3'], 0],
+    [['hk-common'], 1],
+    [['tw-common'], 2],
+    [['jp-joyo'], 3],
+  ] as const
+
+  it('selects or records every primary entry from the row-generating lists', () => {
+    for (const [lists, region] of specifications) {
+      const source = new Set(
+        lists.flatMap((name) =>
+          parsePrimaryCharList(
+            readFileSync(join(RAW_DIR, 'charlist', `${name}.txt`), 'utf8'),
+          ),
+        ),
+      )
+      const id = REGIONS[region]
+      for (const char of source)
+        expect(
+          data.rows.some(
+            (entry) =>
+              entry.chars[region] === char ||
+              entry.alternatives?.[id]?.some(
+                (alternative) => alternative.char === char,
+              ),
+          ),
+          `${id}:${char} is neither selected nor accounted for`,
+        ).toBe(true)
+    }
+  })
+
+  it('fills gaps in TSCharacters from the reverse ST mapping', () => {
+    expect(row('暱').chars[0]).toBe('昵')
+    expect(row('穭').alternatives?.cn).toContainEqual({
+      char: '稆',
+      tier: 3,
+      kind: 'primary',
+    })
+  })
+
+  it('keeps drawable entries when their mapped form cannot be rendered', () => {
+    for (const char of ['𫭼', '暅', '𬒗']) {
+      expect(row(char).chars).toEqual([char, char, char, char])
+      expect(row(char).tier[0]).toBeGreaterThan(0)
+    }
+  })
+
+  it('does not duplicate the selected form among regional alternatives', () => {
+    for (const entry of data.rows)
+      for (const [region, id] of REGIONS.entries()) {
+        const alternatives = entry.alternatives?.[id] ?? []
+        expect(alternatives.every((item) => item.tier > 0)).toBe(true)
+        expect(alternatives.map((item) => item.char)).not.toContain(
+          entry.chars[region],
+        )
+        expect(new Set(alternatives.map((item) => item.char)).size).toBe(
+          alternatives.length,
+        )
+      }
   })
 })

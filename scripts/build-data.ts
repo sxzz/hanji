@@ -26,7 +26,12 @@ import {
   ROOT,
   SOURCES,
 } from './sources.ts'
-import type { CharRow, Quad, Stats } from '../shared/types.ts'
+import type {
+  CharRow,
+  ListedAlternative,
+  Quad,
+  Stats,
+} from '../shared/types.ts'
 
 const dict = async (name: string) =>
   parseDict(await rawText(`opencc/${name}.txt`))
@@ -80,6 +85,7 @@ const [st, ts, twVariants, hkVariants, jpShinjitai] = await Promise.all(
 )
 
 const CMAP_REGION = ['CN', 'HK', 'TW', 'JP'] as const
+const REGION_IDS = ['cn', 'hk', 'tw', 'jp'] as const
 
 const loadCMaps = (style: 'sans' | 'serif') =>
   Promise.all(
@@ -98,6 +104,7 @@ const frequency = parseFrequency(await rawText('frequency/hanziDB.csv'))
 // shinjitai -> orthodox, so it needs no reversing.
 const twToStandard = reverseDict(twVariants)
 const hkToStandard = reverseDict(hkVariants)
+const standardToCn = reverseDict(st)
 /**
  * Orthodox form -> the shinjitai Japan writes.
  *
@@ -105,19 +112,18 @@ const hkToStandard = reverseDict(hkVariants)
  * first hands Japan a character its tables never mention: 鹽 came back as 䀋
  * rather than 塩, 莊 as 庄 rather than 荘. Japan's own tables break the tie.
  */
-const standardToJp = ((): Map<string, string> => {
+const standardToJp = ((): Map<string, string[]> => {
   const japanese = new Set([...covers['jp-joyo'], ...covers['jp-grade']])
-  const out = new Map<string, string>()
+  const out = new Map<string, string[]>()
   for (const [shinjitai, orthodox] of jpShinjitai)
     for (const form of orthodox) {
       if (form === shinjitai) continue
-      const held = out.get(form)
-      if (
-        held === undefined ||
-        (!japanese.has(held) && japanese.has(shinjitai))
-      )
-        out.set(form, shinjitai)
+      const candidates = out.get(form) ?? []
+      if (!candidates.includes(shinjitai)) candidates.push(shinjitai)
+      out.set(form, candidates)
     }
+  for (const candidates of out.values())
+    candidates.sort((a, b) => Number(japanese.has(b)) - Number(japanese.has(a)))
   return out
 })()
 
@@ -164,10 +170,8 @@ function normalize(char: string): string[] {
 
   for (const orthodox of jpShinjitai.get(char) ?? []) keys.add(orthodox)
 
-  const twStandard = twToStandard.get(char)
-  if (twStandard) keys.add(twStandard)
-  const hkStandard = hkToStandard.get(char)
-  if (hkStandard) keys.add(hkStandard)
+  for (const standard of twToStandard.get(char) ?? []) keys.add(standard)
+  for (const standard of hkToStandard.get(char) ?? []) keys.add(standard)
 
   const traditional = st.get(char)
   if (traditional) {
@@ -228,9 +232,6 @@ for (const set of regionSets)
 console.error(
   `union of the four common-character lists: ${new Set(regionSets.flatMap((s) => [...s])).size} chars -> ${keys.size} orthodox keys`,
 )
-
-const first = (values: string[] | undefined, fallback: string) =>
-  values?.[0] ?? fallback
 
 function tierOf(chars: Quad<string>): Quad<number> {
   const [cn, hkChar, tw, jp] = chars
@@ -322,18 +323,48 @@ const byGlyph: Record<string, number> = {}
 const byCp: Record<string, number> = {}
 let done = 0
 
-/** What OpenCC says each region writes an orthodox form as. */
-const converted = (key: string): Quad<string> => [
-  first(ts.get(key), key),
-  first(hkVariants.get(key), key),
-  first(twVariants.get(key), key),
-  standardToJp.get(key) ?? key,
+/** Every form OpenCC says a region can write an orthodox form as. */
+const choices = (
+  fallback: string,
+  ...groups: (string[] | undefined)[]
+): string[] => {
+  const forms = [...new Set(groups.flatMap((group) => group ?? []))]
+  return forms.length > 0 ? forms : [fallback]
+}
+
+const mainlandListsChar = (char: string) =>
+  REGION_LISTS[0]!.some((list) => list.has(char))
+
+const mainlandCandidates = (key: string): string[] => {
+  const direct = ts.get(key)
+  const reversed = standardToCn.get(key)
+  // ST contains lexical substitutions as well as missing reverse mappings.
+  // When both sides are independent mainland entries, the reverse evidence
+  // remains an alternative but cannot replace the row's own listed form.
+  if (
+    !direct?.length &&
+    mainlandListsChar(key) &&
+    reversed?.some(mainlandListsChar)
+  )
+    return choices(key, [key], reversed)
+  return choices(key, direct, reversed)
+}
+
+const convertedCandidates = (key: string): Quad<string[]> => [
+  mainlandCandidates(key),
+  choices(key, hkVariants.get(key)),
+  choices(key, twVariants.get(key)),
+  choices(key, standardToJp.get(key)),
 ]
+
+const candidatesByRow = new WeakMap<CharRow, Quad<string[]>>()
 
 function buildRow(
   key: string,
   chars: Quad<string>,
   aka?: string[],
+  candidates: Quad<string[]> = chars.map((char) => [char]) as Quad<string[]>,
+  alternatives?: CharRow['alternatives'],
 ): CharRow | undefined {
   const codePoints = chars.map((c) => c.codePointAt(0)!) as Quad<number>
   const sansCids = codePoints.map((cp, i) => sansCMaps[i]!.get(cp))
@@ -376,10 +407,13 @@ function buildRow(
     ...pick(unihan.get(codePoints[3])?.readings, 'on', 'kun'),
   }
 
-  return {
+  const row: CharRow = {
     key,
     chars,
     ...(aka?.length ? { aka } : {}),
+    ...(alternatives && Object.keys(alternatives).length > 0
+      ? { alternatives }
+      : {}),
     ...(hasOld
       ? {
           old: {
@@ -397,17 +431,67 @@ function buildRow(
     common: tier.filter(Boolean).length,
     ...(Object.keys(readings).length > 0 ? { readings } : {}),
   }
+  candidatesByRow.set(row, candidates)
+  return row
 }
 
 for (const key of keys) {
-  const row = buildRow(key, converted(key))
+  const candidates = convertedCandidates(key)
+  const chars = candidates.map((forms) => forms[0] ?? key) as Quad<string>
+  const row = buildRow(key, chars, undefined, candidates)
   if (row) rows.push(row)
   if (++done % 1000 === 0) console.error(`  ${done}/${keys.size}`)
 }
 
-/** Does one of a region's own tables enter this character in its own right? */
+/** Does one of a region's own primary tables enter this character? */
 const listsChar = (region: number, char: string) =>
   REGION_LISTS[region]!.some((list) => list.has(char))
+
+interface Listing {
+  char: string
+  tier: number
+  primary: boolean
+}
+
+/** Listing evidence for one form, without losing whether it was only glossed. */
+function listingOf(region: number, char: string): Listing | undefined {
+  if (region === 0) {
+    const tier = cn1.has(char) ? 1 : cn2.has(char) ? 2 : cn3.has(char) ? 3 : 0
+    if (!tier) return undefined
+    return {
+      char,
+      tier,
+      primary:
+        entries['cn-1'].has(char) ||
+        entries['cn-2'].has(char) ||
+        entries['cn-3'].has(char),
+    }
+  }
+  if (region === 1) {
+    if (!hk.has(char)) return undefined
+    return {
+      char,
+      tier: 1,
+      primary: entries['hk-common'].has(char),
+    }
+  }
+  if (region === 2) {
+    const tier = twCommon.has(char) ? 1 : twSub.has(char) ? 2 : 0
+    if (!tier) return undefined
+    return {
+      char,
+      tier,
+      primary: entries['tw-common'].has(char) || entries['tw-sub'].has(char),
+    }
+  }
+  const tier = jpGrade.has(char) ? 2 : jpJoyo.has(char) ? 1 : 0
+  if (!tier) return undefined
+  return {
+    char,
+    tier,
+    primary: entries['jp-joyo'].has(char) || entries['jp-grade'].has(char),
+  }
+}
 
 /**
  * Every character some table enters in its own right, secondary lists
@@ -456,12 +540,24 @@ function fold(all: CharRow[]): CharRow[] {
   const out: CharRow[] = []
   for (const group of groups.values()) {
     const names = [...new Set(group.flatMap((r) => [r.key, ...(r.aka ?? [])]))]
+    /** All OpenCC candidates survive until the regional form is selected. */
+    const regionalCandidates = CMAP_REGION.map((_, region) => [
+      ...new Set(
+        group.flatMap(
+          (row) =>
+            (candidatesByRow.get(row)?.[region] ?? [
+              row.chars[region]!,
+            ]) as string[],
+        ),
+      ),
+    ]) as Quad<string[]>
 
     /**
      * Every form the group knows about: what OpenCC produced for any column,
      * and the orthodox names themselves.
      */
     const pool = [...new Set([...group.flatMap((row) => row.chars), ...names])]
+    const candidatePool = [...new Set([...regionalCandidates.flat(), ...names])]
 
     /**
      * What each region writes. OpenCC's answer wins when that region's own
@@ -492,6 +588,21 @@ function fold(all: CharRow[]): CharRow[] {
       )
     }) as Quad<string>
 
+    const alternatives: NonNullable<CharRow['alternatives']> = {}
+    for (const [region, id] of REGION_IDS.entries()) {
+      const selected = chars[region]!
+      const listed = candidatePool
+        .filter((char) => char !== selected)
+        .map((char) => listingOf(region, char))
+        .filter((entry): entry is Listing => entry !== undefined)
+        .map(({ char, tier, primary }) => ({
+          char,
+          tier,
+          kind: primary ? ('primary' as const) : ('glossed' as const),
+        }))
+      if (listed.length > 0) alternatives[id] = listed
+    }
+
     // The key is the form most of the four columns actually use, then the one
     // the most tables list, then the lower codepoint so the choice is stable.
     const fills = (name: string) => chars.filter((c) => c === name).length
@@ -514,7 +625,7 @@ function fold(all: CharRow[]): CharRow[] {
     const key = rank(written.length > 0 ? written : pool)[0]!
     const aka = names.filter((name) => name !== key)
 
-    const folded = buildRow(key!, chars, aka)
+    const folded = buildRow(key!, chars, aka, regionalCandidates, alternatives)
     if (folded) out.push(folded)
     else if (group.length === 1) out.push(group[0]!)
   }
@@ -522,6 +633,40 @@ function fold(all: CharRow[]): CharRow[] {
 }
 
 rows = fold(rows)
+
+/**
+ * Every primary source entry must be represented as either the displayed form
+ * or a listed alternative. A few mainland entries have an ST mapping whose
+ * orthodox target is absent from the reverse TS table (昵 -> 暱, 稆 -> 穭), or
+ * whose target cannot be drawn in every regional font. In that case the source
+ * entry itself is still drawable and gets a conservative, unconverted row
+ * rather than disappearing during normalization.
+ */
+const rowEntries: Set<string>[] = [
+  new Set([...entries['cn-1'], ...entries['cn-2'], ...entries['cn-3']]),
+  entries['hk-common'],
+  entries['tw-common'],
+  entries['jp-joyo'],
+]
+const accountsFor = (region: number, char: string) =>
+  rows.some(
+    (row) =>
+      row.chars[region] === char ||
+      row.alternatives?.[REGION_IDS[region]!]?.some(
+        (entry) => entry.char === char,
+      ),
+  )
+const unrenderable: string[] = []
+for (const [region, source] of rowEntries.entries())
+  for (const char of source) {
+    if (accountsFor(region, char)) continue
+    const chars = REGION_IDS.map(() => char) as Quad<string>
+    const fallback = buildRow(char, chars)
+    if (fallback) rows.push(fallback)
+    else unrenderable.push(`${REGION_IDS[region]}:${char}`)
+  }
+if (unrenderable.length > 0)
+  console.error(`unrenderable source entries: ${unrenderable.join(' ')}`)
 
 /**
  * Substituting a form can leave two rows with the same four columns -- one of
@@ -533,19 +678,39 @@ rows = fold(rows)
     const id = row.chars.join('')
     byQuad.set(id, [...(byQuad.get(id) ?? []), row])
   }
-  rows = [...byQuad.values()].map(([first, ...rest]) =>
-    rest.length === 0
-      ? first!
-      : {
-          ...first!,
-          aka: [
-            ...new Set([
-              ...(first!.aka ?? []),
-              ...rest.flatMap((r) => [r.key, ...(r.aka ?? [])]),
-            ]),
-          ],
-        },
-  )
+  rows = [...byQuad.values()].map(([first, ...rest]) => {
+    if (rest.length === 0) return first!
+    const group = [first!, ...rest]
+    const alternatives: NonNullable<CharRow['alternatives']> = {}
+    for (const [region, id] of REGION_IDS.entries()) {
+      const selected = first!.chars[region]!
+      const listed = new Map<string, ListedAlternative>()
+      for (const row of group)
+        for (const entry of row.alternatives?.[id] ?? [])
+          if (entry.char !== selected) {
+            const held = listed.get(entry.char)
+            listed.set(entry.char, {
+              char: entry.char,
+              tier: Math.min(held?.tier ?? entry.tier, entry.tier),
+              kind:
+                held?.kind === 'primary' || entry.kind === 'primary'
+                  ? 'primary'
+                  : 'glossed',
+            })
+          }
+      if (listed.size > 0) alternatives[id] = [...listed.values()]
+    }
+    return {
+      ...first!,
+      aka: [
+        ...new Set([
+          ...(first!.aka ?? []),
+          ...rest.flatMap((r) => [r.key, ...(r.aka ?? [])]),
+        ]),
+      ],
+      ...(Object.keys(alternatives).length > 0 ? { alternatives } : {}),
+    }
+  })
 }
 
 for (const row of rows) {

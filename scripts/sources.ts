@@ -333,13 +333,17 @@ export function parseDict(text: string): Map<string, string[]> {
   return map
 }
 
-/** Reverse an OpenCC dictionary: regional form -> standard form. First entry
- * wins so later ones cannot clobber it. */
-export function reverseDict(dict: Map<string, string[]>): Map<string, string> {
-  const rev = new Map<string, string>()
+/** Reverse an OpenCC dictionary without discarding one-to-many candidates. */
+export function reverseDict(
+  dict: Map<string, string[]>,
+): Map<string, string[]> {
+  const rev = new Map<string, string[]>()
   for (const [key, values] of dict) {
     for (const value of values) {
-      if (value !== key && !rev.has(value)) rev.set(value, key)
+      if (value === key) continue
+      const candidates = rev.get(value) ?? []
+      if (!candidates.includes(key)) candidates.push(key)
+      rev.set(value, candidates)
     }
   }
   return rev
