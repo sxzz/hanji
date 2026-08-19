@@ -64,17 +64,17 @@ export const SOURCES: Source[] = [
       'zh-TW': '頁面顯示用字體',
       'zh-HK': '頁面顯示用字體',
     },
-    name: 'Noto Sans CJK / Noto Serif CJK',
+    name: 'Noto Sans / Noto Serif（含 CJK）',
     homepage: 'https://github.com/notofonts/noto-cjk',
     license: 'SIL OFL 1.1',
     licenseUrl: 'https://openfontlicense.org/',
     note: {
       'zh-CN':
-        '本站字体是按表内用字子集化后的产物，OFL 声明随附于 /fonts/OFL.txt。',
+        '汉字取自 CJK 版本，拉丁字母与数字取自拉丁版本，都按站内用字子集化后自托管，OFL 声明随附于 /fonts/OFL.txt。',
       'zh-TW':
-        '本站字體是按表內用字子集化後的產物，OFL 聲明隨附於 /fonts/OFL.txt。',
+        '漢字取自 CJK 版本，拉丁字母與數字取自拉丁版本，都按站內用字子集化後自行託管，OFL 聲明隨附於 /fonts/OFL.txt。',
       'zh-HK':
-        '本站字體是按表內用字子集化後的產物，OFL 聲明隨附於 /fonts/OFL.txt。',
+        '漢字取自 CJK 版本，拉丁字母與數字取自拉丁版本，都按站內用字子集化後自行託管，OFL 聲明隨附於 /fonts/OFL.txt。',
     },
   },
   {
@@ -224,12 +224,6 @@ export const ASSETS: Record<string, string> = {
     'main',
     'fonts/NotoSerif/unhinted/variable-ttf/NotoSerif%5Bwdth,wght%5D.ttf',
   ),
-  'font/IBMPlexMono-Regular.woff2': gh(
-    'IBM/plex',
-    'master',
-    'packages/plex-mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2',
-  ),
-
   'font/OFL.txt': gh('notofonts/noto-cjk', 'main', 'Sans/LICENSE'),
 }
 

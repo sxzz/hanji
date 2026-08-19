@@ -31,8 +31,13 @@
   --font-ui:
     'UI Latin Sans', 'UI zh-CN Sans', 'Noto Sans', 'Noto Sans SC',
     ui-sans-serif, system-ui, sans-serif;
-  --font-mono:
-    'UI Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+  /* The data columns -- codepoints, stroke counts, frequency ranks -- used to
+     have a face of their own. They no longer need one: Noto Sans and Noto
+     Serif set their figures on a fixed width already, so the columns line up
+     in the interface face, and following it keeps the numbers in step with
+     the language and with the typeface switch. The monospace tail is a last
+     resort for a reader whose webfonts never arrive. */
+  --font-mono: var(--font-ui), ui-monospace, SFMono-Regular, monospace;
 }
 
 html[lang='zh-TW'] {

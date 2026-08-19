@@ -273,25 +273,6 @@ for (const style of STYLES) {
   console.error(`${file}  ${(subset.length / 1024).toFixed(0)} KB`)
 }
 
-{
-  // The data columns -- codepoints, stroke counts, frequency ranks -- are set
-  // in one weight, so one static cut covers them
-  const subset = await subsetFont(
-    await raw('font/IBMPlexMono-Regular.woff2'),
-    ASCII + PUNCTUATION,
-    { targetFormat: 'woff2', noLayoutClosure: true },
-  )
-  await writeFile(join(FONT_DIR, 'ui-mono.woff2'), subset)
-  faces.ui!.push(
-    `@font-face {
-  font-family: 'UI Mono';
-  src: url('/fonts/ui-mono.woff2') format('woff2');
-  font-display: swap;
-}`,
-  )
-  console.error(`ui-mono.woff2  ${(subset.length / 1024).toFixed(0)} KB`)
-}
-
 /**
  * The typeface switch labels itself with 黑 and 宋, each set in the face it
  * names, so the two designs have to be on screen at once -- which no single
