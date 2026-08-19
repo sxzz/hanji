@@ -20,6 +20,7 @@ export const zhCN = {
   },
   nav: {
     about: '关于',
+    github: 'GitHub 仓库',
     theme: '切换深浅色',
     back: '返回字表',
     options: '显示选项',

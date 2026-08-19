@@ -22,6 +22,7 @@ export const zhHK: typeof zhCN = {
   },
   nav: {
     about: '關於',
+    github: 'GitHub 倉庫',
     theme: '切換深淺色',
     back: '返回字表',
     options: '顯示選項',
