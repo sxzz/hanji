@@ -30,18 +30,24 @@ export interface Form {
  * carry the variants as entries of their own. One that does not simply
  * answers nothing, which costs the reader a click and no more.
  */
-export function formsOf(row: CharRow): Form[] {
+export function formsOf(
+  row: CharRow,
+  /** Regions to draw the columns from; a reader may have hidden some. */
+  regions: readonly Region[] = REGIONS,
+): Form[] {
   const out: Form[] = []
   const add = (char: string, font: Region) => {
     if (char && out.every((form) => form.char !== char))
       out.push({ char, font })
   }
-  for (const [index] of row.chars.entries())
+  for (const region of regions) {
+    const index = REGIONS.indexOf(region)
     add(row.chars[index]!, fontRegionOf(row, index))
+  }
   // The key and the names it merged with are not always a column of their own
   add(row.key, 'cn')
   for (const name of row.aka ?? []) add(name, 'cn')
-  for (const region of REGIONS)
+  for (const region of regions)
     for (const entry of row.alternatives?.[region] ?? [])
       add(entry.char, region)
   return out
@@ -101,6 +107,12 @@ export function dictLinks(char: string): DictLink[] {
 }
 
 /** Every character the group is written with, each with its references. */
-export function dictGroups(row: CharRow): { form: Form; links: DictLink[] }[] {
-  return formsOf(row).map((form) => ({ form, links: dictLinks(form.char) }))
+export function dictGroups(
+  row: CharRow,
+  regions?: readonly Region[],
+): { form: Form; links: DictLink[] }[] {
+  return formsOf(row, regions).map((form) => ({
+    form,
+    links: dictLinks(form.char),
+  }))
 }

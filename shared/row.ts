@@ -56,3 +56,36 @@ export function segmentsOf(signature: string): Segment[] {
 export function varietyOf(signature: string): number {
   return new Set(signature).size
 }
+
+/**
+ * The glyph partition over every column a row offers: the four regions, then
+ * Japan's pre-reform form where the row has one. The kyujitai is numbered on
+ * the same scale as the regions, so a fifth digit compares against the four.
+ */
+export function glyphSignature(row: CharRow): string {
+  return row.old ? row.glyph + row.old.glyph : row.glyph
+}
+
+/**
+ * A signature restricted to the columns on show, renumbered so groups are
+ * named by first appearance among them.
+ *
+ * Dropping a column is not enough on its own: "0122" with the first column
+ * hidden reads "122", which no chip matches and which colors the survivors
+ * from the second accent onward. Renumbering makes it "011" -- the same
+ * partition every other three-column row of that shape carries.
+ */
+export function projectSignature(
+  signature: string,
+  columns: readonly number[],
+): string {
+  const groups = new Map<string, number>()
+  let out = ''
+  for (const index of columns) {
+    const digit = signature[index]
+    if (digit === undefined) continue
+    if (!groups.has(digit)) groups.set(digit, groups.size)
+    out += groups.get(digit)
+  }
+  return out
+}

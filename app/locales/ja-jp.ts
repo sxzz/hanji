@@ -15,8 +15,8 @@ export const jaJP: typeof zhCN = {
     old: { short: '旧字体', full: '日本の旧字体' },
   },
   hero: {
-    title: '一つの漢字、四つの字形',
-    body: '中国大陸、香港、台湾、日本。同じ漢字でも、地域によって書き方が異なることがあります。',
+    title: '一つの漢字、{n}つの字形',
+    body: '{regions}。同じ漢字でも、地域によって書き方が異なることがあります。',
     split: '分けて見る',
     merge: '重ねて見る',
   },
@@ -35,6 +35,10 @@ export const jaJP: typeof zhCN = {
     outline: '重ね表示で輪郭線を使う',
     outlineHint:
       '重ねた字形を輪郭線で表示します。画が一つに潰れにくくなり、違いが分かりやすくなります。',
+    columns: '比較する字形',
+    columnsHint:
+      '外した列は漢字表にも詳細ページにも表示されず、残った字形だけで改めてグループ分けします。',
+    columnsLast: '地域は少なくとも一つ残してください。',
   },
   style: {
     label: '書体',
@@ -58,7 +62,7 @@ export const jaJP: typeof zhCN = {
     pattern: '差異パターン',
     tier: '収録区分',
     variety: '{n}種類の字形',
-    identical: '4地域で同形',
+    identical: '{n}地域で同形',
     clear: '絞り込みを解除',
     matched: '{n}字',
   },

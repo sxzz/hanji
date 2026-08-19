@@ -1,10 +1,88 @@
-import { REGIONS, type Region } from '~~/shared/types.ts'
+import { COLUMNS, REGIONS, type Column, type Region } from '~~/shared/types.ts'
 
 const FLAGS: Record<Region, string> = {
   cn: '🇨🇳',
   hk: '🇭🇰',
   tw: '🇹🇼',
   jp: '🇯🇵',
+}
+
+export const HIDDEN_KEY = 'hanji:hidden'
+
+const isColumn = (value: string): value is Column =>
+  (COLUMNS as readonly string[]).includes(value)
+
+/**
+ * Which columns take part in the comparison at all.
+ *
+ * A reader who never writes Japanese is not filtering Japan out of a result
+ * set -- they are saying the Japanese column is not one of the things being
+ * compared. So a hidden column leaves no cell, no chip and no group: the
+ * remaining forms are partitioned again among themselves, and two regions that
+ * only ever parted company through the hidden one now read as one form.
+ *
+ * Stored as what is hidden rather than what is shown, so the default is the
+ * whole comparison and a column added later starts out visible.
+ */
+export function useColumnVisibility() {
+  const hidden = useLocalStorage<string[]>(HIDDEN_KEY, [])
+
+  // Read on the client only: the prerendered HTML has to match what hydration
+  // produces, and localStorage is not available while prerendering.
+  const mounted = ref(false)
+  onMounted(() => (mounted.value = true))
+
+  const off = computed<Set<Column>>(() => {
+    if (!mounted.value) return new Set()
+    const chosen = new Set(hidden.value.filter(isColumn))
+    // A table with no columns compares nothing. A stored value that hides
+    // every region is unusable, so none of it is applied -- which keeps the
+    // toggles and what is drawn saying the same thing.
+    return REGIONS.every((region) => chosen.has(region)) ? new Set() : chosen
+  })
+
+  /** Columns on show, in CN-HK-TW-JP-old order. */
+  const columns = computed(() =>
+    COLUMNS.filter((column) => !off.value.has(column)),
+  )
+  const regions = computed(() =>
+    REGIONS.filter((region) => !off.value.has(region)),
+  )
+  /** The same regions as indices into REGIONS, which is how a Quad is read. */
+  const regionIndices = computed(() =>
+    regions.value.map((region) => REGIONS.indexOf(region)),
+  )
+  const showOld = computed(() => !off.value.has('old'))
+
+  /** Grid template for a row of cells, one track per region on show. */
+  const tracks = computed(
+    () => `repeat(${regions.value.length}, minmax(0, 1fr))`,
+  )
+
+  const shown = (column: Column) => !off.value.has(column)
+
+  /** The last region on show cannot go: something has to be compared. */
+  const locked = (column: Column) =>
+    column !== 'old' && shown(column) && regions.value.length === 1
+
+  function toggle(column: Column): void {
+    if (locked(column)) return
+    const chosen = new Set(off.value)
+    if (chosen.has(column)) chosen.delete(column)
+    else chosen.add(column)
+    hidden.value = COLUMNS.filter((entry) => chosen.has(entry))
+  }
+
+  return {
+    columns,
+    regions,
+    regionIndices,
+    tracks,
+    showOld,
+    shown,
+    locked,
+    toggle,
+  }
 }
 
 /**
@@ -39,6 +117,17 @@ export function usePrefs() {
 
   const outlineOn = computed(() => mounted.value && outline.value)
 
+  const {
+    columns: visibleColumns,
+    regions: visibleRegions,
+    regionIndices,
+    tracks: columnTracks,
+    showOld,
+    shown: columnShown,
+    locked: columnLocked,
+    toggle: toggleColumn,
+  } = useColumnVisibility()
+
   return {
     emojiFlags,
     flagsOn,
@@ -46,6 +135,14 @@ export function usePrefs() {
     outlineOn,
     regionLabel,
     labelClass,
-    REGIONS,
+    visibleColumns,
+    visibleRegions,
+    regionIndices,
+    columnTracks,
+    showOld,
+    columnShown,
+    columnLocked,
+    toggleColumn,
+    COLUMNS,
   }
 }

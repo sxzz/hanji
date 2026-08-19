@@ -1,4 +1,4 @@
-import { REGIONS, type CharRow, type Region } from './types.ts'
+import { REGIONS, type CharRow, type Column, type Region } from './types.ts'
 
 export type ListingOption =
   | { id: string; kind: 'tier'; region: Region; tier: number }
@@ -21,6 +21,19 @@ export const LISTING_OPTIONS: readonly ListingOption[] = [
   { id: 'jp2', kind: 'tier', region: 'jp', tier: 2 },
   { id: 'old', kind: 'old', region: 'jp' },
 ]
+
+/**
+ * The choices worth offering for a given set of columns. A region the reader
+ * has hidden has no forms on the page, so its listing levels have nothing left
+ * to narrow.
+ */
+export function listingOptionsFor(
+  columns: readonly Column[],
+): readonly ListingOption[] {
+  return LISTING_OPTIONS.filter((option) =>
+    columns.includes(option.kind === 'old' ? 'old' : option.region),
+  )
+}
 
 const OPTIONS_BY_ID = new Map(
   LISTING_OPTIONS.map((option) => [option.id, option]),

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { fontRegionOf, segmentsOf } from '~~/shared/row.ts'
+import { fontRegionOf, projectSignature, segmentsOf } from '~~/shared/row.ts'
 import { REGIONS, type CharRow } from '~~/shared/types.ts'
 
 const props = withDefaults(
@@ -14,9 +14,17 @@ const props = withDefaults(
 )
 
 const { t } = useT()
+// The lighter half of usePrefs: this renders once per row, so it stays off the
+// preferences that have nothing to say about which columns exist.
+const { regions, regionIndices, tracks, showOld } = useColumnVisibility()
 
+// Read over the columns on show: with Japan hidden, a row that ran
+// CN | HK+TW | JP has two runs, not three with a gap where Japan was.
 const signature = computed(() =>
-  props.dimension === 'glyph' ? props.row.glyph : props.row.cp,
+  projectSignature(
+    props.dimension === 'glyph' ? props.row.glyph : props.row.cp,
+    regionIndices.value,
+  ),
 )
 const segments = computed(() => segmentsOf(signature.value))
 
@@ -27,7 +35,8 @@ const colorOf = (group: number) =>
 const LANG = { cn: 'zh-CN', hk: 'zh-HK', tw: 'zh-TW', jp: 'ja' } as const
 
 const cells = computed(() =>
-  REGIONS.map((region, index) => {
+  regions.value.map((region) => {
+    const index = REGIONS.indexOf(region)
     // REGIONS and chars are both length 4, so this index is always in range
     const char = props.row.chars[index]!
     return {
@@ -37,14 +46,14 @@ const cells = computed(() =>
       lang: LANG[region],
       codePoint: `U+${char.codePointAt(0)!.toString(16).toUpperCase()}`,
       // Only Japan has a second historical form to show
-      old: region === 'jp' ? props.row.old?.char : undefined,
+      old: region === 'jp' && showOld.value ? props.row.old?.char : undefined,
     }
   }),
 )
 </script>
 
 <template>
-  <div class="grid grid-cols-4">
+  <div class="grid" :style="{ gridTemplateColumns: tracks }">
     <div
       v-for="cell in cells"
       :key="cell.region"
@@ -79,7 +88,13 @@ const cells = computed(() =>
       Regions in one group join into a single run; the number of runs is the
       number of distinct forms.
     -->
-    <div class="grid col-span-4 grid-cols-4 mt-1.5 gap-[3px]">
+    <div
+      class="grid mt-1.5 gap-[3px]"
+      :style="{
+        gridColumn: `1 / span ${cells.length}`,
+        gridTemplateColumns: tracks,
+      }"
+    >
       <span
         v-for="segment in segments"
         :key="segment.start"

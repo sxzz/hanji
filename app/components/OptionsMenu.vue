@@ -1,7 +1,16 @@
 <script setup lang="ts">
 import { localeName, type Locale } from '~/locales/index.ts'
 const { t } = useT()
-const { emojiFlags, outline } = usePrefs()
+const {
+  emojiFlags,
+  outline,
+  regionLabel,
+  labelClass,
+  COLUMNS,
+  columnShown,
+  columnLocked,
+  toggleColumn,
+} = usePrefs()
 const { locale, choose, locales } = useLocaleChoice()
 const languages = locales.map((code) => ({ code, label: localeName(code) }))
 
@@ -77,6 +86,49 @@ onKeyStroke('Escape', () => (open.value = false))
             }}</span>
           </span>
         </label>
+
+        <!--
+          Which columns are compared at all. Same chip as the filter bar, but
+          not the same state: down there the exceptional thing is a filter being
+          on, so selection is a filled slab. Here every column starts on, so the
+          exceptional thing is one being off -- and a chip that is off simply
+          fades. That also keeps a solid ink field from ever landing behind a
+          flag, where the emoji's own colors fight it.
+        -->
+        <div class="mt-3 border-t border-rule pt-3">
+          <span class="text-sm text-ink font-medium">{{
+            t('options.columns')
+          }}</span>
+          <span class="mt-1 block text-xs text-soft">{{
+            t('options.columnsHint')
+          }}</span>
+          <div class="mt-2 flex flex-wrap justify-center gap-1.5">
+            <button
+              v-for="column in COLUMNS"
+              :key="column"
+              type="button"
+              class="h-7 flex items-center gap-1.5 border rounded-md px-2 text-xs transition duration-150 disabled:cursor-not-allowed focus-ring"
+              :class="
+                columnShown(column)
+                  ? 'border-ink/35 bg-paper text-ink'
+                  : 'border-rule bg-sunk text-mute opacity-55 hover:opacity-85'
+              "
+              :disabled="columnLocked(column)"
+              :title="
+                columnLocked(column)
+                  ? t('options.columnsLast')
+                  : t(`region.${column}.full`)
+              "
+              :aria-pressed="columnShown(column)"
+              @click="toggleColumn(column)"
+            >
+              <span :class="labelClass">{{
+                regionLabel(column === 'old' ? 'jp' : column)
+              }}</span>
+              <span v-if="column === 'old'">{{ t('region.old.short') }}</span>
+            </button>
+          </div>
+        </div>
       </div>
     </Transition>
   </div>
