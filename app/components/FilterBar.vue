@@ -86,8 +86,8 @@ function toggleRegion(region: string) {
 <template>
   <div class="flex flex-col gap-3 text-sm">
     <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-      <label class="flex items-center gap-2">
-        <span class="eyebrow">{{ t('filter.dimension') }}</span>
+      <label class="flex items-center gap-3">
+        <span class="w-20 shrink-0 eyebrow">{{ t('filter.dimension') }}</span>
         <SegChoice v-model="chars.dimension.value" :options="dimensions" />
       </label>
 
@@ -104,8 +104,8 @@ function toggleRegion(region: string) {
     </div>
 
     <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-      <label class="flex items-center gap-2">
-        <span class="eyebrow">{{ t('filter.search') }}</span>
+      <label class="flex items-center gap-3">
+        <span class="w-20 shrink-0 eyebrow">{{ t('filter.search') }}</span>
         <input
           v-model="chars.query.value"
           type="search"
@@ -171,7 +171,7 @@ function toggleRegion(region: string) {
         v-for="option in tierOptions"
         :key="option.id"
         type="button"
-        class="flex items-center gap-1.5 border rounded-md px-2 py-1 text-xs transition-colors duration-150 focus-ring"
+        class="h-7 flex items-center gap-1.5 border rounded-md px-2 text-xs transition-colors duration-150 focus-ring"
         :class="
           chars.tiers.value.includes(option.id)
             ? 'border-$c-ink bg-$c-ink text-$c-paper'
@@ -197,17 +197,19 @@ function toggleRegion(region: string) {
       <div
         v-for="group in varieties"
         :key="group.variety"
-        class="flex flex-wrap items-center gap-1.5"
+        class="grid grid-cols-[5rem_minmax(0,1fr)] items-start gap-x-3"
       >
-        <span class="w-20 shrink-0 eyebrow">{{ group.label }}</span>
-        <PatternChip
-          v-for="signature in group.patterns"
-          :key="signature"
-          :signature="signature"
-          :count="chars.counts.value[signature] ?? 0"
-          :active="chars.patterns.value.includes(signature)"
-          @toggle="chars.togglePattern(signature)"
-        />
+        <span class="h-7 flex items-center eyebrow">{{ group.label }}</span>
+        <div class="flex flex-wrap items-center gap-1.5">
+          <PatternChip
+            v-for="signature in group.patterns"
+            :key="signature"
+            :signature="signature"
+            :count="chars.counts.value[signature] ?? 0"
+            :active="chars.patterns.value.includes(signature)"
+            @toggle="chars.togglePattern(signature)"
+          />
+        </div>
       </div>
     </div>
   </div>
