@@ -12,6 +12,7 @@
  */
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { format, resolveConfig } from 'prettier'
 import { parseCMap, partitionSignature } from './cmap.ts'
 import {
   DATA_DIR,
@@ -618,6 +619,13 @@ await writeFile(
     /<!-- sources:start -->[\s\S]*?<!-- sources:end -->/,
     `<!-- sources:start -->\n${table}\n<!-- sources:end -->`,
   ),
+)
+await writeFile(
+  readmePath,
+  await format(await readFile(readmePath, 'utf8'), {
+    ...(await resolveConfig(readmePath)),
+    filepath: readmePath,
+  }),
 )
 
 const tally = (counts: Record<string, number>) =>
