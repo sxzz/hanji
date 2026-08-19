@@ -6,12 +6,12 @@ const model = defineModel<T>({ required: true })
 </script>
 
 <template>
-  <div class="inline-flex border border-rule rounded-md bg-sunk p-[2px]">
+  <div class="h-7 inline-flex border border-rule rounded-md bg-sunk p-[2px]">
     <button
       v-for="option in options"
       :key="option.value"
       type="button"
-      class="rounded px-2.5 py-1 text-xs transition-colors duration-150 focus-ring"
+      class="flex items-center rounded px-2.5 text-xs transition-colors duration-150 focus-ring"
       :class="
         model === option.value
           ? 'bg-paper text-ink shadow-[0_1px_2px_rgb(0_0_0/0.06)]'

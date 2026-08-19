@@ -14,7 +14,7 @@ defineEmits<{ toggle: [] }>()
   -->
   <button
     type="button"
-    class="flex items-center gap-2 border rounded-md px-2 py-1.5 transition-colors duration-150 disabled:opacity-30 focus-ring"
+    class="h-7 flex items-center gap-2 border rounded-md px-2 transition-colors duration-150 disabled:opacity-30 focus-ring"
     :class="
       active
         ? 'border-$c-ink bg-$c-ink text-$c-paper'
