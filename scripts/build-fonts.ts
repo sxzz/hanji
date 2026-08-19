@@ -289,13 +289,19 @@ async function faceMarks(): Promise<string> {
   // far too loosely.
   const viewBox = '0 -880 1000 1000'
   for (const style of STYLES) {
-    const font = fontkit.create(
-      Buffer.from(await raw(otf(style, 'cn'))),
-    ) as fontkit.Font
-    const scale = 1000 / font.unitsPerEm
     for (const locale of Object.keys(messages) as Locale[]) {
       // Each label is drawn in the face it names, and only in that face
       const char = messages[locale].style[style]
+      // Labels shared by several locales only need one outline. Locale order
+      // keeps the existing Chinese marks on the default face, while unique
+      // Japanese labels come from the Japanese face.
+      if (marks[style]?.[char]) continue
+      const source = UI_FONT[locale]
+      if (!source) continue
+      const font = fontkit.create(
+        Buffer.from(await raw(source(style))),
+      ) as fontkit.Font
+      const scale = 1000 / font.unitsPerEm
       const glyph = font.glyphForCodePoint(char.codePointAt(0)!)
       ;(marks[style] ??= {})[char] = glyph.path.scale(scale, -scale).toSVG()
     }

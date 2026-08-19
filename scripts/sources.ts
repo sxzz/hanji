@@ -12,6 +12,7 @@ import { dirname, join } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { unzipSync } from 'fflate'
+import type { Locale } from '../app/locales/index.ts'
 
 export const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 export const RAW_DIR = join(ROOT, 'data/raw')
@@ -22,15 +23,19 @@ export const FONT_DIR = join(ROOT, 'public/fonts')
  * Copy in every interface language. Written out here rather than in the
  * message files because a source belongs with the rest of its record.
  */
-export type Localized = Record<'zh-CN' | 'zh-TW' | 'zh-HK', string>
+export type Localized = Record<Locale, string>
 
 export interface Source {
   id: string
   /** One line on what it is used for. */
   use: Localized
   name: string
+  /** Language-specific replacement when the source name itself has copy. */
+  localizedName?: Partial<Localized>
   homepage: string
   license: string
+  /** Language-specific replacement for a prose license label. */
+  localizedLicense?: Partial<Localized>
   licenseUrl: string
   /** Upstream standard, or a caveat worth stating. */
   note?: Localized
@@ -43,8 +48,12 @@ export const SOURCES: Source[] = [
       'zh-CN': '判定四地字形差异',
       'zh-TW': '判定四地字形差異',
       'zh-HK': '判定四地字形差異',
+      'ja-JP': '4地域の字形差を判定',
     },
     name: 'Adobe Source Han Sans / Serif（CMap 资源）',
+    localizedName: {
+      'ja-JP': 'Adobe Source Han Sans / Serif（CMapリソース）',
+    },
     homepage: 'https://github.com/adobe-fonts/source-han-sans',
     license: 'SIL OFL 1.1',
     licenseUrl: 'https://openfontlicense.org/',
@@ -55,6 +64,8 @@ export const SOURCES: Source[] = [
         '每套字體的四份地區 CMap 給出「碼位 → CID」對映，同一字形池內 CID 相同即同一字形。判定取黑體與宋體的聯集。',
       'zh-HK':
         '每套字體的四份地區 CMap 給出「碼點 → CID」對應，同一字形池內 CID 相同即同一字形。判定取黑體與宋體的並集。',
+      'ja-JP':
+        '各書体の4地域向けCMapには「コードポイント → CID」の対応があり、同じ字形プール内でCIDが同じなら同一字形です。判定にはゴシック体と明朝体の和集合を使います。',
     },
   },
   {
@@ -63,8 +74,12 @@ export const SOURCES: Source[] = [
       'zh-CN': '页面展示用字体',
       'zh-TW': '頁面顯示用字體',
       'zh-HK': '頁面顯示用字體',
+      'ja-JP': '画面表示用フォント',
     },
     name: 'Noto Sans / Noto Serif（含 CJK）',
+    localizedName: {
+      'ja-JP': 'Noto Sans / Noto Serif（CJK対応）',
+    },
     homepage: 'https://github.com/notofonts/noto-cjk',
     license: 'SIL OFL 1.1',
     licenseUrl: 'https://openfontlicense.org/',
@@ -75,6 +90,8 @@ export const SOURCES: Source[] = [
         '漢字取自 CJK 版本，拉丁字母與數字取自拉丁版本，都按站內用字子集化後自行託管，OFL 聲明隨附於 /fonts/OFL.txt。',
       'zh-HK':
         '漢字取自 CJK 版本，拉丁字母與數字取自拉丁版本，都按站內用字子集化後自行託管，OFL 聲明隨附於 /fonts/OFL.txt。',
+      'ja-JP':
+        '漢字はCJK版、ラテン文字と数字はラテン版を使用し、サイト内で使う文字だけにサブセット化してセルフホストしています。OFLの表記は/fonts/OFL.txtに同梱しています。',
     },
   },
   {
@@ -83,8 +100,12 @@ export const SOURCES: Source[] = [
       'zh-CN': '简繁、港台异体、日本新旧字体对应',
       'zh-TW': '簡繁、港臺異體、日本新舊字體對應',
       'zh-HK': '簡繁、港台異體、日本新舊字體對應',
+      'ja-JP': '簡体字・繁体字、香港・台湾の異体字、日本の新字体・旧字体の対応',
     },
     name: 'OpenCC 开放中文转换',
+    localizedName: {
+      'ja-JP': 'OpenCC（Open Chinese Convert）',
+    },
     homepage: 'https://github.com/BYVoid/OpenCC',
     license: 'Apache-2.0',
     licenseUrl: 'https://www.apache.org/licenses/LICENSE-2.0',
@@ -95,10 +116,14 @@ export const SOURCES: Source[] = [
       'zh-CN': '四地标准字表',
       'zh-TW': '四地標準字表',
       'zh-HK': '四地標準字表',
+      'ja-JP': '4地域の標準字表',
     },
     name: 'zispace/hanzi-chars',
     homepage: 'https://github.com/zispace/hanzi-chars',
     license: '仓库未声明',
+    localizedLicense: {
+      'ja-JP': 'リポジトリに記載なし',
+    },
     licenseUrl: 'https://github.com/zispace/hanzi-chars',
     note: {
       'zh-CN':
@@ -107,6 +132,8 @@ export const SOURCES: Source[] = [
         '轉錄自各地官方規範：《通用規範漢字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）與《学年別漢字配当表》（2017）。',
       'zh-HK':
         '轉錄自各地官方規範：《通用規範漢字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）與《学年別漢字配当表》（2017）。',
+      'ja-JP':
+        '各地域の公式規範である中国大陸の『通用規範漢字表』（2013年）、台湾の『常用國字標準字體表』（1982年）、香港の『常用字字形表』、日本の『常用漢字表』（2010年）と『学年別漢字配当表』（2017年）から転記されています。',
     },
   },
   {
@@ -115,6 +142,7 @@ export const SOURCES: Source[] = [
       'zh-CN': '笔画数、读音',
       'zh-TW': '筆畫數、讀音',
       'zh-HK': '筆畫數、讀音',
+      'ja-JP': '画数・読み',
     },
     name: 'Unicode Han Database (Unihan)',
     homepage: 'https://www.unicode.org/reports/tr38/',
@@ -127,8 +155,13 @@ export const SOURCES: Source[] = [
       'zh-CN': '大陆字频排名',
       'zh-TW': '大陸字頻排名',
       'zh-HK': '大陸字頻排名',
+      'ja-JP': '中国大陸の文字頻度順位',
     },
     name: 'hanziDB.csv（Jun Da《现代汉语单字频率列表》）',
+    localizedName: {
+      'ja-JP':
+        'hanziDB.csv（Jun Da『Modern Chinese Character Frequency List』）',
+    },
     homepage: 'https://github.com/ruddfawcett/hanziDB.csv',
     license: 'MIT',
     licenseUrl: 'https://opensource.org/licenses/MIT',

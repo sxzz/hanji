@@ -6,6 +6,10 @@ withDefaults(defineProps<{ detailed?: boolean }>(), { detailed: false })
 
 const { t, locale } = useT()
 const list = sources as Source[]
+const localize = (
+  fallback: string,
+  translations?: Source['localizedName'],
+): string => translations?.[locale.value] ?? fallback
 </script>
 
 <template>
@@ -31,7 +35,7 @@ const list = sources as Source[]
               target="_blank"
               rel="noreferrer"
               class="underline decoration-rule underline-offset-4 hover:decoration-ink focus-ring"
-              >{{ source.name }}</a
+              >{{ localize(source.name, source.localizedName) }}</a
             >
             <p
               v-if="detailed && source.note"
@@ -46,7 +50,7 @@ const list = sources as Source[]
               target="_blank"
               rel="noreferrer"
               class="underline decoration-transparent underline-offset-4 hover:decoration-current focus-ring"
-              >{{ source.license }}</a
+              >{{ localize(source.license, source.localizedLicense) }}</a
             >
           </td>
         </tr>
