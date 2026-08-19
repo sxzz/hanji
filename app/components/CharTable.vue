@@ -15,7 +15,7 @@ function turnTo(page: number) {
 </script>
 
 <template>
-  <div ref="list" class="border border-rule rounded-lg bg-paper">
+  <div ref="list" class="overflow-clip border border-rule rounded-lg bg-paper">
     <div
       class="row-grid sticky top-0 z-10 items-center gap-2 border-b border-rule bg-paper px-2 py-2 sm:gap-3 sm:px-5"
     >

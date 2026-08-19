@@ -57,7 +57,11 @@ const columns = computed<Column[]>(() =>
  * would be answering a different question than the reader asked.
  */
 const picked = ref<Column[]>([...columns.value])
-watch(key, () => (picked.value = [...columns.value]))
+const hoveredGroup = ref<number>()
+watch(key, () => {
+  picked.value = [...columns.value]
+  hoveredGroup.value = undefined
+})
 const compared = computed(() =>
   picked.value.length ? picked.value : [...columns.value],
 )
@@ -301,6 +305,7 @@ useSeoMeta({
           :only="compared"
           :size="150"
           :morph="morph"
+          :focus-group="hoveredGroup"
           morph-whole
           with-old
         />
@@ -358,6 +363,8 @@ useSeoMeta({
                     :class="
                       compared.includes(run.cell.column) ? '' : 'opacity-20'
                     "
+                    @mouseenter="hoveredGroup = run.cell.group"
+                    @mouseleave="hoveredGroup = undefined"
                   >
                     <span
                       :lang="run.cell.lang"

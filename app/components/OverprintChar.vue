@@ -20,6 +20,8 @@ const props = withDefaults(
     only?: readonly Column[]
     /** Include Japan's pre-reform form, which the detail page compares too. */
     withOld?: boolean
+    /** Keep this glyph group vivid and veil the other overprint layers. */
+    focusGroup?: number
   }>(),
   {
     size: 32,
@@ -27,6 +29,7 @@ const props = withDefaults(
     morph: undefined,
     only: undefined,
     withOld: false,
+    focusGroup: undefined,
   },
 )
 
@@ -76,6 +79,14 @@ const label = computed(() =>
  */
 const colorOf = (group: number) =>
   layers.value.length === 1 ? 'var(--c-ink)' : `var(--c-g${group + 1})`
+
+/** Ignore a focus request for a layer hidden by the current comparison. */
+const activeFocus = computed(() =>
+  props.focusGroup !== undefined &&
+  layers.value.some((layer) => layer.group === props.focusGroup)
+    ? props.focusGroup
+    : undefined,
+)
 </script>
 
 <template>
@@ -101,7 +112,13 @@ const colorOf = (group: number) =>
       v-for="(layer, index) in layers"
       :key="layer.group"
       class="layer"
-      :class="[`hanji-${layer.region}`, { animate }]"
+      :class="[
+        `hanji-${layer.region}`,
+        {
+          animate,
+          veiled: activeFocus !== undefined && layer.group !== activeFocus,
+        },
+      ]"
       :style="{
         '--layer-color': colorOf(layer.group),
         animationDelay: `${index * 90}ms`,
@@ -132,6 +149,11 @@ const colorOf = (group: number) =>
   place-items: center;
   color: var(--layer-color);
   mix-blend-mode: var(--overprint-blend);
+  transition: opacity 180ms ease;
+}
+
+.layer.veiled {
+  opacity: 0.16;
 }
 
 /* Hollow: the color moves from the fill to the stroke, so the shapes read
