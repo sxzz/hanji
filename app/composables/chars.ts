@@ -7,6 +7,7 @@ import {
   type CharsData,
   type Region,
 } from '~~/shared/types.ts'
+import { isUnicodeScalarValue } from '~/utils/unicode.ts'
 import {
   asList,
   asOneOf,
@@ -222,7 +223,9 @@ export function useChars() {
 
     const codepoint = CODEPOINT.exec(text)?.[1]
     if (codepoint) {
-      const char = String.fromCodePoint(Number.parseInt(codepoint, 16))
+      const value = Number.parseInt(codepoint, 16)
+      if (!isUnicodeScalarValue(value)) return new Set()
+      const char = String.fromCodePoint(value)
       return new Set(charIndex.get(char))
     }
 
