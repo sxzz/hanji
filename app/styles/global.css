@@ -148,12 +148,6 @@ html[data-style='serif'] .hanji-jp {
 .style-option {
   color: var(--c-ink-mute);
 }
-.style-option[data-option='sans'] {
-  font-family: 'Hanji Face Sans', sans-serif;
-}
-.style-option[data-option='serif'] {
-  font-family: 'Hanji Face Serif', serif;
-}
 button:hover .style-option {
   color: var(--c-ink-soft);
 }

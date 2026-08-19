@@ -1,7 +1,6 @@
 import {
   defineConfig,
   presetIcons,
-  presetWebFonts,
   presetWind3,
   transformerDirectives,
 } from 'unocss'
@@ -24,6 +23,9 @@ export default defineConfig({
     },
   },
 
+  /** Every face this site uses is cut and served by us; see vars.css. */
+  rules: [['font-mono', { 'font-family': 'var(--font-mono)' }]],
+
   shortcuts: {
     'border-rule': 'border-$c-rule',
     'bg-paper': 'bg-$c-paper',
@@ -45,14 +47,6 @@ export default defineConfig({
     // Interface body type. The variant follows the locale -- see
     // app/locales/index.ts. The four Han columns use self-hosted subsets
     // instead and never come through here.
-    presetWebFonts({
-      provider: 'google',
-      fonts: {
-        sans: ['Noto Sans:400,500,700', 'Noto Sans SC:400,500,700'],
-        serif: ['Noto Serif:400,500,700', 'Noto Serif SC:400,500,700'],
-        mono: ['IBM Plex Mono:400,500,600'],
-      },
-    }),
   ],
 
   transformers: [transformerDirectives()],

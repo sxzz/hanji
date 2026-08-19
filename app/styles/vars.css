@@ -24,43 +24,47 @@
 
   /* Interface body type, which follows the interface language: a page about
      glyph differences must not itself set its own copy in the wrong regional
-     forms. 'UI zh-CN Sans' is our subset of that copy; the Google family
-     behind it is the safety net for anything the subset missed. */
+     forms. Latin comes from a face designed for it, Han from our subset of
+     the copy. Every face here is served by us -- the Noto names further along
+     are only picked up if the reader happens to have them installed, and
+     nothing reaches a font CDN. */
   --font-ui:
-    'Noto Sans', 'UI zh-CN Sans', 'Noto Sans SC', ui-sans-serif, system-ui,
-    sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+    'UI Latin Sans', 'UI zh-CN Sans', 'Noto Sans', 'Noto Sans SC',
+    ui-sans-serif, system-ui, sans-serif;
+  --font-mono:
+    'UI Mono', 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 }
 
 html[lang='zh-TW'] {
   --font-ui:
-    'Noto Sans', 'UI zh-TW Sans', 'Noto Sans TC', 'Noto Sans SC', ui-sans-serif,
-    system-ui, sans-serif;
+    'UI Latin Sans', 'UI zh-TW Sans', 'Noto Sans', 'Noto Sans TC',
+    'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
 }
 
 html[lang='zh-HK'] {
   --font-ui:
-    'Noto Sans', 'UI zh-HK Sans', 'Noto Sans HK', 'Noto Sans SC', ui-sans-serif,
-    system-ui, sans-serif;
+    'UI Latin Sans', 'UI zh-HK Sans', 'Noto Sans', 'Noto Sans HK',
+    'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* The typeface switch reaches the whole interface, not only the table. The
    language pairs stay more specific so they keep winning. */
 html[data-style='serif'] {
   --font-ui:
-    'Noto Serif', 'UI zh-CN Serif', 'Noto Serif SC', ui-serif, Georgia, serif;
+    'UI Latin Serif', 'UI zh-CN Serif', 'Noto Serif', 'Noto Serif SC', ui-serif,
+    Georgia, serif;
 }
 
 html[data-style='serif'][lang='zh-TW'] {
   --font-ui:
-    'Noto Serif', 'UI zh-TW Serif', 'Noto Serif TC', 'Noto Serif SC', ui-serif,
-    Georgia, serif;
+    'UI Latin Serif', 'UI zh-TW Serif', 'Noto Serif', 'Noto Serif TC',
+    'Noto Serif SC', ui-serif, Georgia, serif;
 }
 
 html[data-style='serif'][lang='zh-HK'] {
   --font-ui:
-    'Noto Serif', 'UI zh-HK Serif', 'Noto Serif HK', 'Noto Serif SC', ui-serif,
-    Georgia, serif;
+    'UI Latin Serif', 'UI zh-HK Serif', 'Noto Serif', 'Noto Serif HK',
+    'Noto Serif SC', ui-serif, Georgia, serif;
 }
 
 html.dark {

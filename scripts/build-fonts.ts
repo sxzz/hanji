@@ -1,3 +1,4 @@
+import { Buffer } from 'node:buffer'
 /**
  * Builds subset woff2 files from the regional Noto CJK faces, in both sans and
  * serif.
@@ -21,6 +22,7 @@
  */
 import { readdir, readFile, unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import * as fontkit from 'fontkit'
 import subsetFont from 'subset-font'
 import { messages } from '../app/locales/all.ts'
 import {
@@ -32,7 +34,7 @@ import {
 import { dictLinks, formsOf } from '../shared/links.ts'
 import { fontIndexOf } from '../shared/row.ts'
 import { REGIONS, STYLES, type CharsData, type Style } from '../shared/types.ts'
-import { DATA_DIR, FONT_DIR, raw, SOURCES } from './sources.ts'
+import { DATA_DIR, FONT_DIR, raw, ROOT, SOURCES } from './sources.ts'
 
 /** Region code as Noto names it. */
 const NOTO: Record<string, string> = { cn: 'sc', hk: 'hk', tw: 'tc', jp: 'jp' }
@@ -225,30 +227,112 @@ for (const locale of Object.keys(messages)) {
 }
 
 /**
- * The typeface switch labels itself with 黑 and 宋, each set in the face it
- * names. Those two glyphs have to be available in both faces at all times,
- * whereas the serif stylesheet only arrives once a reader asks for serif --
- * hence this pair of two-character files, declared alongside the interface
- * font and always loaded.
+ * Latin, digits and punctuation, cut from faces designed for them.
+ *
+ * These sit ahead of Google's families in the stack, which is what keeps the
+ * page from reaching fonts.gstatic.com at all -- a third-party request that
+ * costs a round trip everywhere and simply fails behind the Great Firewall.
+ * One file per style rather than one per weight: the faces are variable, and
+ * the interface only ever asks for 400 and 500.
  */
-const FACE_SAMPLE = '黑宋'
+const TONE_MARKS = 'āáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜńňǹḿüê'
+
+/**
+ * Punctuation the templates reach for directly rather than through the
+ * message files -- an en dash between the stroke bounds, arrows and ellipses
+ * in prose. Missing one costs a whole Google chunk for a single character.
+ */
+const PUNCTUATION = '–—…‘’“”·×÷→←↑↓•§¶†‡'
+const ASCII = Array.from({ length: 0x7e - 0x20 + 1 }, (_, i) =>
+  String.fromCodePoint(0x20 + i),
+).join('')
+
+const LATIN_SOURCE: Record<Style, string> = {
+  sans: 'font/NotoSans-VF.ttf',
+  serif: 'font/NotoSerif-VF.ttf',
+}
 
 for (const style of STYLES) {
-  const subset = await subsetFont(await raw(otf(style, 'cn')), FACE_SAMPLE, {
+  const chars = [...new Set(ASCII + TONE_MARKS + PUNCTUATION + uiText())].join(
+    '',
+  )
+  const subset = await subsetFont(await raw(LATIN_SOURCE[style]), chars, {
     targetFormat: 'woff2',
     noLayoutClosure: true,
   })
-  const file = `face-${style}.woff2`
+  const file = `ui-latin-${style}.woff2`
   await writeFile(join(FONT_DIR, file), subset)
   faces.ui!.push(
     `@font-face {
-  font-family: 'Hanji Face ${style === 'sans' ? 'Sans' : 'Serif'}';
+  font-family: 'UI Latin ${style === 'sans' ? 'Sans' : 'Serif'}';
   src: url('/fonts/${file}') format('woff2');
-  font-display: block;
+  font-weight: 100 900;
+  font-display: swap;
 }`,
   )
-  console.error(`${file}  ${(subset.length / 1024).toFixed(1)} KB`)
+  console.error(`${file}  ${(subset.length / 1024).toFixed(0)} KB`)
 }
+
+{
+  // The data columns -- codepoints, stroke counts, frequency ranks -- are set
+  // in one weight, so one static cut covers them
+  const subset = await subsetFont(
+    await raw('font/IBMPlexMono-Regular.woff2'),
+    ASCII + PUNCTUATION,
+    { targetFormat: 'woff2', noLayoutClosure: true },
+  )
+  await writeFile(join(FONT_DIR, 'ui-mono.woff2'), subset)
+  faces.ui!.push(
+    `@font-face {
+  font-family: 'UI Mono';
+  src: url('/fonts/ui-mono.woff2') format('woff2');
+  font-display: swap;
+}`,
+  )
+  console.error(`ui-mono.woff2  ${(subset.length / 1024).toFixed(0)} KB`)
+}
+
+/**
+ * The typeface switch labels itself with 黑 and 宋, each set in the face it
+ * names, so the two designs have to be on screen at once -- which no single
+ * font file can do. Two glyphs are not worth two requests, so their outlines
+ * are lifted here and inlined as SVG instead.
+ *
+ * Keyed by character across every locale, so a language that labels the
+ * switch differently is covered by adding it to the message file.
+ */
+async function faceMarks(): Promise<string> {
+  const marks: Record<string, Record<string, string>> = {}
+  // The ideographic em box with the baseline at y=0, which is where these
+  // glyphs are drawn; hhea's ascent carries line spacing and would frame them
+  // far too loosely.
+  const viewBox = '0 -880 1000 1000'
+  for (const style of STYLES) {
+    const font = fontkit.create(
+      Buffer.from(await raw(otf(style, 'cn'))),
+    ) as fontkit.Font
+    const scale = 1000 / font.unitsPerEm
+    for (const locale of Object.keys(messages) as Locale[]) {
+      // Each label is drawn in the face it names, and only in that face
+      const char = messages[locale].style[style]
+      const glyph = font.glyphForCodePoint(char.codePointAt(0)!)
+      ;(marks[style] ??= {})[char] = glyph.path.scale(scale, -scale).toSVG()
+    }
+  }
+  return `/* Generated by scripts/build-fonts.ts -- do not edit.
+ * The typeface switch names each face in that face, so both designs are on
+ * screen at once and no single font file can serve them. Two glyphs are not
+ * worth two requests, so their outlines are inlined instead.
+ * Noto Sans CJK / Noto Serif CJK, SIL OFL 1.1.
+ */
+export const FACE_VIEW_BOX = ${JSON.stringify(viewBox)}
+
+export const FACE_MARKS: Record<string, Record<string, string>> = ${JSON.stringify(marks, undefined, 2)}
+`
+}
+
+await writeFile(join(ROOT, 'app/generated/face-marks.ts'), await faceMarks())
+console.error('app/generated/face-marks.ts')
 
 const banner = `/* Generated by scripts/build-fonts.ts -- do not edit.
  * Noto Sans CJK and Noto Serif CJK (SIL OFL 1.1), subset to the characters

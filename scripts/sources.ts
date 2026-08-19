@@ -211,6 +211,25 @@ export const ASSETS: Record<string, string> = {
   'font/NotoSerifCJKtc-Regular.otf': noto('Serif', 'tc'),
   'font/NotoSerifCJKjp-Regular.otf': noto('Serif', 'jp'),
 
+  // Latin, digits and punctuation for the interface, plus the tone marks the
+  // readings carry. Cut from faces designed for Latin rather than from the
+  // CJK families, whose Latin is a compromise.
+  'font/NotoSans-VF.ttf': gh(
+    'notofonts/notofonts.github.io',
+    'main',
+    'fonts/NotoSans/unhinted/variable-ttf/NotoSans%5Bwdth,wght%5D.ttf',
+  ),
+  'font/NotoSerif-VF.ttf': gh(
+    'notofonts/notofonts.github.io',
+    'main',
+    'fonts/NotoSerif/unhinted/variable-ttf/NotoSerif%5Bwdth,wght%5D.ttf',
+  ),
+  'font/IBMPlexMono-Regular.woff2': gh(
+    'IBM/plex',
+    'master',
+    'packages/plex-mono/fonts/complete/woff2/IBMPlexMono-Regular.woff2',
+  ),
+
   'font/OFL.txt': gh('notofonts/noto-cjk', 'main', 'Sans/LICENSE'),
 }
 

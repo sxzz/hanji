@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { STYLES } from '~~/shared/types.ts'
 import { useStyle } from '~/composables/style.ts'
+import { FACE_MARKS, FACE_VIEW_BOX } from '~/generated/face-marks.ts'
 
 const { t } = useT()
 const style = useStyle()
@@ -8,6 +9,14 @@ const style = useStyle()
 const toggle = () => {
   style.value = style.value === 'sans' ? 'serif' : 'sans'
 }
+
+/**
+ * Each label is an outline lifted from the face it names, because the two
+ * designs have to show at once and one font file cannot hold both. Falls back
+ * to plain text if a locale labels the switch with something the build did
+ * not see.
+ */
+const markOf = (option: string) => FACE_MARKS[option]?.[t(`style.${option}`)]
 </script>
 
 <template>
@@ -32,9 +41,18 @@ const toggle = () => {
       <span v-if="index" class="px-0.5 text-$c-ink-mute" aria-hidden="true"
         >/</span
       >
-      <span class="style-option" :data-option="option">{{
-        t(`style.${option}`)
-      }}</span>
+      <span class="style-option" :data-option="option">
+        <svg
+          v-if="markOf(option)"
+          :viewBox="FACE_VIEW_BOX"
+          class="block h-[1em] w-[1em] fill-current"
+          role="img"
+          :aria-label="t(`style.${option}Full`)"
+        >
+          <path :d="markOf(option)" />
+        </svg>
+        <template v-else>{{ t(`style.${option}`) }}</template>
+      </span>
     </template>
   </button>
 </template>
