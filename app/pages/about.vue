@@ -27,6 +27,7 @@ useSeoMeta({
     <h2>{{ t('about.scopeTitle') }}</h2>
     <p>{{ t('about.scope1', numbers) }}</p>
     <p>{{ t('about.scope2', numbers) }}</p>
+    <p>{{ t('about.scope3') }}</p>
 
     <h2>{{ t('about.methodTitle') }}</h2>
     <p>{{ t('about.method1') }}</p>
@@ -40,6 +41,7 @@ useSeoMeta({
       <li>{{ t('about.limit3') }}</li>
       <li>{{ t('about.limit4') }}</li>
       <li>{{ t('about.limit5') }}</li>
+      <li>{{ t('about.limit6') }}</li>
     </ul>
 
     <h2>{{ t('about.noticeTitle') }}</h2>

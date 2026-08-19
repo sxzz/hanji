@@ -1,6 +1,6 @@
 // @unocss-include -- DictLink.icon holds UnoCSS icon classes
 import { fontRegionOf } from './row.ts'
-import type { CharRow, Region } from './types.ts'
+import { REGIONS, type CharRow, type Region } from './types.ts'
 
 export const REPO_URL = 'https://github.com/sxzz/hanji'
 export const ISSUES_URL = `${REPO_URL}/issues`
@@ -41,6 +41,9 @@ export function formsOf(row: CharRow): Form[] {
   // The key and the names it merged with are not always a column of their own
   add(row.key, 'cn')
   for (const name of row.aka ?? []) add(name, 'cn')
+  for (const region of REGIONS)
+    for (const entry of row.alternatives?.[region] ?? [])
+      add(entry.char, region)
   return out
 }
 

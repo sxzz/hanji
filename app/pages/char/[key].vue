@@ -98,6 +98,7 @@ const cells = computed(() =>
         codePoint: hex(old.char),
         strokes: String(old.strokes || '—'),
         tier: 0,
+        listing: undefined,
         group: old.glyph,
       }
     }
@@ -110,6 +111,7 @@ const cells = computed(() =>
       codePoint: hex(here.chars[index]!),
       strokes: String(here.strokes[index] || '—'),
       tier: here.tier[index]!,
+      listing: here.listing[index]!,
       group: Number(here.glyph[index]),
     }
   }),
@@ -158,8 +160,12 @@ const TIER_KEY: Record<string, string> = {
   tw: 'tierTw',
   jp: 'tierJp',
 }
-const tierLabel = (cell: Cell) =>
-  cell.tier ? t(`char.${TIER_KEY[cell.column]}.${cell.tier}`) : '—'
+const tierLabel = (cell: Cell) => {
+  if (cell.column === 'old') return '—'
+  if (cell.listing === 'unlisted') return t('char.unlistedFallback')
+  const label = t(`char.${TIER_KEY[cell.column]}.${cell.tier}`)
+  return cell.listing === 'glossed' ? `${label} · ${t('char.glossed')}` : label
+}
 
 /** True when every column writes the character the same way. */
 const singleForm = computed(
@@ -247,6 +253,33 @@ const alsoSee = computed(() => {
         }),
       )
   }
+
+  // A deliberately unmerged relationship with only one region of evidence.
+  // It is a navigation hint, not another searchable name for either row.
+  const uncertain = new Map<
+    string,
+    { chars: Set<string>; regions: Set<(typeof REGIONS)[number]> }
+  >()
+  for (const relation of here.uncertain ?? []) {
+    const group = uncertain.get(relation.key) ?? {
+      chars: new Set<string>(),
+      regions: new Set<(typeof REGIONS)[number]>(),
+    }
+    group.chars.add(relation.char)
+    for (const region of relation.regions) group.regions.add(region)
+    uncertain.set(relation.key, group)
+  }
+  for (const [related, relation] of uncertain)
+    add(
+      related,
+      t('char.alsoUncertain', {
+        char: list([...relation.chars], 'narrow'),
+        region: list(
+          [...relation.regions].map((region) => t(`region.${region}.full`)),
+          'narrow',
+        ),
+      }),
+    )
   return out
 })
 

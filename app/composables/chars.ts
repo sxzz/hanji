@@ -47,6 +47,9 @@ const namesOf = (row: CharRow): string[] => [
   row.key,
   row.old?.char ?? '',
   ...(row.aka ?? []),
+  ...REGIONS.flatMap((region) =>
+    (row.alternatives?.[region] ?? []).map((entry) => entry.char),
+  ),
 ]
 
 /**
