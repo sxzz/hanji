@@ -5,7 +5,6 @@ import { COLUMNS, REGIONS, type Column } from '~~/shared/types.ts'
 import {
   charPath,
   morphName,
-  provideChars,
   rowsByKey,
   rowsNaming,
   useMorphingKey,
@@ -19,7 +18,6 @@ definePageMeta({ layout: 'plain', middleware: 'char-alias' })
 const route = useRoute()
 const { t, list } = useT()
 const { regionLabel, labelClass } = usePrefs()
-provideChars()
 
 const key = computed(() => decodeURIComponent(String(route.params.key)))
 const row = computed(() => rowsByKey.get(key.value))
