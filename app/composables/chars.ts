@@ -324,11 +324,22 @@ export function useChars() {
   const pageCount = computed(() =>
     paged.value ? Math.max(1, Math.ceil(rows.value.length / PAGE_SIZE)) : 1,
   )
-  /** Rows on the current page, clamped in case a filter shortened the list. */
+
+  /** Keep the URL-backed page itself valid, not only the rendered slice. */
+  watch(
+    [page, pageCount, paged],
+    ([current, total, isPaged]) => {
+      if (!isPaged) return
+      const clamped = Math.min(Math.max(1, current), total)
+      if (current !== clamped) page.value = clamped
+    },
+    { immediate: true, flush: 'sync' },
+  )
+
+  /** Rows on the current page. */
   const pageRows = computed(() => {
     if (!paged.value) return rows.value
-    const current = Math.min(page.value, pageCount.value)
-    const start = (current - 1) * PAGE_SIZE
+    const start = (page.value - 1) * PAGE_SIZE
     return rows.value.slice(start, start + PAGE_SIZE)
   })
 

@@ -70,7 +70,7 @@ function turnTo(page: number) {
         >
           {{
             t('table.page', {
-              page: Math.min(chars.page.value, chars.pageCount.value),
+              page: chars.page.value,
               total: chars.pageCount.value,
             })
           }}
