@@ -123,6 +123,32 @@ export const SOURCES: Source[] = [
     licenseUrl: 'https://www.apache.org/licenses/LICENSE-2.0',
   },
   {
+    id: 'kanjivg',
+    use: {
+      'zh-CN': '日本字形笔顺动画',
+      'zh-TW': '日本字形筆順動畫',
+      'zh-HK': '日本字形筆順動畫',
+      'ja-JP': '日本字形の筆順アニメーション',
+      'ko-KR': '일본 자형 필순 애니메이션',
+    },
+    name: 'KanjiVG',
+    homepage: 'https://kanjivg.tagaini.net/',
+    license: 'CC BY-SA 3.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
+    note: {
+      'zh-CN':
+        '使用 KanjiVG 的日本字形路径；不改变笔画形状，只按原笔次序着色播放。',
+      'zh-TW':
+        '使用 KanjiVG 的日本字形路徑；不改變筆畫形狀，只按原筆次序著色播放。',
+      'zh-HK':
+        '使用 KanjiVG 的日本字形路徑；不改變筆畫形狀，只按原筆次序着色播放。',
+      'ja-JP':
+        'KanjiVGの日本字形パスを使用しています。筆画の形状は変更せず、元の順序で色を付けて再生します。',
+      'ko-KR':
+        'KanjiVG의 일본 자형 경로를 사용합니다. 획 모양은 바꾸지 않고 원래 순서대로 색을 입혀 재생합니다.',
+    },
+  },
+  {
     id: 'hanzi-chars',
     use: {
       'zh-CN': '五地标准字表',

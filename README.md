@@ -99,15 +99,16 @@ pnpm wrangler pages deploy .output/public --project-name="$CLOUDFLARE_PROJECT_NA
 
 <!-- sources:start -->
 
-| 用途                             | 来源                                                                                                     | 许可                                                      |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------- |
-| 判定五地字形差异                 | [Adobe Source Han Sans / Serif（CMap 资源）](https://github.com/adobe-fonts/source-han-sans)             | [SIL OFL 1.1](https://openfontlicense.org/)               |
-| 页面展示用字体                   | [Noto Sans / Noto Serif（含 CJK）](https://github.com/notofonts/noto-cjk)                                | [SIL OFL 1.1](https://openfontlicense.org/)               |
-| 简繁、港台异体、日本新旧字体对应 | [OpenCC 开放中文转换](https://github.com/BYVoid/OpenCC)                                                  | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0) |
-| 五地标准字表                     | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars)                                            | [仓库未声明](https://github.com/zispace/hanzi-chars)      |
-| 笔画数、读音                     | [Unicode Han Database (Unihan)](https://www.unicode.org/reports/tr38/)                                   | [Unicode License v3](https://www.unicode.org/license.txt) |
-| 韩式异体对应                     | [Unicode IRG N2200（韩国教育用汉字提案）](https://www.unicode.org/L2/L2017/17173-irgn2200-unihan-db.pdf) | [Unicode License v3](https://www.unicode.org/license.txt) |
-| 大陆字频排名                     | [hanziDB.csv（Jun Da《现代汉语单字频率列表》）](https://github.com/ruddfawcett/hanziDB.csv)              | [MIT](https://opensource.org/licenses/MIT)                |
+| 用途                             | 来源                                                                                                     | 许可                                                            |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| 判定五地字形差异                 | [Adobe Source Han Sans / Serif（CMap 资源）](https://github.com/adobe-fonts/source-han-sans)             | [SIL OFL 1.1](https://openfontlicense.org/)                     |
+| 页面展示用字体                   | [Noto Sans / Noto Serif（含 CJK）](https://github.com/notofonts/noto-cjk)                                | [SIL OFL 1.1](https://openfontlicense.org/)                     |
+| 简繁、港台异体、日本新旧字体对应 | [OpenCC 开放中文转换](https://github.com/BYVoid/OpenCC)                                                  | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)       |
+| 日本字形笔顺动画                 | [KanjiVG](https://kanjivg.tagaini.net/)                                                                  | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) |
+| 五地标准字表                     | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars)                                            | [仓库未声明](https://github.com/zispace/hanzi-chars)            |
+| 笔画数、读音                     | [Unicode Han Database (Unihan)](https://www.unicode.org/reports/tr38/)                                   | [Unicode License v3](https://www.unicode.org/license.txt)       |
+| 韩式异体对应                     | [Unicode IRG N2200（韩国教育用汉字提案）](https://www.unicode.org/L2/L2017/17173-irgn2200-unihan-db.pdf) | [Unicode License v3](https://www.unicode.org/license.txt)       |
+| 大陆字频排名                     | [hanziDB.csv（Jun Da《现代汉语单字频率列表》）](https://github.com/ruddfawcett/hanziDB.csv)              | [MIT](https://opensource.org/licenses/MIT)                      |
 
 <!-- sources:end -->
 
