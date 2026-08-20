@@ -23,25 +23,32 @@ jobs:
       - name: Setup JS
         uses: sxzz/workflows/setup-js@main
 
-      - name: Restore build data
-        id: build-data-cache
+      - name: Restore source downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/raw
+          key: sources-v1-${{ runner.os }}-${{ hashFiles('data/sources.lock.json') }}
+          restore-keys: sources-v1-${{ runner.os }}-
+
+      - name: Restore generated fonts
+        id: fonts-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
-            data/raw
             public/fonts/*.woff2
             public/fonts/fonts-*.css
-          key: build-data-${{ runner.os }}-${{ hashFiles('data/sources.lock.json', 'package.json', 'pnpm-lock.yaml', 'scripts/*.ts', 'shared/*.ts', 'app/locales/*.ts', 'app/generated/*.ts', 'public/data/*.json') }}
-          restore-keys: build-data-${{ runner.os }}-
+          key: fonts-v1-${{ runner.os }}-${{ hashFiles('data/sources.lock.json', 'package.json', 'pnpm-lock.yaml', 'scripts/build-data.ts', 'scripts/build-fonts.ts', 'scripts/cmap.ts', 'scripts/sources.ts', 'shared/links.ts', 'shared/row.ts', 'shared/types.ts', 'app/locales/*.ts', 'public/data/chars.json') }}
+          restore-keys: fonts-v1-${{ runner.os }}-
 
       - name: Build data
-        if: steps.build-data-cache.outputs.cache-hit != 'true'
+        if: steps.fonts-cache.outputs.cache-hit != 'true'
         run: pnpm build:data
 
       - name: Generate site
         run: pnpm generate
 
       - name: Deploy to Cloudflare Pages
+        id: deploy
         uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
