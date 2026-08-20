@@ -22,7 +22,7 @@ const toggleDark = useToggle(isDark)
   -->
   <button
     type="button"
-    class="rounded-md p-1.5 text-mute transition-colors duration-150 hover:text-ink focus-ring"
+    class="size-8 flex-center rounded-md text-mute transition-colors duration-150 hover:text-ink focus-ring"
     :title="t('nav.theme')"
     :aria-label="t('nav.theme')"
     @click="toggleDark()"

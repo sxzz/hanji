@@ -161,37 +161,27 @@ function toggleRegion(region: string) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 text-sm">
-    <div
-      class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5"
-    >
-      <span
-        class="tabular order-first self-end text-xs text-mute font-mono sm:order-last sm:ml-auto sm:self-auto"
-      >
+  <div class="filter-form text-sm">
+    <div class="filter-line">
+      <span class="filter-count tabular text-xs text-mute font-mono">
         {{
           t('filter.matched', { n: chars.rows.value.length.toLocaleString() })
         }}
       </span>
 
-      <label
-        class="grid grid-cols-[4.5rem_minmax(0,1fr)] w-full items-center gap-2 sm:w-auto sm:flex sm:gap-3"
-      >
-        <span class="eyebrow sm:w-20 sm:shrink-0">{{
-          t('filter.search')
-        }}</span>
+      <label class="filter-field filter-search">
+        <span class="filter-label eyebrow">{{ t('filter.search') }}</span>
         <input
           v-model="chars.query.value"
           type="search"
-          class="h-7 min-w-0 w-full border border-rule rounded-md bg-sunk px-2.5 text-sm sm:w-52 placeholder:text-mute focus-ring"
+          class="filter-control h-7 w-full border border-rule rounded-md bg-sunk px-2.5 text-sm sm:w-52 placeholder:text-mute focus-ring"
           :placeholder="t('filter.searchPlaceholder')"
         />
       </label>
 
-      <label
-        class="grid grid-cols-[4.5rem_minmax(0,1fr)] w-full items-center gap-2 sm:w-auto sm:flex"
-      >
-        <span class="eyebrow">{{ t('filter.strokes') }}</span>
-        <span class="min-w-0 flex items-center gap-2">
+      <label class="filter-field">
+        <span class="filter-label eyebrow">{{ t('filter.strokes') }}</span>
+        <span class="filter-control flex items-center gap-2">
           <input
             v-model.number="strokeLow"
             type="number"
@@ -211,16 +201,10 @@ function toggleRegion(region: string) {
       </label>
     </div>
 
-    <div
-      class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5"
-    >
-      <div
-        class="grid grid-cols-[4.5rem_minmax(0,1fr)] w-full items-center gap-2 sm:w-auto sm:flex"
-      >
-        <span class="sm:w-20 sm:shrink-0 eyebrow">{{
-          t('filter.common')
-        }}</span>
-        <div class="flex gap-1">
+    <div class="filter-line">
+      <div class="filter-field">
+        <span class="filter-label eyebrow">{{ t('filter.common') }}</span>
+        <div class="filter-control flex gap-1">
           <button
             v-for="region in visibleRegions"
             :key="region"
@@ -240,35 +224,33 @@ function toggleRegion(region: string) {
         </div>
       </div>
 
-      <label
-        class="grid grid-cols-[4.5rem_minmax(0,1fr)] w-full items-center gap-2 sm:w-auto sm:flex"
-      >
-        <span class="eyebrow">{{ t('sort.label') }}</span>
-        <SegChoice
-          v-model="sortModel"
-          class="w-full sm:w-auto"
-          :options="sorts"
-          @repeat="reverseSort"
-        />
-      </label>
+      <div class="filter-field">
+        <span class="filter-label eyebrow">{{ t('sort.label') }}</span>
+        <span class="filter-control">
+          <SegChoice
+            v-model="sortModel"
+            class="w-full sm:w-auto"
+            :options="sorts"
+            @repeat="reverseSort"
+          />
+        </span>
+      </div>
 
       <button
         v-if="chars.dirty.value"
         type="button"
-        class="self-end text-xs text-mute underline-offset-4 hover:text-ink hover:underline focus-ring sm:ml-auto sm:self-auto"
+        class="filter-clear text-xs text-mute underline-offset-4 hover:text-ink hover:underline focus-ring"
         @click="chars.reset()"
       >
         {{ t('filter.clear') }}
       </button>
     </div>
 
-    <div
-      class="grid grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-2 sm:flex"
-    >
-      <span class="h-7 flex items-center sm:w-20 sm:shrink-0 eyebrow">{{
+    <div class="filter-field filter-field-start">
+      <span class="filter-label h-7 flex items-center eyebrow">{{
         t('filter.tier')
       }}</span>
-      <div class="min-w-0 flex flex-1 flex-wrap items-center gap-x-3 gap-y-2">
+      <div class="filter-control flex flex-wrap items-center gap-x-3 gap-y-2">
         <button
           v-for="option in listingOptions"
           :key="option.id"
@@ -293,13 +275,11 @@ function toggleRegion(region: string) {
       </div>
     </div>
 
-    <div
-      class="grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2 sm:flex"
-    >
-      <span class="sm:w-20 sm:shrink-0 eyebrow">{{
-        t('filter.dimension')
-      }}</span>
-      <SegChoice v-model="chars.dimension.value" :options="dimensions" />
+    <div class="filter-field">
+      <span class="filter-label eyebrow">{{ t('filter.dimension') }}</span>
+      <div class="filter-control">
+        <SegChoice v-model="chars.dimension.value" :options="dimensions" />
+      </div>
     </div>
 
     <!--
@@ -308,36 +288,112 @@ function toggleRegion(region: string) {
       exact regional partitions share the second so either level scans as one
       set instead of several separate groups.
     -->
-    <div
-      class="grid grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-x-2 gap-y-2 sm:grid-cols-[5rem_minmax(0,1fr)] sm:gap-x-3"
-    >
-      <span class="h-7 flex items-center eyebrow">{{
+    <div class="filter-field filter-field-start">
+      <span class="filter-label h-7 flex items-center eyebrow">{{
         t('filter.pattern')
       }}</span>
-      <div class="flex flex-wrap items-center gap-1.5">
-        <VarietyChip
-          v-for="group in varieties"
-          :key="group.variety"
-          :label="group.label"
-          :count="group.count"
-          :active="group.active"
-          :partial="group.partial"
-          @toggle="chars.toggleVariety(group.variety, group.allPatterns)"
-        />
-      </div>
+      <div class="filter-control flex flex-col gap-2">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <VarietyChip
+            v-for="group in varieties"
+            :key="group.variety"
+            :label="group.label"
+            :count="group.count"
+            :active="group.active"
+            :partial="group.partial"
+            @toggle="chars.toggleVariety(group.variety, group.allPatterns)"
+          />
+        </div>
 
-      <span aria-hidden="true" />
-      <div class="flex flex-wrap items-center gap-1.5">
-        <PatternChip
-          v-for="signature in exactPatterns"
-          :key="signature"
-          :signature="signature"
-          :count="chars.counts.value[signature] ?? 0"
-          :active="chars.patterns.value.includes(signature)"
-          :label="patternLabel(signature)"
-          @toggle="chars.togglePattern(signature)"
-        />
+        <div class="flex flex-wrap items-center gap-1.5">
+          <PatternChip
+            v-for="signature in exactPatterns"
+            :key="signature"
+            :signature="signature"
+            :count="chars.counts.value[signature] ?? 0"
+            :active="chars.patterns.value.includes(signature)"
+            :label="patternLabel(signature)"
+            @toggle="chars.togglePattern(signature)"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.filter-form {
+  --filter-label-width: 4.5rem;
+  --filter-column-gap: 0.5rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filter-line {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-field {
+  display: grid;
+  min-width: 0;
+  width: 100%;
+  grid-template-columns: var(--filter-label-width) minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--filter-column-gap);
+}
+
+.filter-field-start {
+  align-items: start;
+}
+
+.filter-label {
+  grid-column: 1;
+  min-width: 0;
+}
+
+.filter-control {
+  grid-column: 2;
+  min-width: 0;
+}
+
+.filter-count {
+  order: -1;
+  align-self: flex-end;
+}
+
+.filter-clear {
+  align-self: flex-end;
+}
+
+@media (min-width: 640px) {
+  .filter-form {
+    --filter-label-width: 5rem;
+    --filter-column-gap: 0.75rem;
+  }
+
+  .filter-line {
+    flex-flow: row wrap;
+    align-items: center;
+    column-gap: 1.25rem;
+  }
+
+  .filter-line .filter-field {
+    width: auto;
+  }
+
+  .filter-count {
+    order: 1;
+    align-self: auto;
+    margin-left: auto;
+  }
+
+  .filter-clear {
+    align-self: auto;
+    margin-left: auto;
+  }
+}
+</style>

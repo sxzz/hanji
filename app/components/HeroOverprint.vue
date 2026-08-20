@@ -121,21 +121,22 @@ function toggle() {
   /*
    * Geometry of the separated row, sized from the number of columns on show:
    * hiding a region narrows the row rather than leaving a hole where it stood.
-   * --stack-scale enlarges one slot to the stacked plane's mobile size.
+   * Mobile forms are larger once separated, while the overprint remains the
+   * original 11rem. Five forms still fit a 320px viewport by stepping 53px.
    */
-  --form-size: 3.25rem;
-  --form-step: 3.5rem;
-  --stack-scale: 3.846154;
+  --form-size: 3.75rem;
+  --form-step: 3.3125rem;
+  --stack-scale: 2.933333;
   --split-width: calc(var(--form-step) * (var(--n) - 1) + var(--form-size));
 }
 
-/* The mobile overprint gets more presence while its separated forms retain
-   their compact geometry and continue to fit narrow screens. */
+/* Padding and minimum height preserve the original 176px overprint footprint
+   while the plane changes width underneath it. */
 .hero-stage {
   box-sizing: border-box;
   display: flex;
   min-width: 0;
-  min-height: 13.875rem;
+  min-height: 12.375rem;
   align-items: center;
   justify-content: center;
   padding: 0.5rem;
@@ -143,8 +144,8 @@ function toggle() {
 
 .hero-plane {
   position: relative;
-  width: 12.5rem;
-  height: 12.5rem;
+  width: 11rem;
+  height: 11rem;
   isolation: isolate;
   transition: width var(--hero-duration) var(--hero-ease);
 }
@@ -240,14 +241,8 @@ function toggle() {
 
   .hero-stage {
     width: 12rem;
-    min-height: 12.375rem;
     justify-content: flex-start;
     transition: width var(--hero-duration) var(--hero-ease);
-  }
-
-  .hero-plane {
-    width: 11rem;
-    height: 11rem;
   }
 
   /* The stage carries the plane plus its own 0.5rem of padding on each side. */

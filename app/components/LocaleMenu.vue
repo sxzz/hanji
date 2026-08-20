@@ -65,7 +65,7 @@ async function select(code: Locale) {
       <div
         v-if="open"
         role="menu"
-        class="absolute left-1/2 top-full z-30 mt-2 w-44 border border-rule rounded-lg bg-paper p-1.5 text-ink shadow-black/5 shadow-lg md:left-auto md:right-0 -translate-x-1/2 md:translate-x-0"
+        class="absolute right-0 top-full z-30 mt-2 w-44 border border-rule rounded-lg bg-paper p-1.5 text-ink shadow-black/5 shadow-lg"
       >
         <button
           v-for="language in languages"
@@ -99,13 +99,6 @@ async function select(code: Locale) {
 .locale-pop-enter-from,
 .locale-pop-leave-to {
   opacity: 0;
-  transform: translate(-50%, -0.25rem);
-}
-
-@media (min-width: 768px) {
-  .locale-pop-enter-from,
-  .locale-pop-leave-to {
-    transform: translateY(-0.25rem);
-  }
+  transform: translateY(-0.25rem);
 }
 </style>
