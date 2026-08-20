@@ -33,6 +33,7 @@ describe('broad difference-pattern choices', () => {
     expect(patternChoicesMatch('0001', DEFAULT_PATTERN_CHOICES)).toBe(true)
     expect(patternChoicesMatch('0112', DEFAULT_PATTERN_CHOICES)).toBe(true)
     expect(patternChoicesMatch('0123', DEFAULT_PATTERN_CHOICES)).toBe(true)
+    expect(patternChoicesMatch('01234', DEFAULT_PATTERN_CHOICES)).toBe(true)
   })
 
   it('lets an exact pattern replace its broad group', () => {
@@ -40,6 +41,7 @@ describe('broad difference-pattern choices', () => {
       '0001',
       'v3',
       'v4',
+      'v5',
     ])
   })
 
@@ -66,6 +68,16 @@ describe('pattern choices and hidden columns', () => {
 })
 
 describe('pattern choice URL encoding', () => {
+  it('includes five-form rows in the serialized default', () => {
+    expect(serializePatternChoices(DEFAULT_PATTERN_CHOICES)).toBe('v2,v3,v4,v5')
+  })
+
+  it('keeps an explicit five-form opt-out in the URL', () => {
+    const value = ['v2', 'v3', 'v4']
+    expect(serializePatternChoices(value)).toBe('v2,v3,v4')
+    expect(parsePatternChoices(serializePatternChoices(value))).toEqual(value)
+  })
+
   it('round-trips broad and exact choices', () => {
     const value = ['v3', '0001', 'v2']
     expect(parsePatternChoices(serializePatternChoices(value))).toEqual([
