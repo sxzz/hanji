@@ -31,8 +31,8 @@ export const koKR: typeof zhCN = {
   options: {
     title: '표시 설정',
     language: '인터페이스 언어',
-    emoji: '지역을 국기로 표시',
-    emojiHint: '‘중·일·홍·대·한’ 표기를 해당 국기 기호로 바꿉니다.',
+    flags: '지역을 국기로 표시',
+    flagsHint: '‘중·일·홍·대·한’ 표기를 해당 국기 기호로 바꿉니다.',
     outline: '겹쳐 보기에서 윤곽선 사용',
     outlineHint:
       '겹친 자형을 윤곽선으로 표시해 획이 한 덩어리로 뭉치지 않고 차이가 더 잘 보이게 합니다.',

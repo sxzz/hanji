@@ -6,7 +6,7 @@ import {
   projectSignature,
   signatureIndexOf,
 } from '~~/shared/row.ts'
-import { REGIONS, type Column } from '~~/shared/types.ts'
+import { REGIONS, type Column, type Region } from '~~/shared/types.ts'
 import {
   charPath,
   morphName,
@@ -22,7 +22,7 @@ definePageMeta({ layout: 'plain', middleware: 'char-alias' })
 
 const route = useRoute()
 const { t, list } = useT()
-const { regionLabel, labelClass, visibleColumns, visibleRegions } = usePrefs()
+const { flagsOn, visibleColumns, visibleRegions } = usePrefs()
 
 const key = computed(() => decodeURIComponent(String(route.params.key)))
 const row = computed(() => rowsByKey.get(key.value))
@@ -217,8 +217,8 @@ const columnsOf = (run: { from: number; span: number }) =>
  * Header label. The kyujitai belongs to Japan, so it carries Japan's mark and
  * says what it is: 日 旧字体, or the flag and the words when flags are on.
  */
-const columnMark = (column: Column) =>
-  regionLabel(column === 'old' ? 'jp' : column)
+const columnRegion = (column: Column): Region =>
+  column === 'old' ? 'jp' : column
 const codePointRuns = computed(() => runs((cell) => cell.codePoint))
 const strokeRuns = computed(() => runs((cell) => cell.strokes))
 const tierRuns = computed(() => runs(tierLabel))
@@ -401,9 +401,10 @@ useSeoMeta({
                         class="inline-flex items-center gap-1"
                         :title="t(`region.${column}.full`)"
                       >
-                        <span :class="labelClass">{{
-                          columnMark(column)
-                        }}</span>
+                        <RegionLabel
+                          :flag="flagsOn"
+                          :region="columnRegion(column)"
+                        />
                         <span v-if="column === 'old'">{{
                           t('region.old.short')
                         }}</span>
@@ -581,12 +582,9 @@ useSeoMeta({
                   rel="noreferrer"
                   class="inline-flex items-center gap-1.5 border border-rule rounded-md px-3 py-2 text-base text-soft transition-colors duration-150 hover:border-ink/30 hover:text-ink focus-ring"
                 >
-                  <span
-                    v-if="link.region"
-                    class="eyebrow"
-                    :class="labelClass"
-                    >{{ regionLabel(link.region) }}</span
-                  >
+                  <span v-if="link.region" class="eyebrow"
+                    ><RegionLabel :flag="flagsOn" :region="link.region" />
+                  </span>
                   <span
                     v-else-if="link.icon"
                     :class="link.icon"

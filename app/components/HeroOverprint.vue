@@ -5,8 +5,7 @@ import { REGIONS, type CharRow } from '~~/shared/types.ts'
 const props = defineProps<{ row: CharRow }>()
 
 const { t, list, locale } = useT()
-const { regionLabel, labelClass, outlineOn, visibleRegions, regionIndices } =
-  usePrefs()
+const { flagsOn, outlineOn, visibleRegions, regionIndices } = usePrefs()
 const split = ref(false)
 
 /**
@@ -38,7 +37,9 @@ const colorOf = (group: number) =>
 
 const label = computed(() =>
   list(
-    forms.value.map((form) => `${regionLabel(form.region)}：${form.char}`),
+    forms.value.map(
+      (form) => `${t(`region.${form.region}.full`)}：${form.char}`,
+    ),
     'narrow',
   ),
 )
@@ -80,7 +81,7 @@ function toggle() {
             form.char
           }}</span>
           <span class="hero-label eyebrow">
-            <span :class="labelClass">{{ regionLabel(form.region) }}</span>
+            <RegionLabel :flag="flagsOn" :region="form.region" />
           </span>
         </div>
       </div>
