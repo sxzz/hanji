@@ -162,46 +162,64 @@ function toggleRegion(region: string) {
 
 <template>
   <div class="flex flex-col gap-3 text-sm">
-    <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-      <label class="flex items-center gap-3">
-        <span class="w-20 shrink-0 eyebrow">{{ t('filter.search') }}</span>
-        <input
-          v-model="chars.query.value"
-          type="search"
-          class="h-7 w-52 border border-rule rounded-md bg-sunk px-2.5 text-sm placeholder:text-mute focus-ring"
-          :placeholder="t('filter.searchPlaceholder')"
-        />
-      </label>
-
-      <label class="flex items-center gap-2">
-        <span class="eyebrow">{{ t('filter.strokes') }}</span>
-        <input
-          v-model.number="strokeLow"
-          type="number"
-          :min="lo"
-          :max="hi"
-          class="tabular h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono focus-ring"
-        />
-        <span class="text-mute">–</span>
-        <input
-          v-model.number="strokeHigh"
-          type="number"
-          :min="lo"
-          :max="hi"
-          class="tabular h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono focus-ring"
-        />
-      </label>
-
-      <span class="tabular ml-auto text-xs text-mute font-mono">
+    <div
+      class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5"
+    >
+      <span
+        class="tabular order-first self-end text-xs text-mute font-mono sm:order-last sm:ml-auto sm:self-auto"
+      >
         {{
           t('filter.matched', { n: chars.rows.value.length.toLocaleString() })
         }}
       </span>
+
+      <label
+        class="grid grid-cols-[4.5rem_minmax(0,1fr)] w-full items-center gap-2 sm:w-auto sm:flex sm:gap-3"
+      >
+        <span class="eyebrow sm:w-20 sm:shrink-0">{{
+          t('filter.search')
+        }}</span>
+        <input
+          v-model="chars.query.value"
+          type="search"
+          class="h-7 min-w-0 w-full border border-rule rounded-md bg-sunk px-2.5 text-sm sm:w-52 placeholder:text-mute focus-ring"
+          :placeholder="t('filter.searchPlaceholder')"
+        />
+      </label>
+
+      <label
+        class="grid grid-cols-[4.5rem_minmax(0,1fr)] w-full items-center gap-2 sm:w-auto sm:flex"
+      >
+        <span class="eyebrow">{{ t('filter.strokes') }}</span>
+        <span class="min-w-0 flex items-center gap-2">
+          <input
+            v-model.number="strokeLow"
+            type="number"
+            :min="lo"
+            :max="hi"
+            class="tabular h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono focus-ring"
+          />
+          <span class="text-mute">–</span>
+          <input
+            v-model.number="strokeHigh"
+            type="number"
+            :min="lo"
+            :max="hi"
+            class="tabular h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono focus-ring"
+          />
+        </span>
+      </label>
     </div>
 
-    <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-      <div class="flex items-center gap-2">
-        <span class="w-20 shrink-0 eyebrow">{{ t('filter.common') }}</span>
+    <div
+      class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5"
+    >
+      <div
+        class="grid grid-cols-[4.5rem_minmax(0,1fr)] w-full items-center gap-2 sm:w-auto sm:flex"
+      >
+        <span class="sm:w-20 sm:shrink-0 eyebrow">{{
+          t('filter.common')
+        }}</span>
         <div class="flex gap-1">
           <button
             v-for="region in visibleRegions"
@@ -222,48 +240,65 @@ function toggleRegion(region: string) {
         </div>
       </div>
 
-      <label class="flex items-center gap-2">
+      <label
+        class="grid grid-cols-[4.5rem_minmax(0,1fr)] w-full items-center gap-2 sm:w-auto sm:flex"
+      >
         <span class="eyebrow">{{ t('sort.label') }}</span>
-        <SegChoice v-model="sortModel" :options="sorts" @repeat="reverseSort" />
+        <SegChoice
+          v-model="sortModel"
+          class="w-full sm:w-auto"
+          :options="sorts"
+          @repeat="reverseSort"
+        />
       </label>
 
       <button
         v-if="chars.dirty.value"
         type="button"
-        class="ml-auto text-xs text-mute underline-offset-4 hover:text-ink hover:underline focus-ring"
+        class="self-end text-xs text-mute underline-offset-4 hover:text-ink hover:underline focus-ring sm:ml-auto sm:self-auto"
         @click="chars.reset()"
       >
         {{ t('filter.clear') }}
       </button>
     </div>
 
-    <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-      <span class="w-20 shrink-0 eyebrow">{{ t('filter.tier') }}</span>
-      <button
-        v-for="option in listingOptions"
-        :key="option.id"
-        type="button"
-        class="h-7 flex items-center gap-1.5 border rounded-md px-2 text-xs transition-colors duration-150 focus-ring"
-        :class="
-          chars.tiers.value.includes(option.id)
-            ? 'border-$c-ink bg-$c-ink text-$c-paper'
-            : 'border-rule bg-paper text-soft hover:border-ink/30'
-        "
-        :title="option.title"
-        :aria-pressed="chars.tiers.value.includes(option.id)"
-        @click="toggleTier(option.id)"
-      >
-        <RegionLabel
-          :flag="flagsOn"
-          :region="option.region"
-          class="opacity-60"
-        />
-        {{ option.label }}
-      </button>
+    <div
+      class="grid grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-2 sm:flex"
+    >
+      <span class="h-7 flex items-center sm:w-20 sm:shrink-0 eyebrow">{{
+        t('filter.tier')
+      }}</span>
+      <div class="min-w-0 flex flex-1 flex-wrap items-center gap-x-3 gap-y-2">
+        <button
+          v-for="option in listingOptions"
+          :key="option.id"
+          type="button"
+          class="h-7 flex items-center gap-1.5 border rounded-md px-2 text-xs transition-colors duration-150 focus-ring"
+          :class="
+            chars.tiers.value.includes(option.id)
+              ? 'border-$c-ink bg-$c-ink text-$c-paper'
+              : 'border-rule bg-paper text-soft hover:border-ink/30'
+          "
+          :title="option.title"
+          :aria-pressed="chars.tiers.value.includes(option.id)"
+          @click="toggleTier(option.id)"
+        >
+          <RegionLabel
+            :flag="flagsOn"
+            :region="option.region"
+            class="opacity-60"
+          />
+          {{ option.label }}
+        </button>
+      </div>
     </div>
 
-    <div class="flex flex-wrap items-center gap-3">
-      <span class="w-20 shrink-0 eyebrow">{{ t('filter.dimension') }}</span>
+    <div
+      class="grid grid-cols-[4.5rem_minmax(0,1fr)] items-center gap-2 sm:flex"
+    >
+      <span class="sm:w-20 sm:shrink-0 eyebrow">{{
+        t('filter.dimension')
+      }}</span>
       <SegChoice v-model="chars.dimension.value" :options="dimensions" />
     </div>
 
@@ -274,7 +309,7 @@ function toggleRegion(region: string) {
       set instead of several separate groups.
     -->
     <div
-      class="grid grid-cols-[5rem_minmax(0,1fr)] items-start gap-x-3 gap-y-2"
+      class="grid grid-cols-[4.5rem_minmax(0,1fr)] items-start gap-x-2 gap-y-2 sm:grid-cols-[5rem_minmax(0,1fr)] sm:gap-x-3"
     >
       <span class="h-7 flex items-center eyebrow">{{
         t('filter.pattern')

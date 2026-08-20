@@ -72,6 +72,7 @@ export const zhCN = {
     desc: '倒序',
   },
   table: {
+    scroll: '字表，可左右滚动',
     strokes: '笔画',
     freq: '字频',
     old: '旧',

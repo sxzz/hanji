@@ -77,6 +77,7 @@ export const koKR: typeof zhCN = {
     desc: '내림차순',
   },
   table: {
+    scroll: '한자표, 좌우로 스크롤 가능',
     strokes: '획수',
     freq: '글자 빈도',
     old: '구',

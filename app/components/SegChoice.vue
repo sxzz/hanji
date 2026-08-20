@@ -18,12 +18,14 @@ function choose(value: T) {
 </script>
 
 <template>
-  <div class="h-7 inline-flex border border-rule rounded-md bg-sunk p-[2px]">
+  <div
+    class="h-7 max-w-full inline-flex overflow-x-auto border border-rule rounded-md bg-sunk p-[2px]"
+  >
     <button
       v-for="option in options"
       :key="option.value"
       type="button"
-      class="flex items-center gap-1 rounded px-2.5 text-xs transition-colors duration-150 focus-ring"
+      class="flex shrink-0 items-center gap-1 whitespace-nowrap rounded px-2 text-xs transition-colors duration-150 sm:px-2.5 focus-ring"
       :class="
         model === option.value
           ? 'bg-paper text-ink shadow-[0_1px_2px_rgb(0_0_0/0.06)]'

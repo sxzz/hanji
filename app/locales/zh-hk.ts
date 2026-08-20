@@ -74,6 +74,7 @@ export const zhHK: typeof zhCN = {
     desc: '倒序',
   },
   table: {
+    scroll: '字表，可左右捲動',
     strokes: '筆畫',
     freq: '字頻',
     old: '舊',

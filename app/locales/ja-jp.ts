@@ -77,6 +77,7 @@ export const jaJP: typeof zhCN = {
     desc: '降順',
   },
   table: {
+    scroll: '漢字表。左右にスクロールできます',
     strokes: '画数',
     freq: '文字頻度',
     old: '旧',

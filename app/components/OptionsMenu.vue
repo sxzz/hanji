@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { localeName, type Locale } from '~/locales/index.ts'
 const { t } = useT()
 const {
   flagLabels,
@@ -10,8 +9,6 @@ const {
   columnLocked,
   toggleColumn,
 } = usePrefs()
-const { locale, choose, locales } = useLocaleChoice()
-const languages = locales.map((code) => ({ code, label: localeName(code) }))
 
 /** Reader preferences, each labeled by `options.<key>` and `<key>Hint`. */
 const options = [
@@ -26,7 +23,7 @@ onKeyStroke('Escape', () => (open.value = false))
 </script>
 
 <template>
-  <div ref="root" class="relative">
+  <div ref="root" class="static md:relative">
     <button
       type="button"
       class="rounded-md p-1.5 text-mute transition-colors duration-150 hover:text-ink focus-ring"
@@ -41,29 +38,9 @@ onKeyStroke('Escape', () => (open.value = false))
     <Transition name="pop">
       <div
         v-if="open"
-        class="absolute right-0 top-full z-20 mt-2 w-64 border border-rule rounded-lg bg-paper p-3 text-ink shadow-black/5 shadow-lg"
+        class="absolute left-0 right-0 top-full z-20 mt-1 w-auto border border-rule rounded-lg bg-paper p-3 text-ink shadow-black/5 shadow-lg md:left-auto md:right-0 md:mt-2 md:w-64"
       >
         <h2 class="mb-2 eyebrow">{{ t('options.title') }}</h2>
-        <label class="mb-3 block">
-          <span class="mb-1 block text-sm text-ink font-medium">{{
-            t('options.language')
-          }}</span>
-          <select
-            :value="locale"
-            class="w-full border border-rule rounded-md bg-paper px-2 py-1.5 text-sm text-ink focus-ring"
-            @change="
-              choose(($event.target as HTMLSelectElement).value as Locale)
-            "
-          >
-            <option
-              v-for="language in languages"
-              :key="language.code"
-              :value="language.code"
-            >
-              {{ language.label }}
-            </option>
-          </select>
-        </label>
         <label
           v-for="option in options"
           :key="option.key"
