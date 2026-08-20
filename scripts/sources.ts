@@ -6,7 +6,8 @@
  * keep up to date.
  */
 import { Buffer } from 'node:buffer'
-import { existsSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { existsSync, readFileSync } from 'node:fs'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
 import process from 'node:process'
@@ -18,6 +19,7 @@ export const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 export const RAW_DIR = join(ROOT, 'data/raw')
 export const DATA_DIR = join(ROOT, 'public/data')
 export const FONT_DIR = join(ROOT, 'public/fonts')
+export const SOURCE_LOCK_PATH = join(ROOT, 'data/sources.lock.json')
 
 /**
  * Copy in every interface language. Written out here rather than in the
@@ -250,10 +252,11 @@ const noto = (style: 'Sans' | 'Serif', region: string) =>
   )
 
 /**
- * Cache path -> download URL. Paths are grouped by what the file is, so
- * data/raw stays legible once it holds a hundred megabytes of downloads.
+ * Cache path -> moving upstream URL. `pnpm update:sources` resolves these refs
+ * to immutable versions and writes their checksums to SOURCE_LOCK_PATH. Builds
+ * only download the pinned URLs from that lockfile.
  */
-export const ASSETS: Record<string, string> = {
+export const ASSET_URLS: Record<string, string> = {
   'charlist/cn-1.txt': charList('《通用规范汉字表》（2013年）一级字.txt'),
   'charlist/cn-2.txt': charList('《通用规范汉字表》（2013年）二级字.txt'),
   'charlist/cn-3.txt': charList('《通用规范汉字表》（2013年）三级字.txt'),
@@ -318,19 +321,72 @@ export const ASSETS: Record<string, string> = {
   'font/OFL.txt': gh('notofonts/noto-cjk', 'main', 'Sans/LICENSE'),
 }
 
-/** Read from the cache, downloading first if needed. */
+export interface LockedAsset {
+  url: string
+  sha256: string
+  size: number
+}
+
+export interface SourceLock {
+  version: 1
+  revisions: Record<string, string>
+  assets: Record<string, LockedAsset>
+}
+
+let loadedSourceLock: SourceLock | undefined
+
+export function sourceLock(): SourceLock {
+  if (loadedSourceLock) return loadedSourceLock
+  const lock = JSON.parse(readFileSync(SOURCE_LOCK_PATH, 'utf8')) as SourceLock
+  if (lock.version !== 1 || !lock.assets || !lock.revisions)
+    throw new Error(`invalid source lock: ${SOURCE_LOCK_PATH}`)
+  loadedSourceLock = lock
+  return lock
+}
+
+export const sha256 = (data: Uint8Array): string =>
+  createHash('sha256').update(data).digest('hex')
+
+function lockedAsset(name: string): LockedAsset {
+  if (!ASSET_URLS[name]) throw new Error(`unregistered source: ${name}`)
+  const asset = sourceLock().assets[name]
+  if (!asset) throw new Error(`source missing from lockfile: ${name}`)
+  if (!/^https:\/\//.test(asset.url) || !/^[a-f\d]{64}$/.test(asset.sha256))
+    throw new Error(`invalid locked source: ${name}`)
+  return asset
+}
+
+function matchesLock(data: Buffer, asset: LockedAsset): boolean {
+  return data.byteLength === asset.size && sha256(data) === asset.sha256
+}
+
+async function downloadLocked(
+  name: string,
+  path: string,
+  asset: LockedAsset,
+): Promise<Buffer> {
+  const res = await fetch(asset.url)
+  if (!res.ok) throw new Error(`download failed: ${res.status} ${asset.url}`)
+  const data = Buffer.from(await res.arrayBuffer())
+  if (!matchesLock(data, asset))
+    throw new Error(`checksum mismatch for locked source: ${name}`)
+  await mkdir(dirname(path), { recursive: true })
+  await writeFile(path, data)
+  return data
+}
+
+/** Read a verified pinned source from the cache, downloading when necessary. */
 export async function raw(name: string): Promise<Buffer> {
-  const url = ASSETS[name]
-  if (!url) throw new Error(`unregistered source: ${name}`)
+  const asset = lockedAsset(name)
   const path = join(RAW_DIR, name)
-  if (!existsSync(path)) {
-    await mkdir(dirname(path), { recursive: true })
+  if (existsSync(path)) {
+    const cached = await readFile(path)
+    if (matchesLock(cached, asset)) return cached
+    process.stderr.write(`  ↻ ${name}\n`)
+  } else {
     process.stderr.write(`  ↓ ${name}\n`)
-    const res = await fetch(url)
-    if (!res.ok) throw new Error(`download failed: ${res.status} ${url}`)
-    await writeFile(path, Buffer.from(await res.arrayBuffer()))
   }
-  return readFile(path)
+  return downloadLocked(name, path, asset)
 }
 
 export async function rawText(name: string): Promise<string> {

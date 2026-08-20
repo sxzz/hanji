@@ -31,7 +31,7 @@ jobs:
             data/raw
             public/fonts/*.woff2
             public/fonts/fonts-*.css
-          key: build-data-${{ runner.os }}-${{ hashFiles('package.json', 'pnpm-lock.yaml', 'scripts/*.ts', 'shared/*.ts', 'app/locales/*.ts', 'app/generated/*.ts', 'public/data/*.json') }}
+          key: build-data-${{ runner.os }}-${{ hashFiles('data/sources.lock.json', 'package.json', 'pnpm-lock.yaml', 'scripts/*.ts', 'shared/*.ts', 'app/locales/*.ts', 'app/generated/*.ts', 'public/data/*.json') }}
           restore-keys: build-data-${{ runner.os }}-
 
       - name: Build data

@@ -20,6 +20,7 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "build:data": "node scripts/build-data.ts && node scripts/build-fonts.ts",
+    "update:sources": "node scripts/update-sources.ts",
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
@@ -48,7 +49,8 @@
     "subset-font": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
-    "vue-tsc": "catalog:"
+    "vue-tsc": "catalog:",
+    "wrangler": "4.124.0"
   },
   "prettier": "@sxzz/prettier-config"
 }
