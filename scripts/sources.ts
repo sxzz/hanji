@@ -244,6 +244,107 @@ export const SOURCES: Source[] = [
     license: 'MIT',
     licenseUrl: 'https://opensource.org/licenses/MIT',
   },
+  {
+    id: 'words-hk-frequency',
+    use: {
+      'zh-CN': '香港字频排名',
+      'zh-TW': '香港字頻排名',
+      'zh-HK': '香港字頻排名',
+      'ja-JP': '香港の文字頻度順位',
+      'ko-KR': '홍콩 글자 빈도 순위',
+    },
+    name: '粵典「語料庫單字使用頻率」',
+    localizedName: {
+      'zh-CN': '粤典「语料库单字使用频率」',
+      'ja-JP': 'words.hk「コーパス文字使用頻度」',
+      'ko-KR': 'words.hk ‘말뭉치 글자 사용 빈도’',
+    },
+    homepage: 'https://words.hk/faiman/analysis/charcount/',
+    license: 'Public Domain',
+    licenseUrl: 'https://words.hk/faiman/analysis/',
+    note: {
+      'zh-CN':
+        '统计粵文庫的书面粤语；本站筛出汉字后，按出现次数重新计算从1开始的排名。数据注明为公有领域，并按发布者建议标注粵典出处。',
+      'zh-TW':
+        '統計粵文庫的書面粵語；本站篩出漢字後，按出現次數重新計算從1開始的排名。資料註明為公有領域，並按發布者建議標註粵典出處。',
+      'zh-HK':
+        '統計粵文庫嘅書面粵語；本站篩出漢字後，按出現次數重新計算由1開始嘅排名。資料註明為公有領域，並按發布者建議標註粵典來源。',
+      'ja-JP':
+        '粵文庫の書き言葉の広東語を集計したものです。本サイトでは漢字だけを抽出し、出現数から1始まりの順位を再計算しています。データはパブリックドメインで、公開者の希望に沿ってwords.hkを表示しています。',
+      'ko-KR':
+        '粵文庫의 문어 광둥어를 집계한 자료입니다. 이 사이트는 한자만 추려 출현 횟수로 1부터 시작하는 순위를 다시 계산합니다. 데이터는 퍼블릭 도메인이며 배포자의 요청에 따라 words.hk를 표시합니다.',
+    },
+  },
+  {
+    id: 'naer-tw-frequency',
+    use: {
+      'zh-CN': '台湾字频排名',
+      'zh-TW': '臺灣字頻排名',
+      'zh-HK': '台灣字頻排名',
+      'ja-JP': '台湾の文字頻度順位',
+      'ko-KR': '대만 글자 빈도 순위',
+    },
+    name: '国家教育研究院《民國112年語料字頻表》',
+    localizedName: {
+      'zh-TW': '國家教育研究院《民國112年語料字頻表》',
+      'zh-HK': '國家教育研究院《民國112年語料字頻表》',
+      'ja-JP': '国家教育研究院『民国112年コーパス文字頻度表』',
+      'ko-KR': '국가교육연구원 《민국 112년 말뭉치 글자 빈도표》',
+    },
+    homepage:
+      'https://teric.naer.edu.tw/wSite/ct?ctNode=645&mp=teric_b&xItem=2068770',
+    license: '网站资料开放宣告（须注明出处）',
+    localizedLicense: {
+      'zh-TW': '網站資料開放宣告（須註明出處）',
+      'zh-HK': '網站資料開放宣告（須註明出處）',
+      'ja-JP': 'ウェブサイト資料開放宣言（出典表示必須）',
+      'ko-KR': '웹사이트 자료 개방 선언(출처 표시 필수)',
+    },
+    licenseUrl:
+      'https://teric.naer.edu.tw/wSite/ct?xItem=2000016&ctNode=624&mp=teric_b&idPath=588_623_624',
+    note: {
+      'zh-CN':
+        '附件1汇总2023年五家新闻媒体及PTT、DCard语料；本站筛出汉字后，按字频重新计算从1开始的排名。',
+      'zh-TW':
+        '附件1彙整2023年五家新聞媒體及PTT、DCard語料；本站篩出漢字後，按字頻重新計算從1開始的排名。',
+      'zh-HK':
+        '附件1彙整2023年五家新聞媒體及PTT、DCard語料；本站篩出漢字後，按字頻重新計算由1開始嘅排名。',
+      'ja-JP':
+        '添付資料1は、2023年の新聞5媒体とPTT・DCardのコーパスを統合したものです。本サイトでは漢字だけを抽出し、文字頻度から1始まりの順位を再計算しています。',
+      'ko-KR':
+        '첨부 자료 1은 2023년 5개 신문 매체와 PTT·DCard 말뭉치를 합친 자료입니다. 이 사이트는 한자만 추려 글자 빈도로 1부터 시작하는 순위를 다시 계산합니다.',
+    },
+  },
+  {
+    id: 'kanji-frequency',
+    use: {
+      'zh-CN': '日本字频排名',
+      'zh-TW': '日本字頻排名',
+      'zh-HK': '日本字頻排名',
+      'ja-JP': '日本の文字頻度順位',
+      'ko-KR': '일본 글자 빈도 순위',
+    },
+    name: 'scriptin/kanji-frequency（Japanese Wikipedia）',
+    localizedName: {
+      'ja-JP': 'scriptin/kanji-frequency（日本語版Wikipedia）',
+      'ko-KR': 'scriptin/kanji-frequency(일본어 위키백과)',
+    },
+    homepage: 'https://scriptin.github.io/kanji-frequency/',
+    license: 'CC BY 4.0',
+    licenseUrl: 'https://creativecommons.org/licenses/by/4.0/',
+    note: {
+      'zh-CN':
+        '使用2023年1月随机抽取的10万篇日文Wikipedia文章；本站取wikipedia_characters.csv中的汉字次数，重新计算从1开始的排名并关联到地区字形。',
+      'zh-TW':
+        '使用2023年1月隨機抽取的10萬篇日文Wikipedia文章；本站取wikipedia_characters.csv中的漢字次數，重新計算從1開始的排名並關聯至地區字形。',
+      'zh-HK':
+        '使用2023年1月隨機抽取嘅10萬篇日文Wikipedia文章；本站取wikipedia_characters.csv入面嘅漢字次數，重新計算由1開始嘅排名並對應到地區字形。',
+      'ja-JP':
+        '2023年1月に日本語版Wikipediaから無作為抽出した10万記事を使用しています。本サイトではwikipedia_characters.csvの漢字出現数から1始まりの順位を再計算し、地域字形に対応付けています。',
+      'ko-KR':
+        '2023년 1월 일본어 위키백과에서 무작위로 뽑은 문서 10만 건을 사용합니다. 이 사이트는 wikipedia_characters.csv의 한자 출현 횟수로 1부터 시작하는 순위를 다시 계산해 지역 자형에 연결합니다.',
+    },
+  },
 ]
 
 const gh = (repo: string, ref: string, path: string) =>
@@ -317,6 +418,14 @@ export const ASSET_URLS: Record<string, string> = {
     'master',
     'data/hanziDB.csv',
   ),
+  'frequency/words-hk.csv': 'https://words.hk/faiman/analysis/charcount.csv',
+  'frequency/naer-112.xlsx':
+    'https://teric.naer.edu.tw/wSite/DoDownload?xmlId=2068770&fileName=1761555949158&format=xlsx',
+  'frequency/kanji-frequency-wikipedia.csv': gh(
+    'scriptin/kanji-frequency',
+    'master',
+    'data/wikipedia_characters.csv',
+  ),
   'unihan/Unihan.zip':
     'https://www.unicode.org/Public/UCD/latest/ucd/Unihan.zip',
 
@@ -373,6 +482,21 @@ export function sourceLock(): SourceLock {
 export const sha256 = (data: Uint8Array): string =>
   createHash('sha256').update(data).digest('hex')
 
+/** Some institutional download endpoints reject anonymous script clients. */
+export function sourceFetchOptions(url: string): RequestInit {
+  const headers: Record<string, string> = {
+    'User-Agent': 'Hanji data pipeline (+https://github.com/sxzz/hanji)',
+  }
+  if (new URL(url).hostname === 'teric.naer.edu.tw') {
+    headers.Referer =
+      'https://teric.naer.edu.tw/wSite/ct?ctNode=645&mp=teric_b&xItem=2068770'
+    // This endpoint reports the uncompressed XLSX size even when gzip is
+    // negotiated, so strict HTTP clients reject the otherwise complete body.
+    headers['Accept-Encoding'] = 'identity'
+  }
+  return { headers }
+}
+
 function lockedAsset(name: string): LockedAsset {
   if (!ASSET_URLS[name]) throw new Error(`unregistered source: ${name}`)
   const asset = sourceLock().assets[name]
@@ -391,7 +515,7 @@ async function downloadLocked(
   path: string,
   asset: LockedAsset,
 ): Promise<Buffer> {
-  const res = await fetch(asset.url)
+  const res = await fetch(asset.url, sourceFetchOptions(asset.url))
   if (!res.ok) throw new Error(`download failed: ${res.status} ${asset.url}`)
   const data = Buffer.from(await res.arrayBuffer())
   if (!matchesLock(data, asset))
@@ -686,4 +810,186 @@ export function parseFrequency(text: string): Map<string, number> {
       map.set(char, rank)
   }
   return map
+}
+
+/** Minimal RFC 4180 reader, including quoted commas and embedded newlines. */
+function parseCsvRows(text: string): string[][] {
+  const rows: string[][] = []
+  let row: string[] = []
+  let cell = ''
+  let quoted = false
+
+  for (let index = 0; index < text.length; index++) {
+    const char = text[index]!
+    if (quoted) {
+      if (char === '"') {
+        if (text[index + 1] === '"') {
+          cell += '"'
+          index++
+        } else quoted = false
+      } else cell += char
+      continue
+    }
+
+    switch (char) {
+      case '"': {
+        quoted = true
+        break
+      }
+      case ',': {
+        row.push(cell)
+        cell = ''
+        break
+      }
+      case '\n':
+      case '\r': {
+        if (char === '\r' && text[index + 1] === '\n') index++
+        row.push(cell)
+        rows.push(row)
+        row = []
+        cell = ''
+        break
+      }
+      default: {
+        cell += char
+      }
+    }
+  }
+  if (cell || row.length) {
+    row.push(cell)
+    rows.push(row)
+  }
+  return rows
+}
+
+const HAN_CHARACTER = /^\p{Script=Han}$/u
+
+/** Counts -> 1-based competition rank, limited to single Han characters. */
+export function rankCharacterCounts(
+  entries: Iterable<readonly [string, number]>,
+): Map<string, number> {
+  const counts = new Map<string, number>()
+  for (const [char, count] of entries) {
+    if (!HAN_CHARACTER.test(char) || !Number.isSafeInteger(count) || count <= 0)
+      continue
+    counts.set(char, (counts.get(char) ?? 0) + count)
+  }
+
+  const ranked = [...counts].toSorted(
+    ([leftChar, leftCount], [rightChar, rightCount]) =>
+      rightCount - leftCount ||
+      leftChar.codePointAt(0)! - rightChar.codePointAt(0)!,
+  )
+  const out = new Map<string, number>()
+  let previousCount: number | undefined
+  let rank = 0
+  for (const [index, [char, count]] of ranked.entries()) {
+    if (count !== previousCount) rank = index + 1
+    out.set(char, rank)
+    previousCount = count
+  }
+  return out
+}
+
+/** A CSV count table -> Han character -> normalized frequency rank. */
+export function parseCountFrequencyCsv(
+  text: string,
+  charColumn: number,
+  countColumn: number,
+): Map<string, number> {
+  return rankCharacterCounts(
+    parseCsvRows(text).map(
+      (row) => [row[charColumn] ?? '', Number(row[countColumn])] as const,
+    ),
+  )
+}
+
+function decodeXml(text: string): string {
+  const named: Record<string, string> = {
+    '&amp;': '&',
+    '&apos;': "'",
+    '&gt;': '>',
+    '&lt;': '<',
+    '&quot;': '"',
+  }
+  return text.replaceAll(
+    /&(?:amp|apos|gt|lt|quot|#\d+|#x[\da-f]+);/gi,
+    (entity) => {
+      if (named[entity]) return named[entity]
+      const hex = entity[2]?.toLowerCase() === 'x'
+      const value = Number.parseInt(
+        entity.slice(hex ? 3 : 2, -1),
+        hex ? 16 : 10,
+      )
+      return Number.isFinite(value) ? String.fromCodePoint(value) : entity
+    },
+  )
+}
+
+const xmlAttribute = (tag: string, name: string): string | undefined =>
+  decodeXml(
+    new RegExp(String.raw`(?:^|\s)${name}="([^"]*)"`).exec(tag)?.[1] ?? '',
+  ) || undefined
+
+/**
+ * NAER's workbook -> Han character -> normalized frequency rank.
+ *
+ * The workbook contains ten sheets. The combined 2023 corpus sheet is found
+ * by name rather than position, then its character and count columns are read
+ * from the underlying OOXML so the data build needs no spreadsheet runtime.
+ */
+export function parseTaiwanFrequency(data: Uint8Array): Map<string, number> {
+  const zip = unzipSync(data)
+  const decoder = new TextDecoder()
+  const read = (path: string): string => {
+    const file = zip[path]
+    if (!file) throw new Error(`Taiwan frequency workbook missing ${path}`)
+    return decoder.decode(file)
+  }
+
+  const workbook = read('xl/workbook.xml')
+  const sheetTag = [...workbook.matchAll(/<sheet\b[^>]*>/g)]
+    .map((match) => match[0])
+    .find((tag) => xmlAttribute(tag, 'name') === '112年語料字頻表')
+  const relationId = sheetTag && xmlAttribute(sheetTag, 'r:id')
+  if (!relationId)
+    throw new Error('Taiwan frequency workbook missing combined corpus sheet')
+
+  const relationships = read('xl/_rels/workbook.xml.rels')
+  const relationTag = [...relationships.matchAll(/<Relationship\b[^>]*>/g)]
+    .map((match) => match[0])
+    .find((tag) => xmlAttribute(tag, 'Id') === relationId)
+  const target = relationTag && xmlAttribute(relationTag, 'Target')
+  if (!target)
+    throw new Error('Taiwan frequency workbook has no combined sheet target')
+
+  const sharedStrings = [
+    ...read('xl/sharedStrings.xml').matchAll(/<si\b[^>]*>([\s\S]*?)<\/si>/g),
+  ].map((match) =>
+    [...match[1]!.matchAll(/<t\b[^>]*>([\s\S]*?)<\/t>/g)]
+      .map((part) => decodeXml(part[1]!))
+      .join(''),
+  )
+
+  const sheetPath = target.startsWith('/')
+    ? target.slice(1)
+    : `xl/${target.replace(/^\.\//, '')}`
+  const counts: [string, number][] = []
+  for (const row of read(sheetPath).matchAll(
+    /<row\b[^>]*>([\s\S]*?)<\/row>/g,
+  )) {
+    const values: Record<string, string> = {}
+    for (const cell of row[1]!.matchAll(/<c\b([^>]*)>([\s\S]*?)<\/c>/g)) {
+      const reference = xmlAttribute(cell[1]!, 'r')
+      const column = /^[A-Z]+/.exec(reference ?? '')?.[0]
+      const rawValue = /<v>([\s\S]*?)<\/v>/.exec(cell[2]!)?.[1]
+      if (!column || rawValue === undefined) continue
+      values[column] =
+        xmlAttribute(cell[1]!, 't') === 's'
+          ? (sharedStrings[Number(rawValue)] ?? '')
+          : decodeXml(rawValue)
+    }
+    counts.push([values.B ?? '', Number(values.C)])
+  }
+  return rankCharacterCounts(counts)
 }

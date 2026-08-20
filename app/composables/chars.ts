@@ -1,4 +1,5 @@
 import charsRaw from '~~/public/data/chars.json?raw'
+import { frequencyRankOf } from '~~/shared/frequency.ts'
 import { createListingMatcher, listingOptionsFor } from '~~/shared/listings.ts'
 import {
   applicablePatternChoices,
@@ -12,11 +13,13 @@ import {
 import { plainReading } from '~~/shared/readings.ts'
 import { projectSignature, varietyOf } from '~~/shared/row.ts'
 import {
+  FREQUENCY_REGIONS,
   REGIONS,
   type CharRow,
   type CharsData,
   type Region,
 } from '~~/shared/types.ts'
+import { LOCALE_FREQUENCY_REGION } from '~/locales/index.ts'
 import { isUnicodeScalarValue } from '~/utils/unicode.ts'
 import { useColumnVisibility } from './prefs.ts'
 import {
@@ -35,7 +38,7 @@ export const stats = data.stats
 export const DIMENSIONS = ['glyph', 'cp'] as const
 export type Dimension = (typeof DIMENSIONS)[number]
 
-export const SORT_KEYS = ['common', 'strokes', 'cp', 'freq'] as const
+export const SORT_KEYS = ['freq', 'strokes', 'cp'] as const
 export type SortKey = (typeof SORT_KEYS)[number]
 
 export const ORDERS = ['asc', 'desc'] as const
@@ -169,6 +172,10 @@ export const HERO_ROW = rowsByKey.get('返')!
 
 export function useChars() {
   const { columns: visibleColumns, regionIndices } = useColumnVisibility()
+  const { locale } = useT()
+  const defaultFrequencyRegion = computed(
+    () => LOCALE_FREQUENCY_REGION[locale.value],
+  )
 
   const asDimension = asOneOf(DIMENSIONS)
   const dimension = useQueryState(
@@ -185,9 +192,15 @@ export function useChars() {
   )
   const sortKey = useQueryState(
     's',
-    'common' as SortKey,
+    'freq' as SortKey,
     asOneOf(SORT_KEYS).parse,
     asOneOf(SORT_KEYS).serialize,
+  )
+  const freqRegion = useQueryState(
+    'fr',
+    defaultFrequencyRegion,
+    asOneOf(FREQUENCY_REGIONS).parse,
+    asOneOf(FREQUENCY_REGIONS).serialize,
   )
   const order = useQueryState(
     'o',
@@ -317,18 +330,14 @@ export function useChars() {
   })
 
   const FREQ_LAST = Number.MAX_SAFE_INTEGER
-  /** How many of the columns on show list the character among their common. */
-  const listedIn = (row: CharRow) =>
-    regionIndices.value.filter((i) => row.tier[i]).length
   /** The stroke count the row leads with, which is the first column on show. */
   const leadStrokes = (row: CharRow) => row.strokes[regionIndices.value[0] ?? 0]
   const comparators: Record<SortKey, (a: CharRow, b: CharRow) => number> = {
-    common: (a, b) =>
-      listedIn(b) - listedIn(a) ||
-      (a.freq ?? FREQ_LAST) - (b.freq ?? FREQ_LAST),
+    freq: (a, b) =>
+      (frequencyRankOf(a, freqRegion.value) ?? FREQ_LAST) -
+      (frequencyRankOf(b, freqRegion.value) ?? FREQ_LAST),
     strokes: (a, b) => (leadStrokes(a) || 99) - (leadStrokes(b) || 99),
     cp: (a, b) => a.key.codePointAt(0)! - b.key.codePointAt(0)!,
-    freq: (a, b) => (a.freq ?? FREQ_LAST) - (b.freq ?? FREQ_LAST),
   }
 
   const rows = computed(() => {
@@ -347,10 +356,19 @@ export function useChars() {
 
     const compare = comparators[sortKey.value]
     const sign = order.value === 'desc' ? -1 : 1
-    return filtered.toSorted(
-      (a, b) =>
-        sign * (compare(a, b) || a.key.codePointAt(0)! - b.key.codePointAt(0)!),
-    )
+    return filtered.toSorted((a, b) => {
+      // Reversing a frequency sort reverses ranked characters, not the meaning
+      // of “unranked”: rows absent from the selected corpus stay at the end.
+      if (sortKey.value === 'freq') {
+        const left = frequencyRankOf(a, freqRegion.value)
+        const right = frequencyRankOf(b, freqRegion.value)
+        if (left !== right && (left === null || right === null))
+          return left === null ? 1 : -1
+      }
+      return (
+        sign * (compare(a, b) || a.key.codePointAt(0)! - b.key.codePointAt(0)!)
+      )
+    })
   })
 
   /** Paging can be switched off once the list is small enough to render whole. */
@@ -394,6 +412,7 @@ export function useChars() {
       dimension.value,
       patterns.value,
       sortKey.value,
+      freqRegion.value,
       order.value,
       query.value,
       strokes.value,
@@ -454,6 +473,7 @@ export function useChars() {
     dimension,
     patterns,
     sortKey,
+    freqRegion,
     order,
     query,
     strokes,

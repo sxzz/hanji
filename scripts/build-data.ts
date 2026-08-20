@@ -18,9 +18,12 @@ import {
   DATA_DIR,
   loadUnihan,
   parseCharList,
+  parseCountFrequencyCsv,
   parseDict,
   parseFrequency,
   parsePrimaryCharList,
+  parseTaiwanFrequency,
+  raw,
   rawText,
   reverseDict,
   ROOT,
@@ -104,7 +107,23 @@ const sansCMaps = await loadCMaps('sans')
 const serifCMaps = await loadCMaps('serif')
 
 const unihan = await loadUnihan()
-const frequency = parseFrequency(await rawText('frequency/hanziDB.csv'))
+const [cnFrequency, hkFrequency, twFrequency, jpFrequency] = await Promise.all([
+  rawText('frequency/hanziDB.csv').then(parseFrequency),
+  rawText('frequency/words-hk.csv').then((text) =>
+    parseCountFrequencyCsv(text, 0, 1),
+  ),
+  raw('frequency/naer-112.xlsx').then(parseTaiwanFrequency),
+  rawText('frequency/kanji-frequency-wikipedia.csv').then((text) =>
+    parseCountFrequencyCsv(text, 2, 3),
+  ),
+])
+const frequencyByRegion = [
+  cnFrequency,
+  hkFrequency,
+  twFrequency,
+  jpFrequency,
+  undefined,
+] as const
 
 // Regional form -> OpenCC standard form. JPShinjitaiCharacters already runs
 // shinjitai -> orthodox, so it needs no reversing.
@@ -459,6 +478,9 @@ function buildRow(
     ...pick(unihan.get(codePoints[JP_INDEX])?.readings, 'on', 'kun'),
     ...pick(unihan.get(codePoints[KR_INDEX])?.readings, 'korean'),
   }
+  const freq = chars.map(
+    (char, region) => frequencyByRegion[region]?.get(char) ?? null,
+  ) as RegionalTuple<number | null>
 
   const row: CharRow = {
     key,
@@ -473,13 +495,16 @@ function buildRow(
             char: oldChar,
             glyph: Number(signature[REGION_IDS.length]),
             strokes: strokesFor(oldChar, JP_INDEX),
+            ...(jpFrequency.has(oldChar)
+              ? { freq: jpFrequency.get(oldChar) }
+              : {}),
           },
         }
       : {}),
     cp,
     glyph,
     strokes: strokesOf(chars),
-    ...(frequency.has(chars[0]) ? { freq: frequency.get(chars[0]) } : {}),
+    ...(freq.some((rank) => rank !== null) ? { freq } : {}),
     tier,
     listing,
     common: tier.filter(Boolean).length,
@@ -973,7 +998,7 @@ const FREQ_LAST = Number.MAX_SAFE_INTEGER
 rows.sort(
   (a, b) =>
     b.common - a.common ||
-    (a.freq ?? FREQ_LAST) - (b.freq ?? FREQ_LAST) ||
+    (a.freq?.[0] ?? FREQ_LAST) - (b.freq?.[0] ?? FREQ_LAST) ||
     a.key.codePointAt(0)! - b.key.codePointAt(0)!,
 )
 
@@ -1016,6 +1041,26 @@ await writeFile(
 await writeFile(
   join(DATA_DIR, 'sources.json'),
   `${JSON.stringify(SOURCES, null, 2)}\n`,
+)
+await writeFile(
+  join(DATA_DIR, 'NOTICE.md'),
+  String(
+    [
+      '# Data source notice / 数据来源声明',
+      '',
+      'Hanji 的程序代码采用 MIT 许可；来源数据及其派生字段仍须遵守下列各自条款。转换方式与语料口径记录在每项备注中。',
+      '',
+      ...SOURCES.flatMap((source) => [
+        `## ${source.name}`,
+        '',
+        `- 用途：${source.use['zh-CN']}`,
+        `- 来源：${source.homepage}`,
+        `- 许可：${source.license} (${source.licenseUrl})`,
+        ...(source.note ? [`- 备注：${source.note['zh-CN']}`] : []),
+        '',
+      ]),
+    ].join('\n'),
+  ),
 )
 
 // Keep the README's table generated from the same list the site renders, so

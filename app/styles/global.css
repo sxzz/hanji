@@ -113,7 +113,7 @@ html[data-style='serif'] .hanji-kr {
 
 @media (min-width: 640px) {
   .row-grid {
-    grid-template-columns: 3.75rem minmax(0, 1fr) 4.5rem 4.5rem;
+    grid-template-columns: 3.75rem minmax(0, 1fr) 4.5rem;
   }
 }
 

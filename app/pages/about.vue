@@ -59,6 +59,7 @@ useSeoMeta({
     <ul>
       <li><a href="/data/chars.json">/data/chars.json</a></li>
       <li><a href="/data/sources.json">/data/sources.json</a></li>
+      <li><a href="/data/NOTICE.md">/data/NOTICE.md</a></li>
     </ul>
 
     <h2>{{ t('about.sourcesTitle') }}</h2>

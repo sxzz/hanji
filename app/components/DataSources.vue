@@ -34,7 +34,7 @@ const localize = (
               :href="source.homepage"
               target="_blank"
               rel="noreferrer"
-              class="rule-link focus-ring"
+              class="focus-ring rule-link"
               >{{ localize(source.name, source.localizedName) }}</a
             >
             <p
@@ -49,7 +49,7 @@ const localize = (
               :href="source.licenseUrl"
               target="_blank"
               rel="noreferrer"
-              class="underline decoration-transparent underline-offset-4 hover:decoration-current focus-ring"
+              class="focus-ring underline decoration-transparent underline-offset-4 hover:decoration-current"
               >{{ localize(source.license, source.localizedLicense) }}</a
             >
           </td>

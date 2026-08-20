@@ -26,7 +26,7 @@ onKeyStroke('Escape', () => (open.value = false))
   <div ref="root" class="static md:relative">
     <button
       type="button"
-      class="icon-btn focus-ring"
+      class="focus-ring icon-btn"
       :title="t('nav.options')"
       :aria-label="t('nav.options')"
       :aria-expanded="open"
@@ -49,7 +49,7 @@ onKeyStroke('Escape', () => (open.value = false))
           <input
             v-model="option.model.value"
             type="checkbox"
-            class="mt-0.5 size-4 shrink-0 accent-$c-g2 focus-ring"
+            class="focus-ring mt-0.5 size-4 shrink-0 accent-$c-g2"
           />
           <span>
             <!-- The panel hangs inside a muted nav, so the label has to
@@ -82,12 +82,12 @@ onKeyStroke('Escape', () => (open.value = false))
           <span class="mt-1 block text-xs text-soft">{{
             t('options.columnsHint')
           }}</span>
-          <div class="mt-2 grid grid-cols-5 gap-1.5">
+          <div class="grid grid-cols-5 mt-2 gap-1.5">
             <button
               v-for="column in COLUMNS"
               :key="column"
               type="button"
-              class="chip justify-center gap-1.5 text-xs disabled:cursor-not-allowed focus-ring"
+              class="focus-ring chip justify-center gap-1.5 text-xs disabled:cursor-not-allowed"
               :class="[
                 columnShown(column)
                   ? 'border-ink/35 bg-paper text-ink'

@@ -111,6 +111,7 @@ const cells = computed(() =>
         lang: COLUMN_LANG.old,
         codePoint: hex(old.char),
         strokes: String(old.strokes || '—'),
+        freq: old.freq ?? null,
         tier: 0,
         listing: undefined,
         group,
@@ -124,6 +125,7 @@ const cells = computed(() =>
       lang: COLUMN_LANG[column],
       codePoint: hex(here.chars[index]!),
       strokes: String(here.strokes[index] || '—'),
+      freq: here.freq?.[index] ?? null,
       tier: here.tier[index]!,
       listing: here.listing[index]!,
       group,
@@ -213,6 +215,7 @@ const columnRegion = (column: Column): Region =>
   column === 'old' ? 'jp' : column
 const codePointRuns = computed(() => runs((cell) => cell.codePoint))
 const strokeRuns = computed(() => runs((cell) => cell.strokes))
+const frequencyRuns = computed(() => runs((cell) => String(cell.freq ?? '')))
 const tierRuns = computed(() => runs(tierLabel))
 /** KanjiVG records Japanese glyphs, independently of the visible columns. */
 const strokeChar = computed(() => row.value!.chars[REGIONS.indexOf('jp')]!)
@@ -342,7 +345,7 @@ useSeoMeta({
   <article v-if="row" class="flex flex-col gap-8 pb-6">
     <NuxtLink
       :to="backTo"
-      class="inline-flex items-center self-start gap-1.5 text-sm text-mute transition-colors duration-150 hover:text-ink focus-ring"
+      class="focus-ring inline-flex items-center self-start gap-1.5 text-sm text-mute transition-colors duration-150 hover:text-ink"
     >
       <span class="i-ri-arrow-left-line block" />
       {{ t('nav.back') }}
@@ -388,7 +391,7 @@ useSeoMeta({
                       <input
                         v-if="!singleForm"
                         type="checkbox"
-                        class="size-3.5 accent-$c-g2 focus-ring"
+                        class="focus-ring size-3.5 accent-$c-g2"
                         :checked="picked.includes(run.cell.column)"
                         @change="toggle(columnsOf(run))"
                       />
@@ -458,6 +461,22 @@ useSeoMeta({
                     {{ run.cell.strokes }}
                   </td>
                 </tr>
+                <tr class="border-b border-rule/60">
+                  <th class="py-3 pr-4 text-left eyebrow font-normal">
+                    {{ t('char.freq') }}
+                  </th>
+                  <td
+                    v-for="run in frequencyRuns"
+                    :key="run.from"
+                    :colspan="run.span"
+                    class="tabular border-l border-rule/40 py-3 text-center text-sm text-mute font-mono first:border-l-0"
+                  >
+                    <template v-if="run.cell.freq !== null">
+                      #{{ run.cell.freq.toLocaleString() }}
+                    </template>
+                    <template v-else>—</template>
+                  </td>
+                </tr>
                 <tr>
                   <th class="py-3 pr-4 text-left eyebrow font-normal">
                     {{ t('char.listed') }}
@@ -477,7 +496,10 @@ useSeoMeta({
           <p class="mt-4 text-center text-sm text-soft">{{ summary }}</p>
         </section>
 
-        <section class="overflow-x-auto">
+        <section
+          v-if="readingRows.length || alsoSee.length"
+          class="overflow-x-auto"
+        >
           <table class="w-full border-collapse text-left text-base">
             <tbody>
               <tr
@@ -511,19 +533,6 @@ useSeoMeta({
                   class="border-l border-rule/40"
                 />
               </tr>
-              <tr v-if="row.freq" class="border-b border-rule/60">
-                <th
-                  class="w-24 whitespace-nowrap py-2.5 pr-4 text-left eyebrow font-normal"
-                >
-                  {{ t('char.freq') }}
-                </th>
-                <td
-                  :colspan="readingCols"
-                  class="tabular border-l border-rule/40 px-3 py-2.5 text-sm text-mute font-mono"
-                >
-                  #{{ row.freq }}
-                </td>
-              </tr>
               <tr v-if="alsoSee.length" class="border-b border-rule/60">
                 <th
                   class="w-24 whitespace-nowrap py-2.5 pr-4 text-left align-middle eyebrow font-normal"
@@ -539,7 +548,7 @@ useSeoMeta({
                       v-for="entry in alsoSee"
                       :key="entry.key"
                       :to="charPath(entry.key)"
-                      class="inline-flex items-baseline gap-2 text-sm text-soft transition-colors duration-150 hover:text-ink focus-ring"
+                      class="focus-ring inline-flex items-baseline gap-2 text-sm text-soft transition-colors duration-150 hover:text-ink"
                     >
                       <span class="hanji-cn text-2xl leading-none">{{
                         entry.key
@@ -577,7 +586,7 @@ useSeoMeta({
                   :href="link.url"
                   target="_blank"
                   rel="noreferrer"
-                  class="inline-flex items-center gap-1.5 border border-rule rounded-md px-3 py-2 text-base text-soft transition-colors duration-150 hover:border-ink/30 hover:text-ink focus-ring"
+                  class="focus-ring inline-flex items-center gap-1.5 border border-rule rounded-md px-3 py-2 text-base text-soft transition-colors duration-150 hover:border-ink/30 hover:text-ink"
                 >
                   <span v-if="link.region" class="eyebrow"
                     ><RegionLabel :flag="flagsOn" :region="link.region" />

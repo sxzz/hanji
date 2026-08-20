@@ -49,7 +49,7 @@ async function open(event: MouseEvent) {
 <template>
   <NuxtLink
     :to="charPath(row.key)"
-    class="row-grid items-center gap-2 border-b border-rule px-2 py-2.5 transition-colors duration-100 sm:gap-3 hover:bg-sunk sm:px-5 focus-ring"
+    class="row-grid focus-ring items-center gap-2 border-b border-rule px-2 py-2.5 transition-colors duration-100 sm:gap-3 hover:bg-sunk sm:px-5"
     @click="open"
   >
     <!-- Overprint thumbnail: more color fringing means a bigger difference -->
@@ -69,11 +69,6 @@ async function open(event: MouseEvent) {
       <span v-if="strokes.second" class="text-mute">
         /{{ strokes.second }}
       </span>
-    </div>
-
-    <div class="tabular hidden text-right text-xs text-mute font-mono sm:block">
-      <span v-if="row.freq">#{{ row.freq }}</span>
-      <span v-else>—</span>
     </div>
   </NuxtLink>
 </template>

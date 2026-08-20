@@ -8,6 +8,7 @@ import {
   ASSET_URLS,
   RAW_DIR,
   SOURCE_LOCK_PATH,
+  sourceFetchOptions,
   type LockedAsset,
   type SourceLock,
 } from './sources.ts'
@@ -75,7 +76,8 @@ function pinnedUrl(
       UNICODE_LATEST,
       `https://www.unicode.org/Public/${unicode}/ucd/`,
     )
-  throw new Error(`source URL cannot be pinned: ${url}`)
+  if (/^https:\/\//.test(url)) return url
+  throw new Error(`invalid source URL: ${url}`)
 }
 
 function isLockedAsset(asset: LockedAsset | undefined): asset is LockedAsset {
@@ -112,7 +114,7 @@ function sameRecord(
 
 async function download(name: string, url: string): Promise<LockedAsset> {
   process.stderr.write(`  ↓ ${name}\n`)
-  const res = await fetch(url)
+  const res = await fetch(url, sourceFetchOptions(url))
   if (!res.ok) throw new Error(`download failed: ${res.status} ${url}`)
   const data = Buffer.from(await res.arrayBuffer())
   await mkdir(dirname(join(RAW_DIR, name)), { recursive: true })
@@ -147,48 +149,58 @@ const revisionRecord = {
   ),
   'unicode:ucd': unicode,
 }
-const entries = Object.entries(ASSET_URLS).map(
-  ([name, url]) => [name, pinnedUrl(url, revisions, unicode)] as const,
-)
+const entries = Object.entries(ASSET_URLS).map(([name, sourceUrl]) => ({
+  name,
+  url: pinnedUrl(sourceUrl, revisions, unicode),
+  // Direct institutional downloads have no revision in their URL. Recheck
+  // their bytes on an explicit source update; ordinary builds remain locked
+  // to the recorded SHA-256 and fail rather than accepting a silent change.
+  refresh: !githubRef(sourceUrl) && !sourceUrl.startsWith(UNICODE_LATEST),
+}))
+const assets: (readonly [string, LockedAsset])[] = []
+let next = 0
+
+process.stderr.write('Checking changed pinned sources...\n')
+const worker = async () => {
+  while (next < entries.length) {
+    const index = next++
+    const { name, url, refresh } = entries[index]!
+    const locked = previous?.assets[name]
+    assets[index] = [
+      name,
+      !refresh && locked?.url === url && isLockedAsset(locked)
+        ? locked
+        : await download(name, url),
+    ]
+  }
+}
+await Promise.all(Array.from({ length: 4 }, worker))
+
+const assetRecord = Object.fromEntries(assets)
 const current = Boolean(
   previous &&
   sameRecord(previous.revisions, revisionRecord) &&
   Object.keys(previous.assets).length === entries.length &&
-  entries.every(
-    ([name, url]) =>
-      previous.assets[name]?.url === url &&
-      isLockedAsset(previous.assets[name]),
-  ),
+  entries.every(({ name }) => {
+    const before = previous.assets[name]
+    const after = assetRecord[name]
+    return (
+      before?.url === after?.url &&
+      before.sha256 === after.sha256 &&
+      before.size === after.size
+    )
+  }),
 )
 
 if (current) {
   process.stderr.write(
-    'Source versions unchanged; skipping downloads and data build.\n',
+    'Source versions and direct assets unchanged; skipping data build.\n',
   )
 } else {
-  const assets: (readonly [string, LockedAsset])[] = []
-  let next = 0
-
-  process.stderr.write('Downloading changed pinned sources...\n')
-  const worker = async () => {
-    while (next < entries.length) {
-      const index = next++
-      const [name, url] = entries[index]!
-      const locked = previous?.assets[name]
-      assets[index] = [
-        name,
-        locked?.url === url && isLockedAsset(locked)
-          ? locked
-          : await download(name, url),
-      ]
-    }
-  }
-  await Promise.all(Array.from({ length: 4 }, worker))
-
   const lock: SourceLock = {
     version: 1,
     revisions: revisionRecord,
-    assets: Object.fromEntries(assets),
+    assets: assetRecord,
   }
   await mkdir(dirname(SOURCE_LOCK_PATH), { recursive: true })
   await writeFile(SOURCE_LOCK_PATH, `${JSON.stringify(lock, null, 2)}\n`)

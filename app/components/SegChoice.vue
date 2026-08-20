@@ -25,7 +25,7 @@ function choose(value: T) {
       v-for="option in options"
       :key="option.value"
       type="button"
-      class="flex shrink-0 items-center gap-1 whitespace-nowrap rounded px-2 text-xs transition-colors duration-150 sm:px-2.5 focus-ring"
+      class="focus-ring flex shrink-0 items-center gap-1 whitespace-nowrap rounded px-2 text-xs transition-colors duration-150 sm:px-2.5"
       :class="
         model === option.value
           ? 'bg-paper text-ink shadow-[0_1px_2px_rgb(0_0_0/0.06)]'

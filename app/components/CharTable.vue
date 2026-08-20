@@ -54,9 +54,6 @@ function turnTo(page: number) {
           /></span>
         </div>
         <span class="text-right eyebrow">{{ t('table.strokes') }}</span>
-        <span class="hidden text-right eyebrow sm:block">{{
-          t('table.freq')
-        }}</span>
       </div>
     </div>
 
@@ -67,7 +64,7 @@ function turnTo(page: number) {
       <p>{{ t('table.empty') }}</p>
       <button
         type="button"
-        class="btn-ghost mt-4 bg-paper px-3 py-1.5 text-xs focus-ring"
+        class="focus-ring mt-4 btn-ghost bg-paper px-3 py-1.5 text-xs"
         @click="chars.reset()"
       >
         {{ t('filter.clear') }}
@@ -79,7 +76,7 @@ function turnTo(page: number) {
       role="region"
       tabindex="0"
       :aria-label="t('table.scroll')"
-      class="char-table-scroll overflow-x-auto overscroll-x-contain focus-ring"
+      class="char-table-scroll focus-ring overflow-x-auto overscroll-x-contain"
       @scroll.passive="syncHeader"
     >
       <div class="table-track" :style="{ '--table-min-width': tableMinWidth }">
@@ -102,7 +99,7 @@ function turnTo(page: number) {
       <template v-if="chars.paged.value">
         <button
           type="button"
-          class="btn-pager focus-ring"
+          class="focus-ring btn-pager"
           :disabled="chars.page.value <= 1"
           @click="turnTo(chars.page.value - 1)"
         >
@@ -120,7 +117,7 @@ function turnTo(page: number) {
 
         <button
           type="button"
-          class="btn-pager focus-ring"
+          class="focus-ring btn-pager"
           :disabled="chars.page.value >= chars.pageCount.value"
           @click="turnTo(chars.page.value + 1)"
         >
@@ -133,7 +130,7 @@ function turnTo(page: number) {
       <button
         v-if="chars.canShowAll.value"
         type="button"
-        class="ml-auto text-xs text-mute underline-offset-4 hover:text-ink hover:underline focus-ring"
+        class="focus-ring ml-auto text-xs text-mute underline-offset-4 hover:text-ink hover:underline"
         @click="chars.paged.value = !chars.paged.value"
       >
         {{

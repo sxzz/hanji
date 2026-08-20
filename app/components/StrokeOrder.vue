@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import type { ComponentPublicInstance } from 'vue'
 import {
   KANJIVG_LICENSE,
   kanjiVGDataUrl,
@@ -8,6 +7,7 @@ import {
   strokeDuration,
   type KanjiVGStroke,
 } from '~/utils/kanjivg.ts'
+import type { ComponentPublicInstance } from 'vue'
 
 const props = defineProps<{ char: string }>()
 const { t } = useT()
@@ -99,7 +99,7 @@ async function load() {
     status.value = 'ready'
     await measure()
   } catch (error) {
-    if (!(error instanceof DOMException && error.name === 'AbortError'))
+    if (!(error instanceof DOMException) || error.name !== 'AbortError')
       status.value = 'error'
   }
 }
@@ -189,7 +189,7 @@ onBeforeUnmount(() => {
           :href="viewerUrl"
           target="_blank"
           rel="noreferrer"
-          class="underline decoration-rule underline-offset-4 hover:decoration-current focus-ring"
+          class="focus-ring underline decoration-rule underline-offset-4 hover:decoration-current"
           >KanjiVG</a
         >
         ·
@@ -197,7 +197,7 @@ onBeforeUnmount(() => {
           :href="KANJIVG_LICENSE"
           target="_blank"
           rel="noreferrer"
-          class="underline decoration-rule underline-offset-4 hover:decoration-current focus-ring"
+          class="focus-ring underline decoration-rule underline-offset-4 hover:decoration-current"
           >CC BY-SA 3.0</a
         >
       </p>
@@ -211,7 +211,7 @@ onBeforeUnmount(() => {
       <div class="aspect-square border border-rule bg-sunk" />
       <div class="flex flex-col gap-4">
         <div class="h-10 w-32 bg-sunk" />
-        <div class="h-4 w-full max-w-sm bg-sunk" />
+        <div class="h-4 max-w-sm w-full bg-sunk" />
         <div class="h-9 w-48 bg-sunk" />
       </div>
     </div>
@@ -223,7 +223,7 @@ onBeforeUnmount(() => {
       <span>{{ t('char.strokeError') }}</span>
       <button
         type="button"
-        class="shrink-0 border border-rule rounded-md px-3 py-1.5 text-ink transition-colors hover:border-ink/30 focus-ring"
+        class="focus-ring shrink-0 border border-rule rounded-md px-3 py-1.5 text-ink transition-colors hover:border-ink/30"
         @click="load"
       >
         {{ t('char.strokeRetry') }}
@@ -234,7 +234,7 @@ onBeforeUnmount(() => {
       v-else
       class="grid gap-5 sm:grid-cols-[minmax(13rem,16rem)_1fr] sm:items-center sm:gap-8"
     >
-      <div class="stroke-board mx-auto aspect-square w-full max-w-64">
+      <div class="stroke-board mx-auto aspect-square max-w-64 w-full">
         <svg
           :viewBox="viewBox"
           class="block size-full"
@@ -271,13 +271,13 @@ onBeforeUnmount(() => {
         </svg>
       </div>
 
-      <div class="flex min-w-0 flex-col justify-center gap-5">
+      <div class="min-w-0 flex flex-col justify-center gap-5">
         <span class="hanji-jp self-center text-5xl leading-none" lang="ja">{{
           char
         }}</span>
 
         <div class="flex flex-col gap-2">
-          <span class="self-end eyebrow tabular" aria-live="polite">
+          <span class="tabular self-end eyebrow" aria-live="polite">
             {{ progressLabel }}
           </span>
           <div
@@ -304,7 +304,7 @@ onBeforeUnmount(() => {
           <div class="flex shrink-0 items-center gap-2">
             <button
               type="button"
-              class="flex-center size-9 border border-rule rounded-md text-soft transition-colors hover:border-ink/30 hover:text-ink disabled:cursor-not-allowed disabled:opacity-30 focus-ring"
+              class="focus-ring size-9 flex-center border border-rule rounded-md text-soft transition-colors disabled:cursor-not-allowed hover:border-ink/30 hover:text-ink disabled:opacity-30"
               :disabled="current === 0"
               :aria-label="t('char.strokePrevious')"
               :title="t('char.strokePrevious')"
@@ -314,7 +314,7 @@ onBeforeUnmount(() => {
             </button>
             <button
               type="button"
-              class="inline-flex h-9 min-w-24 items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm text-paper transition-opacity hover:opacity-80 focus-ring"
+              class="focus-ring h-9 min-w-24 inline-flex items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm text-paper transition-opacity hover:opacity-80"
               @click="play"
             >
               <span :class="playIcon" class="block" />
@@ -322,7 +322,7 @@ onBeforeUnmount(() => {
             </button>
             <button
               type="button"
-              class="flex-center size-9 border border-rule rounded-md text-soft transition-colors hover:border-ink/30 hover:text-ink disabled:cursor-not-allowed disabled:opacity-30 focus-ring"
+              class="focus-ring size-9 flex-center border border-rule rounded-md text-soft transition-colors disabled:cursor-not-allowed hover:border-ink/30 hover:text-ink disabled:opacity-30"
               :disabled="current >= total"
               :aria-label="t('char.strokeNext')"
               :title="t('char.strokeNext')"

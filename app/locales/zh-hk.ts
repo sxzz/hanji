@@ -65,17 +65,16 @@ export const zhHK: typeof zhCN = {
   },
   sort: {
     label: '排序',
-    common: '常用',
     strokes: '筆畫',
     cp: '碼點',
     freq: '字頻',
+    freqRegion: '字頻地區',
     asc: '正序',
     desc: '倒序',
   },
   table: {
     scroll: '字表，可左右捲動',
     strokes: '筆畫',
-    freq: '字頻',
     old: '舊',
     empty: '沒有符合條件的字。放寬筆畫範圍，或換一個差異模式。',
     page: '第{page}/{total}頁',
@@ -87,7 +86,7 @@ export const zhHK: typeof zhCN = {
   char: {
     codePoint: 'Unicode碼點',
     strokes: '筆畫',
-    freq: '大陸字頻',
+    freq: '字頻',
     reading: '讀音',
     mandarin: '普通話',
     cantonese: '粵語',
@@ -176,7 +175,7 @@ export const zhHK: typeof zhCN = {
     notice4: '漢字數量龐大，出錯難免。發現數據有誤，請透過{issues}回報。',
     data1: '本站的字表數據以JSON提供，可直接取用：',
     thanks:
-      '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da《現代漢語單字頻率列表》、Adobe Source Han與Noto CJK的維護者。逐字對照工具{tofu}是本項目的先行者，同樣用Noto系列區分地區字形。',
+      '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粵典、國家教育研究院、scriptin/kanji-frequency、Adobe Source Han與Noto CJK的維護者。逐字對照工具{tofu}是本項目的先行者，同樣用Noto系列區分地區字形。',
   },
   footer: {
     sources: '數據來源',

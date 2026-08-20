@@ -3,6 +3,10 @@
 export const REGIONS = ['cn', 'hk', 'tw', 'jp', 'kr'] as const
 export type Region = (typeof REGIONS)[number]
 
+/** Regions with a directly observed character-frequency corpus. */
+export const FREQUENCY_REGIONS = ['cn', 'hk', 'tw', 'jp'] as const
+export type FrequencyRegion = (typeof FREQUENCY_REGIONS)[number]
+
 /**
  * Typeface. Serif only changes what is drawn -- every judgment on this site is
  * made from the sans faces.
@@ -53,7 +57,7 @@ export interface CharRow {
    * is a group of the same partition, numbered beyond the five when it is
    * written like none of them.
    */
-  old?: { char: string; glyph: number; strokes: number }
+  old?: { char: string; glyph: number; strokes: number; freq?: number }
   /**
    * Other orthodox forms naming this same group -- 脣 for the row keyed 唇.
    * They stay searchable and keep working as an address; the key is the form
@@ -88,8 +92,12 @@ export interface CharRow {
   glyph: string
   /** Stroke count per region. */
   strokes: RegionalTuple<number>
-  /** Mainland frequency rank, lower is more common; absent when unranked. */
-  freq?: number
+  /**
+   * Character-frequency rank per region, lower is more common. Values are in
+   * REGIONS order; null means the regional corpus does not rank this form.
+   * Korea has no frequency corpus and is therefore always null.
+   */
+  freq?: RegionalTuple<number | null>
   /** Listing level per region: cn 0-3, hk 0/1, tw 0 none / 1 common /
    * 2 secondary, jp 0 none / 1 joyo / 2 kyoiku, kr 0/1 basic hanja. */
   tier: RegionalTuple<number>

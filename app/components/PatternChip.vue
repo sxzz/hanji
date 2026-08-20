@@ -15,7 +15,7 @@ defineEmits<{ toggle: [] }>()
   -->
   <button
     type="button"
-    class="chip gap-2 disabled:opacity-30 focus-ring"
+    class="focus-ring chip gap-2 disabled:opacity-30"
     :class="active ? 'chip-on' : 'chip-off'"
     :disabled="count === 0 && !active"
     :title="label"

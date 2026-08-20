@@ -6,6 +6,7 @@
     "github:adobe-fonts/source-han-sans@master": "0b993716f6910f0c8e00f957c767ab3cf5cb7602",
     "github:adobe-fonts/source-han-serif@master": "4356704ff7c68e9a84bf2bd489c9ebe186a9e2ef",
     "github:ruddfawcett/hanziDB.csv@master": "3e9f908d25f70674862343b201f6b641a36cd226",
+    "github:scriptin/kanji-frequency@master": "62df93626e51a61c3dec58b51bfa20bef79491d7",
     "github:notofonts/noto-cjk@main": "f8d157532fbfaeda587e826d4cd5b21a49186f7c",
     "github:notofonts/notofonts.github.io@main": "bbb09a4d552a4180570754be89cb4eafc9cef34b",
     "unicode:ucd": "17.0.0"
@@ -135,6 +136,21 @@
       "url": "https://raw.githubusercontent.com/ruddfawcett/hanziDB.csv/3e9f908d25f70674862343b201f6b641a36cd226/data/hanziDB.csv",
       "sha256": "03f809543a2bd0d32c8f65f98567cbaa01527f2eefbdb0ea214a1abddc0b03a0",
       "size": 552982
+    },
+    "frequency/words-hk.csv": {
+      "url": "https://words.hk/faiman/analysis/charcount.csv",
+      "sha256": "0497442be943c90c09ded51701cfd855be7d18133c9994b9cc9c13de8e5b99a7",
+      "size": 50168
+    },
+    "frequency/naer-112.xlsx": {
+      "url": "https://teric.naer.edu.tw/wSite/DoDownload?xmlId=2068770&fileName=1761555949158&format=xlsx",
+      "sha256": "defbdea664d06456f7ffc7012b006fd28935e8f02a5673b0665e98aa6b6dcf24",
+      "size": 4079644
+    },
+    "frequency/kanji-frequency-wikipedia.csv": {
+      "url": "https://raw.githubusercontent.com/scriptin/kanji-frequency/62df93626e51a61c3dec58b51bfa20bef79491d7/data/wikipedia_characters.csv",
+      "sha256": "d92c147b27ae9616461f6082b831213ac0027fed919f3a9815cce44711165567",
+      "size": 146925
     },
     "unihan/Unihan.zip": {
       "url": "https://www.unicode.org/Public/17.0.0/ucd/Unihan.zip",

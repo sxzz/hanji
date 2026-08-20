@@ -22,7 +22,7 @@ const toggleDark = useToggle(isDark)
   -->
   <button
     type="button"
-    class="icon-btn focus-ring"
+    class="focus-ring icon-btn"
     :title="t('nav.theme')"
     :aria-label="t('nav.theme')"
     @click="toggleDark()"

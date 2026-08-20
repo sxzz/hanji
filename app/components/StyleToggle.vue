@@ -32,7 +32,7 @@ const markOf = (option: string) => FACE_MARKS[option]?.[t(`style.${option}`)]
   -->
   <button
     type="button"
-    class="h-8 flex items-center rounded px-1 focus-ring"
+    class="focus-ring h-8 flex items-center rounded px-1"
     :title="t('style.label')"
     :aria-label="t('style.label')"
     @click="toggle"

@@ -68,17 +68,16 @@ export const jaJP: typeof zhCN = {
   },
   sort: {
     label: '並べ替え',
-    common: '常用度',
     strokes: '画数',
     cp: 'コードポイント',
     freq: '文字頻度',
+    freqRegion: '文字頻度の地域',
     asc: '昇順',
     desc: '降順',
   },
   table: {
     scroll: '漢字表。左右にスクロールできます',
     strokes: '画数',
-    freq: '文字頻度',
     old: '旧',
     empty:
       '条件に一致する漢字がありません。画数の範囲を広げるか、別の差異パターンを選んでください。',
@@ -91,7 +90,7 @@ export const jaJP: typeof zhCN = {
   char: {
     codePoint: 'Unicodeコードポイント',
     strokes: '画数',
-    freq: '中国大陸の文字頻度',
+    freq: '文字頻度',
     reading: '読み方',
     mandarin: '中国語（普通話）',
     cantonese: '広東語',
@@ -181,7 +180,7 @@ export const jaJP: typeof zhCN = {
       '漢字は膨大なため、誤りを完全には避けられません。データの誤りを見つけた場合は{issues}でお知らせください。',
     data1: '本サイトの漢字表データはJSON形式で公開しています：',
     thanks:
-      'OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da『Modern Chinese Character Frequency List』、Adobe Source Han、Noto CJKのメンテナーの皆さまに感謝します。一字ずつ比較できる{tofu}は本プロジェクトの先駆けであり、同じくNotoシリーズを使って地域別字形を区別しています。',
+      'OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、words.hk、国家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJKのメンテナーの皆さまに感謝します。一字ずつ比較できる{tofu}は本プロジェクトの先駆けであり、同じくNotoシリーズを使って地域別字形を区別しています。',
   },
   footer: {
     sources: 'データソース',

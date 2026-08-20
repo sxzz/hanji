@@ -43,7 +43,7 @@ async function select(code: Locale) {
     <button
       ref="trigger"
       type="button"
-      class="h-8 inline-flex items-center gap-1 rounded-md px-1.5 text-mute transition-colors duration-150 hover:bg-sunk hover:text-ink focus-ring"
+      class="focus-ring h-8 inline-flex items-center gap-1 rounded-md px-1.5 text-mute transition-colors duration-150 hover:bg-sunk hover:text-ink"
       :title="`${t('options.language')}：${localeName(locale)}`"
       :aria-label="`${t('options.language')}：${localeName(locale)}`"
       aria-haspopup="menu"
@@ -73,7 +73,7 @@ async function select(code: Locale) {
           type="button"
           role="menuitemradio"
           :aria-checked="locale === language.code"
-          class="w-full flex items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm transition-colors duration-150 hover:bg-sunk focus-ring"
+          class="focus-ring w-full flex items-center gap-2 rounded-md px-2.5 py-2 text-left text-sm transition-colors duration-150 hover:bg-sunk"
           :class="locale === language.code ? 'text-ink' : 'text-soft'"
           @click="select(language.code)"
         >
