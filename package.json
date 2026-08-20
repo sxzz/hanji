@@ -50,7 +50,7 @@
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:",
-    "wrangler": "4.124.0"
+    "wrangler": "catalog:"
   },
   "prettier": "@sxzz/prettier-config"
 }

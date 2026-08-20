@@ -79,12 +79,13 @@ function pinnedUrl(
 }
 
 function isLockedAsset(asset: LockedAsset | undefined): asset is LockedAsset {
-  return Boolean(
-    asset &&
+  if (!asset) return false
+  const { size } = asset
+  return (
     /^https:\/\//.test(asset.url) &&
     /^[a-f\d]{64}$/.test(asset.sha256) &&
-    Number.isSafeInteger(asset.size) &&
-    asset.size >= 0,
+    Number.isSafeInteger(size) &&
+    size >= 0
   )
 }
 
@@ -165,7 +166,7 @@ if (current) {
     'Source versions unchanged; skipping downloads and data build.\n',
   )
 } else {
-  const assets = new Array<readonly [string, LockedAsset]>(entries.length)
+  const assets: (readonly [string, LockedAsset])[] = []
   let next = 0
 
   process.stderr.write('Downloading changed pinned sources...\n')
