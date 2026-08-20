@@ -169,7 +169,7 @@ function toggleRegion(region: string) {
         }}
       </span>
 
-      <label class="filter-field filter-search">
+      <label class="filter-field">
         <span class="filter-label eyebrow">{{ t('filter.search') }}</span>
         <input
           v-model="chars.query.value"
@@ -209,10 +209,10 @@ function toggleRegion(region: string) {
             v-for="region in visibleRegions"
             :key="region"
             type="button"
-            class="size-7 border rounded-md text-xs transition-colors duration-150 focus-ring"
+            class="size-7 border rounded-md text-xs transition duration-150 focus-ring"
             :class="
               chars.common.value.includes(region)
-                ? 'border-$c-ink bg-$c-ink text-$c-paper'
+                ? 'chip-on'
                 : 'border-rule bg-paper text-mute hover:border-ink/30'
             "
             :title="t(`region.${region}.full`)"
@@ -255,11 +255,9 @@ function toggleRegion(region: string) {
           v-for="option in listingOptions"
           :key="option.id"
           type="button"
-          class="h-7 flex items-center gap-1.5 border rounded-md px-2 text-xs transition-colors duration-150 focus-ring"
+          class="chip gap-1.5 text-xs focus-ring"
           :class="
-            chars.tiers.value.includes(option.id)
-              ? 'border-$c-ink bg-$c-ink text-$c-paper'
-              : 'border-rule bg-paper text-soft hover:border-ink/30'
+            chars.tiers.value.includes(option.id) ? 'chip-on' : 'chip-off'
           "
           :title="option.title"
           :aria-pressed="chars.tiers.value.includes(option.id)"
@@ -322,6 +320,16 @@ function toggleRegion(region: string) {
 </template>
 
 <style scoped>
+/*
+ * One layout system the whole way down: every level here is flex, so a field
+ * behaves the same whether it stands on its own row or shares one.
+ *
+ * A field is a label and its control side by side. Every field that opens a row
+ * gives its label a fixed width, so the controls down the left edge -- search,
+ * common, listed, dimension, pattern -- all start on the same line. Only a
+ * field that joins a row already opened by another takes just the width of its
+ * word: it has nothing above or below it to line up with.
+ */
 .filter-form {
   --filter-label-width: 4.5rem;
   --filter-column-gap: 0.5rem;
@@ -338,26 +346,24 @@ function toggleRegion(region: string) {
 }
 
 .filter-field {
-  display: grid;
+  display: flex;
   min-width: 0;
-  width: 100%;
-  grid-template-columns: var(--filter-label-width) minmax(0, 1fr);
   align-items: center;
   column-gap: var(--filter-column-gap);
 }
 
 .filter-field-start {
-  align-items: start;
+  align-items: flex-start;
 }
 
 .filter-label {
-  grid-column: 1;
-  min-width: 0;
+  flex: none;
+  width: var(--filter-label-width);
 }
 
 .filter-control {
-  grid-column: 2;
   min-width: 0;
+  flex: 1;
 }
 
 .filter-count {
@@ -381,7 +387,14 @@ function toggleRegion(region: string) {
     column-gap: 1.25rem;
   }
 
-  .filter-line .filter-field {
+  .filter-line .filter-field,
+  .filter-line .filter-control {
+    flex: none;
+  }
+
+  /* Second field onwards: “笔画” and “排序” sit against the field before them,
+     so a full label column there is only dead space. */
+  .filter-line .filter-field ~ .filter-field .filter-label {
     width: auto;
   }
 

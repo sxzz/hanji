@@ -35,9 +35,8 @@ export const zhHK: typeof zhCN = {
     flagsHint: '把「中日港台韓」換成對應的旗幟符號。',
     outline: '疊印用空心字',
     outlineHint: '把疊在一起的字形改成描邊，筆畫不再糊成一團，分歧處更清楚。',
-    columns: '參與對照的字形',
-    columnsHint:
-      '韓國列預設關閉；關掉的一列在字表和詳情頁都不再出現，剩下的字形重新分組。',
+    columns: '對照範圍',
+    columnsHint: '關掉的一列不再出現，其餘字形重新分組。',
     columnsLast: '至少要留一個地區。',
   },
   style: {

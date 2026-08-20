@@ -15,12 +15,8 @@ defineEmits<{ toggle: [] }>()
   -->
   <button
     type="button"
-    class="h-7 flex items-center gap-2 border rounded-md px-2 transition-colors duration-150 disabled:opacity-30 focus-ring"
-    :class="
-      active
-        ? 'border-$c-ink bg-$c-ink text-$c-paper'
-        : 'border-rule bg-paper text-soft hover:border-ink/30'
-    "
+    class="chip gap-2 disabled:opacity-30 focus-ring"
+    :class="active ? 'chip-on' : 'chip-off'"
     :disabled="count === 0 && !active"
     :title="label"
     :aria-label="label"

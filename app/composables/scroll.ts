@@ -1,5 +1,5 @@
 /**
- * Scrolls an element to the top of the viewport.
+ * Scrolls an element to the top of the viewport, clear of the sticky nav.
  *
  * Native `smooth` has no speed control and is slow enough that turning a page
  * feels sluggish, so this animates by hand over a short duration -- and skips
@@ -10,7 +10,13 @@ export function useScrollToTop() {
 
   return (target: HTMLElement | undefined | null) => {
     if (!target) return
-    const to = Math.max(0, window.scrollY + target.getBoundingClientRect().top)
+    // Measured rather than read off --nav-h: the bar is the thing in the way,
+    // and its own height is the answer whatever the breakpoint.
+    const nav = document.querySelector('header')?.offsetHeight ?? 0
+    const to = Math.max(
+      0,
+      window.scrollY + target.getBoundingClientRect().top - nav,
+    )
 
     if (motion.value === 'reduce') {
       window.scrollTo({ top: to })

@@ -11,13 +11,13 @@ defineEmits<{ toggle: [] }>()
 <template>
   <button
     type="button"
-    class="h-7 flex items-center justify-between gap-2 border rounded-md px-2 text-xs transition-colors duration-150 disabled:opacity-30 focus-ring"
+    class="chip justify-between gap-2 text-xs disabled:opacity-30 focus-ring"
     :class="
       active
-        ? 'border-$c-ink bg-$c-ink text-$c-paper'
+        ? 'chip-on'
         : partial
           ? 'border-ink/35 bg-sunk text-ink'
-          : 'border-rule bg-paper text-soft hover:border-ink/30'
+          : 'chip-off'
     "
     :disabled="count === 0 && !active && !partial"
     :aria-pressed="partial ? 'mixed' : active"

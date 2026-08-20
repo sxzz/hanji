@@ -36,9 +36,8 @@ export const koKR: typeof zhCN = {
     outline: '겹쳐 보기에서 윤곽선 사용',
     outlineHint:
       '겹친 자형을 윤곽선으로 표시해 획이 한 덩어리로 뭉치지 않고 차이가 더 잘 보이게 합니다.',
-    columns: '비교할 자형',
-    columnsHint:
-      '해제한 열은 한자표와 상세 페이지에서 모두 숨겨지며, 남은 자형끼리 다시 그룹화됩니다.',
+    columns: '비교 범위',
+    columnsHint: '해제한 열은 표시되지 않고, 남은 자형끼리 다시 묶입니다.',
     columnsLast: '지역을 하나 이상 선택해야 합니다.',
   },
   style: {

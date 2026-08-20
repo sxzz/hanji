@@ -36,7 +36,7 @@ function turnTo(page: number) {
   <div ref="list" class="border border-rule rounded-lg bg-paper">
     <div
       ref="headerViewport"
-      class="sticky top-0 z-10 overflow-hidden rounded-t-lg bg-paper"
+      class="sticky top-[var(--nav-h)] z-10 overflow-hidden rounded-t-lg bg-paper"
     >
       <div
         class="row-grid items-center gap-2 border-b border-rule bg-paper px-2 py-2 sm:gap-3 sm:px-5"
@@ -67,7 +67,7 @@ function turnTo(page: number) {
       <p>{{ t('table.empty') }}</p>
       <button
         type="button"
-        class="mt-4 border border-rule rounded-md bg-paper px-3 py-1.5 text-xs text-soft transition-colors duration-150 hover:border-ink/25 hover:text-ink focus-ring"
+        class="btn-ghost mt-4 bg-paper px-3 py-1.5 text-xs focus-ring"
         @click="chars.reset()"
       >
         {{ t('filter.clear') }}
@@ -99,37 +99,34 @@ function turnTo(page: number) {
       "
       class="flex flex-wrap items-center justify-between gap-3 px-3 py-3 text-sm sm:px-5"
     >
-      <button
-        v-if="chars.paged.value"
-        type="button"
-        class="border border-rule rounded-md px-3 py-1.5 text-soft transition-colors duration-150 disabled:opacity-35 focus-ring enabled:hover:border-ink/25 enabled:hover:text-ink"
-        :disabled="chars.page.value <= 1"
-        @click="turnTo(chars.page.value - 1)"
-      >
-        {{ t('table.prev') }}
-      </button>
+      <template v-if="chars.paged.value">
+        <button
+          type="button"
+          class="btn-pager focus-ring"
+          :disabled="chars.page.value <= 1"
+          @click="turnTo(chars.page.value - 1)"
+        >
+          {{ t('table.prev') }}
+        </button>
 
-      <span
-        v-if="chars.paged.value"
-        class="tabular text-xs text-mute font-mono"
-      >
-        {{
-          t('table.page', {
-            page: chars.page.value,
-            total: chars.pageCount.value,
-          })
-        }}
-      </span>
+        <span class="tabular text-xs text-mute font-mono">
+          {{
+            t('table.page', {
+              page: chars.page.value,
+              total: chars.pageCount.value,
+            })
+          }}
+        </span>
 
-      <button
-        v-if="chars.paged.value"
-        type="button"
-        class="border border-rule rounded-md px-3 py-1.5 text-soft transition-colors duration-150 disabled:opacity-35 focus-ring enabled:hover:border-ink/25 enabled:hover:text-ink"
-        :disabled="chars.page.value >= chars.pageCount.value"
-        @click="turnTo(chars.page.value + 1)"
-      >
-        {{ t('table.next') }}
-      </button>
+        <button
+          type="button"
+          class="btn-pager focus-ring"
+          :disabled="chars.page.value >= chars.pageCount.value"
+          @click="turnTo(chars.page.value + 1)"
+        >
+          {{ t('table.next') }}
+        </button>
+      </template>
 
       <!-- Once the result set is small enough to render whole, paging is
            just friction -->

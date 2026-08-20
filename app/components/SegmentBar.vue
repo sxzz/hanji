@@ -15,7 +15,7 @@ const segments = computed(() => segmentsOf(props.signature))
 
 /** One run means one form everywhere, which color cannot usefully encode. */
 const colorOf = (group: number) =>
-  segments.value.length === 1 ? 'var(--c-ink-mute)' : `var(--c-g${group + 1})`
+  segments.value.length === 1 ? 'var(--c-ink-mute)' : groupColor(group)
 </script>
 
 <template>

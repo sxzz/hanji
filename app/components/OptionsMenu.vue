@@ -26,7 +26,7 @@ onKeyStroke('Escape', () => (open.value = false))
   <div ref="root" class="static md:relative">
     <button
       type="button"
-      class="size-8 flex-center rounded-md text-mute transition-colors duration-150 hover:text-ink focus-ring"
+      class="icon-btn focus-ring"
       :title="t('nav.options')"
       :aria-label="t('nav.options')"
       :aria-expanded="open"
@@ -67,9 +67,13 @@ onKeyStroke('Escape', () => (open.value = false))
           Which columns are compared at all. Same chip as the filter bar, but
           not the same state: down there the exceptional thing is a filter being
           on, so selection is a filled slab. Here an enabled column is the
-          normal state (except Korea, which starts off), so a chip that is off
-          simply fades. That also keeps a solid ink field from landing behind
-          a flag, where the artwork's own colors fight it.
+          normal state, so a chip that is off simply fades. That also keeps a
+          solid ink field from landing behind a flag, where the artwork's own
+          colors fight it.
+
+          One track per region, so the five sit as a single row of equal cells
+          rather than wrapping and leaving the last one stranded. The kyujitai
+          is not a place, and takes the full-width row underneath.
         -->
         <div class="mt-3 border-t border-rule pt-3">
           <span class="text-sm text-ink font-medium">{{
@@ -78,17 +82,18 @@ onKeyStroke('Escape', () => (open.value = false))
           <span class="mt-1 block text-xs text-soft">{{
             t('options.columnsHint')
           }}</span>
-          <div class="mt-2 flex flex-wrap justify-center gap-1.5">
+          <div class="mt-2 grid grid-cols-5 gap-1.5">
             <button
               v-for="column in COLUMNS"
               :key="column"
               type="button"
-              class="h-7 flex items-center gap-1.5 border rounded-md px-2 text-xs transition duration-150 disabled:cursor-not-allowed focus-ring"
-              :class="
+              class="chip justify-center gap-1.5 text-xs disabled:cursor-not-allowed focus-ring"
+              :class="[
                 columnShown(column)
                   ? 'border-ink/35 bg-paper text-ink'
-                  : 'border-rule bg-sunk text-mute opacity-55 hover:opacity-85'
-              "
+                  : 'border-rule bg-sunk text-mute opacity-55 hover:opacity-85',
+                column === 'old' ? 'order-1 col-span-5' : '',
+              ]"
               :disabled="columnLocked(column)"
               :title="
                 columnLocked(column)

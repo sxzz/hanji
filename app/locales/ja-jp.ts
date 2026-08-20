@@ -36,9 +36,8 @@ export const jaJP: typeof zhCN = {
     outline: '重ね表示で輪郭線を使う',
     outlineHint:
       '重ねた字形を輪郭線で表示します。画が一つに潰れにくくなり、違いが分かりやすくなります。',
-    columns: '比較する字形',
-    columnsHint:
-      '韓国列は初期状態でオフです。外した列は漢字表にも詳細ページにも表示されず、残った字形だけで改めてグループ分けします。',
+    columns: '比較の範囲',
+    columnsHint: '外した列は表示されず、残った字形で分け直します。',
     columnsLast: '地域は少なくとも一つ残してください。',
   },
   style: {

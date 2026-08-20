@@ -33,9 +33,8 @@ export const zhCN = {
     flagsHint: '把「中日港台韩」换成对应的旗帜符号。',
     outline: '叠印用空心字',
     outlineHint: '把叠在一起的字形改成描边，笔画不再糊成一团，分歧处更清楚。',
-    columns: '参与对照的字形',
-    columnsHint:
-      '韩国列默认关闭；关掉的一列在字表和详情页都不再出现，剩下的字形重新分组。',
+    columns: '对照范围',
+    columnsHint: '关掉的一列不再出现，其余字形重新分组。',
     columnsLast: '至少要留一个地区。',
   },
   style: {
