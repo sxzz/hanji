@@ -20,6 +20,10 @@ export const jaJP: typeof zhCN = {
     body: '{regions}。同じ漢字でも、地域によって書き方が異なることがあります。',
     split: '分けて見る',
     merge: '重ねて見る',
+    field: '比較する漢字',
+    fieldHint: 'ここをクリックして、好きな漢字に',
+    missing: '「{char}」は収録されていません',
+    detail: '詳細を見る',
   },
   nav: {
     about: 'このサイトについて',

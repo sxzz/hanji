@@ -18,6 +18,10 @@ export const zhCN = {
     body: '{regions}，同一个字写出来常常不一样。',
     split: '拆开看',
     merge: '叠回去',
+    field: '要对照的汉字',
+    fieldHint: '点这里，换成任意汉字',
+    missing: '「{char}」不在字表里',
+    detail: '查看详情',
   },
   nav: {
     about: '关于',

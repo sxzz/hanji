@@ -27,8 +27,10 @@ const props = withDefaults(
     only?: readonly Column[]
     /** Include Japan's pre-reform form, which the detail page compares too. */
     withOld?: boolean
-    /** Keep this glyph group vivid and veil the other overprint layers. */
+    /** Keep this glyph group vivid and hold the other overprint layers back. */
     focusGroup?: number
+    /** Answer to a resting pointer by fanning and walking the forms. */
+    interactive?: boolean
   }>(),
   {
     size: 32,
@@ -36,6 +38,7 @@ const props = withDefaults(
     only: undefined,
     withOld: false,
     focusGroup: undefined,
+    interactive: true,
   },
 )
 
@@ -97,18 +100,29 @@ const label = computed(() =>
 )
 
 /**
- * Color encodes which group a layer belongs to, so with a single group it
- * would encode nothing while shouting loudest. Uniform characters are drawn in
- * ink: no disagreement, no color.
+ * Color encodes which group a layer belongs to; groupColor() gives the first
+ * one ink and the rest an accent. With a single group there is no grouping to
+ * encode, and it is already the first -- so a uniform character is drawn in
+ * ink either way.
  */
-const colorOf = (group: number) =>
-  layers.value.length === 1 ? 'var(--c-ink)' : groupColor(group)
+const colorOf = (group: number) => groupColor(group)
+
+const cycle = useOverprintCycle(
+  () => layers.value.map((layer) => layer.group),
+  () => props.interactive,
+)
+
+/**
+ * A group the page has pinned -- a reader hovering one cell of the comparison
+ * table -- outranks the stack's own walk through the forms.
+ */
+const focused = computed(() => props.focusGroup ?? cycle.lit.value)
 
 /** Ignore a focus request for a layer hidden by the current comparison. */
 const activeFocus = computed(() =>
-  props.focusGroup !== undefined &&
-  layers.value.some((layer) => layer.group === props.focusGroup)
-    ? props.focusGroup
+  focused.value !== undefined &&
+  layers.value.some((layer) => layer.group === focused.value)
+    ? focused.value
     : undefined,
 )
 </script>
@@ -116,31 +130,37 @@ const activeFocus = computed(() =>
 <template>
   <!--
     isolation keeps the layers blending with each other rather than with the
-    row behind them: the first layer lands on a transparent backdrop, where
-    multiply resolves to the source color, and only later layers multiply into
-    what has accumulated. So "shared strokes go ink-black, disagreements show
-    color" holds on any background.
+    row behind them: the baseline lands on a transparent backdrop and comes
+    through as itself, and only later layers blend into what is already there.
+    So "the baseline stays ink, departures show color" holds on any background
+    -- including the tinted one a row takes under the pointer.
   -->
   <span
     class="overprint"
-    :class="{ outlined: outlineOn }"
+    :class="{ outlined: outlineOn, fanned: cycle.hovering.value }"
     :style="{
       '--size': typeof size === 'number' ? `${size}px` : size,
+      '--n': layers.length,
       viewTransitionName: morph && morphWhole ? morph : undefined,
     }"
     :title="label"
     :aria-label="label"
     role="img"
+    v-on="cycle.on"
   >
     <span
-      v-for="layer in layers"
+      v-for="(layer, index) in layers"
       :key="layer.group"
-      class="layer"
+      class="layer overprint-layer"
       :class="[
         `hanji-${layer.region}`,
-        { veiled: activeFocus !== undefined && layer.group !== activeFocus },
+        {
+          baseline: layer.group === 0,
+          dimmed: activeFocus !== undefined && layer.group !== activeFocus,
+        },
       ]"
       :style="{
+        '--i': index,
         '--layer-color': colorOf(layer.group),
         viewTransitionName:
           morph && !morphWhole ? `${morph}-${layer.group}` : undefined,
@@ -152,10 +172,11 @@ const activeFocus = computed(() =>
 </template>
 
 <style scoped>
+/* Colour, blending, the fan and how the held-back layers behave are shared
+   with every other stack on the site; see styles/overprint.css. */
 .overprint {
   position: relative;
   display: inline-grid;
-  isolation: isolate;
   width: var(--size);
   height: var(--size);
   font-size: var(--size);
@@ -167,13 +188,6 @@ const activeFocus = computed(() =>
   inset: 0;
   display: grid;
   place-items: center;
-  color: var(--layer-color);
-  mix-blend-mode: var(--overprint-blend);
-  transition: opacity 180ms ease;
-}
-
-.layer.veiled {
-  opacity: 0.16;
 }
 
 /* Hollow: the color moves from the fill to the stroke, so the shapes read

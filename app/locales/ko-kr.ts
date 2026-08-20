@@ -20,6 +20,10 @@ export const koKR: typeof zhCN = {
     body: '{regions}에서는 같은 한자도 쓰는 모양이 다른 경우가 많습니다.',
     split: '나눠 보기',
     merge: '겹쳐 보기',
+    field: '비교할 한자',
+    fieldHint: '여기를 눌러 다른 한자로',
+    missing: '‘{char}’는 목록에 없습니다',
+    detail: '자세히 보기',
   },
   nav: {
     about: '사이트 소개',

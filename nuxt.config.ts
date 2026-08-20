@@ -47,6 +47,7 @@ export default {
     '@unocss/reset/tailwind.css',
     '~/styles/vars.css',
     '~/styles/global.css',
+    '~/styles/overprint.css',
   ],
 
   app: {

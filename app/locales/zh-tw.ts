@@ -20,6 +20,10 @@ export const zhTW: typeof zhCN = {
     body: '{regions}，同一個字寫出來常常不一樣。',
     split: '拆開看',
     merge: '疊回去',
+    field: '要對照的漢字',
+    fieldHint: '點這裡，換成任意漢字',
+    missing: '「{char}」不在字表裡',
+    detail: '查看詳情',
   },
   nav: {
     about: '關於',
