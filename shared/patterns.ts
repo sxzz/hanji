@@ -7,7 +7,12 @@ import { varietyOf } from './row.ts'
  */
 const VARIETY_CHOICE = /^v([1-9]\d*)$/
 
-export const DEFAULT_PATTERN_CHOICES = ['v2', 'v3', 'v4'] as const
+/**
+ * Every non-identical variety is on by default, including the fifth form that
+ * becomes applicable when the opt-in Korean column is shown. Choices that need
+ * more columns than are currently visible stay serialized but do not filter.
+ */
+export const DEFAULT_PATTERN_CHOICES = ['v2', 'v3', 'v4', 'v5'] as const
 export const ALL_PATTERN_CHOICES = 'all'
 
 export const varietyChoice = (variety: number): string => `v${variety}`
