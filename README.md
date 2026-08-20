@@ -64,7 +64,7 @@ pnpm test
 pnpm generate     # 静态站点
 ```
 
-每一行的地址是它的行名（`/char/着`）。五地展示形、`aka` 和 `alternatives` 也可作为地址，302 跳到所属的行——例如 `/char/国`、`/char/郞`、`/char/缐`，页面用 `rel=canonical` 指回行名地址；未确认关系不是地址别名。
+每一行的地址是它的行名（`/char/着`）。五地展示形、`aka` 和 `alternatives` 也可作为地址，由客户端跳到所属的行——例如 `/char/国`、`/char/郞`、`/char/缐`，页面用 `rel=canonical` 指回行名地址；未确认关系不是地址别名。
 
 字表 `public/data/chars.json` 提交在仓库里，也是站点的开放数据地址 `/data/chars.json`。字体子集约 12MB，**不提交**，由 `pnpm build:data` 生成——所以构建前必须先跑一次。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`），已 gitignore。
 
@@ -78,7 +78,7 @@ pnpm generate     # 静态站点
 | 输出目录  | `.output/public`                   |
 | Node 版本 | LTS（`.node-version`）             |
 
-`public/_redirects` 把没有预渲染的单字页交回给应用（静态文件优先，约 2,300 个常见单字及别名地址仍按文件直出），`public/_headers` 给带内容哈希的 `_nuxt/*` 设了长缓存。
+全部 8,449 个字组详情页都会生成独立 HTML；页面数据在本地 bundle 中，因此关闭了每路由额外生成 `_payload.json` 的 payload extraction。地区异体别名也不另外生成跳转页，而是通过 `public/_redirects` 回到应用后由客户端跳转。同一条回退规则也让应用显示未知字符的 404；`public/_headers` 给带内容哈希的 `_nuxt/*` 设了长缓存。
 
 构建时 `pnpm build:data` 会下载约 **211 MB** 原始数据（其中 195 MB 是十份 Noto CJK 字体），CI 上每次构建都要重下。若嫌慢，可改为本地构建后直传：
 

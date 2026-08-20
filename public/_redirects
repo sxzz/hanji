@@ -1,5 +1,4 @@
-# Only the 2,064 characters common to all four places are prerendered; the rest
-# are served by the app itself, which also resolves the regional forms
-# (/char/国 -> /char/國) and raises its own 404. Static files win over this
-# rule, so every prerendered page is still served as a file.
+# Canonical character pages are prerendered. Regional aliases use this fallback
+# so the client can redirect them; unknown characters use it for the app's 404.
+# Static files win, so generated detail pages are still served with their HTML.
 /char/*  /200  200
