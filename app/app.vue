@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { RESTORE_SCRIPT, useStyle } from '~/composables/style.ts'
+import { useStyle } from '~/composables/style.ts'
 
 const { t, meta } = useT()
 const route = useRoute()
@@ -27,7 +27,6 @@ useHead({
     lang: () => meta.value.htmlLang,
     'data-style': () => style.value,
   },
-  script: [{ innerHTML: RESTORE_SCRIPT, tagPosition: 'head' }],
   titleTemplate: (title) =>
     title ? `${title} \u00B7 ${t('meta.title')}` : t('meta.title'),
   link: () =>

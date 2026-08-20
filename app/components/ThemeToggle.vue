@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { COLOR_KEY } from '~/composables/style.ts'
+import { COLOR_KEY } from '~/utils/theme.ts'
 
 const { t } = useT()
 
