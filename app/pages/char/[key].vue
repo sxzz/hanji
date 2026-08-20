@@ -221,6 +221,8 @@ const columnMark = (column: Column) =>
 const codePointRuns = computed(() => runs((cell) => cell.codePoint))
 const strokeRuns = computed(() => runs((cell) => cell.strokes))
 const tierRuns = computed(() => runs(tierLabel))
+/** KanjiVG records Japanese glyphs, independently of the visible columns. */
+const strokeChar = computed(() => row.value!.chars[REGIONS.indexOf('jp')]!)
 
 const readingRows = computed(() => {
   const readings = row.value?.readings
@@ -551,6 +553,8 @@ useSeoMeta({
             </tbody>
           </table>
         </section>
+
+        <StrokeOrder :char="strokeChar" />
 
         <section class="flex flex-col gap-6">
           <span class="eyebrow">{{ t('char.dict') }}</span>
