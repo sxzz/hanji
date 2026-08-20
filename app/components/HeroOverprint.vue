@@ -33,7 +33,7 @@ const groupCount = computed(
 )
 
 const colorOf = (group: number) =>
-  groupCount.value === 1 ? 'var(--c-ink)' : `var(--c-g${group + 1})`
+  groupCount.value === 1 ? 'var(--c-ink)' : groupColor(group)
 
 const label = computed(() =>
   list(
@@ -99,7 +99,7 @@ function toggle() {
       <button
         v-if="forms.length > 1"
         type="button"
-        class="mt-4 inline-flex items-center gap-1.5 border border-rule rounded-md px-3 py-1.5 text-sm text-soft transition-colors duration-150 hover:border-ink/25 hover:text-ink focus-ring"
+        class="btn-ghost mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm focus-ring"
         :aria-pressed="split"
         @click="toggle"
       >
@@ -119,22 +119,36 @@ function toggle() {
   --hero-ease: cubic-bezier(0.32, 0.72, 0, 1);
 
   /*
-   * Geometry of the separated row, sized from the number of columns on show:
-   * hiding a region narrows the row rather than leaving a hole where it stood.
-   * --stack-scale blows one slot up to the 11rem the stacked plane occupies.
+   * Size of one separated form, and the fixed distance between two of them.
+   * The row keeps that step whatever it is given, so a form sits the same
+   * distance from its neighbor with three columns on show or with five, and
+   * hiding a region narrows the row rather than spreading the rest apart.
+   *
+   * The overprint is these same nodes scaled up to an 11rem square, so the
+   * scale is read off the size rather than tuned by hand -- changing the size
+   * alone keeps the stack exactly where it was. The smallest phones step both
+   * down, where five forms and a 320px viewport leave nothing spare.
    */
-  --form-size: 3.25rem;
-  --form-step: 3.5rem;
-  --stack-scale: 3.384615;
-  --split-width: calc(var(--form-step) * (var(--n) - 1) + var(--form-size));
+  --form-em: 3.5;
+  --form-size: calc(var(--form-em) * 1rem);
+  --form-step: 3.25rem;
+  --stack-scale: calc(11 / var(--form-em));
 }
 
-/* Padding and minimum height preserve the original 176px overprint's exact
-   footprint while the plane changes width underneath it. */
+@media (min-width: 360px) {
+  .hero {
+    --form-em: 4;
+    --form-step: 4.25rem;
+  }
+}
+
+/* Padding and minimum height preserve the original 176px overprint footprint
+   while the plane changes width underneath it. */
 .hero-stage {
   box-sizing: border-box;
   display: flex;
   min-width: 0;
+  max-width: 100%;
   min-height: 12.375rem;
   align-items: center;
   justify-content: center;
@@ -143,13 +157,13 @@ function toggle() {
 
 .hero-plane {
   position: relative;
-  width: 11rem;
+  width: 100%;
   height: 11rem;
   isolation: isolate;
-  transition: width var(--hero-duration) var(--hero-ease);
 }
 
 .hero-form {
+  /* Distance from the middle of the row to the middle of this form. */
   --split-x: calc((var(--i) - (var(--n) - 1) / 2) * var(--form-step));
 
   position: absolute;
@@ -157,13 +171,16 @@ function toggle() {
   left: 50%;
   width: var(--form-size);
   height: var(--form-size);
+  /* Own half, so top and left name the center of the form */
+  margin-top: calc(var(--form-size) / -2);
+  margin-left: calc(var(--form-size) / -2);
   color: var(--layer-color);
   mix-blend-mode: var(--overprint-blend);
-  transform: translate3d(-50%, -50%, 0);
   transition:
     color var(--hero-duration) var(--hero-ease),
     opacity 160ms ease,
-    transform var(--hero-duration) var(--hero-ease);
+    top var(--hero-duration) var(--hero-ease),
+    left var(--hero-duration) var(--hero-ease);
 }
 
 .hero-form.duplicate {
@@ -196,14 +213,13 @@ function toggle() {
     transform 280ms var(--hero-ease);
 }
 
-.hero.split .hero-plane {
-  width: var(--split-width);
-}
-
+/* Separated, the forms step out from the middle of the row, and lift to leave
+   the label room underneath. */
 .hero.split .hero-form {
+  left: calc(50% + var(--split-x));
+  top: calc(50% - 0.5rem);
   color: var(--c-ink);
   mix-blend-mode: normal;
-  transform: translate3d(calc(-50% + var(--split-x)), calc(-50% - 0.5rem), 0);
 }
 
 .hero.split .hero-form.duplicate {
@@ -231,11 +247,15 @@ function toggle() {
   }
 }
 
+/*
+ * Beside the standfirst the stage is no longer the width of the column, so it
+ * takes the width the separated row comes to: a step per form beyond the
+ * first, plus the stage's own 0.5rem of padding on each side.
+ */
 @media (min-width: 640px) {
   .hero {
-    --form-size: 4.5rem;
+    --form-em: 4.5;
     --form-step: 5.25rem;
-    --stack-scale: 2.444444;
   }
 
   .hero-stage {
@@ -244,15 +264,21 @@ function toggle() {
     transition: width var(--hero-duration) var(--hero-ease);
   }
 
-  /* The stage carries the plane plus its own 0.5rem of padding on each side. */
   .hero.split .hero-stage {
-    width: calc(var(--split-width) + 1rem);
+    width: calc(var(--form-size) + (var(--n) - 1) * var(--form-step) + 1rem);
+  }
+}
+
+/* Room for a larger row only once the standfirst beside it keeps its measure */
+@media (min-width: 1024px) {
+  .hero {
+    --form-em: 5.5;
+    --form-step: 6.5rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .hero-stage,
-  .hero-plane,
   .hero-form,
   .hero-glyph,
   .hero-label {

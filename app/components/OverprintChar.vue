@@ -102,7 +102,7 @@ const label = computed(() =>
  * ink: no disagreement, no color.
  */
 const colorOf = (group: number) =>
-  layers.value.length === 1 ? 'var(--c-ink)' : `var(--c-g${group + 1})`
+  layers.value.length === 1 ? 'var(--c-ink)' : groupColor(group)
 
 /** Ignore a focus request for a layer hidden by the current comparison. */
 const activeFocus = computed(() =>

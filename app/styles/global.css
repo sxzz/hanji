@@ -1,9 +1,23 @@
 html {
   color-scheme: light;
   background: var(--c-paper);
+  /*
+   * Height of the sticky nav, which AppHeader pins to the row it draws. Also
+   * the offset anything sticky below it has to clear -- the table head, the
+   * character on a detail page -- and the room the browser leaves when it
+   * scrolls to a target of its own.
+   */
+  --nav-h: 4rem;
+  scroll-padding-top: var(--nav-h);
 }
 html.dark {
   color-scheme: dark;
+}
+
+@media (min-width: 768px) {
+  html {
+    --nav-h: 4.5rem;
+  }
 }
 
 body {
@@ -38,13 +52,8 @@ body {
 }
 
 /*
- * The five table columns, pinned to their own region and never following the
- * interface language. scripts/build-fonts.ts generates the @font-face rules
- * into /fonts/kanji.css, chunked by unicode-range so the browser fetches only
- * the chunks holding characters currently on screen.
- */
-/*
- * The five Han columns. The fallback is deliberately a generic family and
+ * The five Han columns, pinned to their own region and never following the
+ * interface language. The fallback is deliberately a generic family and
  * never --font-ui: listing a webfont here would make every table character a
  * candidate for it, and the browser would pull dozens of that font's
  * unicode-range chunks. The lang attribute on each cell drives the system's

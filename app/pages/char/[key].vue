@@ -35,14 +35,6 @@ if (!row.value) {
   })
 }
 
-const LANG = {
-  cn: 'zh-CN',
-  hk: 'zh-HK',
-  tw: 'zh-TW',
-  jp: 'ja',
-  kr: 'ko',
-  old: 'ja',
-} as const
 const hex = (char: string) =>
   `U+${char.codePointAt(0)!.toString(16).toUpperCase()}`
 
@@ -116,7 +108,7 @@ const cells = computed(() =>
         char: old.char,
         // The kyujitai is Japan's own, so Japan's font draws it
         font: 'jp',
-        lang: LANG.old,
+        lang: COLUMN_LANG.old,
         codePoint: hex(old.char),
         strokes: String(old.strokes || '—'),
         tier: 0,
@@ -129,7 +121,7 @@ const cells = computed(() =>
       column,
       char: here.chars[index]!,
       font: fontRegionOf(here, index),
-      lang: LANG[column],
+      lang: COLUMN_LANG[column],
       codePoint: hex(here.chars[index]!),
       strokes: String(here.strokes[index] || '—'),
       tier: here.tier[index]!,
@@ -359,7 +351,10 @@ useSeoMeta({
     <!-- The character holds the left column for the whole page and stays put
          while the tables scroll past it. -->
     <div class="flex flex-col gap-10 md:flex-row md:items-start md:gap-12">
-      <div class="shrink-0 self-center md:sticky md:top-8 md:self-start">
+      <!-- Sticky under the nav rather than under the top of the viewport -->
+      <div
+        class="shrink-0 self-center md:sticky md:top-[calc(var(--nav-h)_+_2rem)] md:self-start"
+      >
         <OverprintChar
           :row="row"
           :only="compared"
@@ -384,8 +379,10 @@ useSeoMeta({
                     :colspan="run.span"
                     class="border-l border-rule/40 py-2 text-center font-normal first:border-l-0"
                   >
+                    <!-- A step down on narrow screens: six columns share the
+                         width, and “日 旧字体” would otherwise break mid-word -->
                     <label
-                      class="inline-flex items-center gap-1.5 text-sm text-soft"
+                      class="inline-flex items-center gap-1.5 text-xs text-soft sm:text-sm"
                       :class="singleForm ? '' : 'cursor-pointer'"
                     >
                       <input
@@ -469,7 +466,7 @@ useSeoMeta({
                     v-for="run in tierRuns"
                     :key="run.from"
                     :colspan="run.span"
-                    class="border-l border-rule/40 py-3 text-center text-sm first:border-l-0"
+                    class="border-l border-rule/40 py-3 text-center text-xs first:border-l-0 sm:text-sm"
                   >
                     {{ tierLabel(run.cell) }}
                   </td>
@@ -569,7 +566,7 @@ useSeoMeta({
           >
             <span
               v-if="references.length > 1"
-              :lang="LANG[group.form.font]"
+              :lang="COLUMN_LANG[group.form.font]"
               :class="`hanji-${group.form.font}`"
               class="text-2xl text-mute leading-none"
               >{{ group.form.char }}</span

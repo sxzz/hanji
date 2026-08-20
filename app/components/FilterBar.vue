@@ -161,56 +161,58 @@ function toggleRegion(region: string) {
 </script>
 
 <template>
-  <div class="flex flex-col gap-3 text-sm">
-    <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-      <label class="flex items-center gap-3">
-        <span class="w-20 shrink-0 eyebrow">{{ t('filter.search') }}</span>
-        <input
-          v-model="chars.query.value"
-          type="search"
-          class="h-7 w-52 border border-rule rounded-md bg-sunk px-2.5 text-sm placeholder:text-mute focus-ring"
-          :placeholder="t('filter.searchPlaceholder')"
-        />
-      </label>
-
-      <label class="flex items-center gap-2">
-        <span class="eyebrow">{{ t('filter.strokes') }}</span>
-        <input
-          v-model.number="strokeLow"
-          type="number"
-          :min="lo"
-          :max="hi"
-          class="tabular h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono focus-ring"
-        />
-        <span class="text-mute">–</span>
-        <input
-          v-model.number="strokeHigh"
-          type="number"
-          :min="lo"
-          :max="hi"
-          class="tabular h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono focus-ring"
-        />
-      </label>
-
-      <span class="tabular ml-auto text-xs text-mute font-mono">
+  <div class="filter-form text-sm">
+    <div class="filter-line">
+      <span class="filter-count tabular text-xs text-mute font-mono">
         {{
           t('filter.matched', { n: chars.rows.value.length.toLocaleString() })
         }}
       </span>
+
+      <label class="filter-field">
+        <span class="filter-label eyebrow">{{ t('filter.search') }}</span>
+        <input
+          v-model="chars.query.value"
+          type="search"
+          class="filter-control h-7 w-full border border-rule rounded-md bg-sunk px-2.5 text-sm sm:w-52 placeholder:text-mute focus-ring"
+          :placeholder="t('filter.searchPlaceholder')"
+        />
+      </label>
+
+      <label class="filter-field">
+        <span class="filter-label eyebrow">{{ t('filter.strokes') }}</span>
+        <span class="filter-control flex items-center gap-2">
+          <input
+            v-model.number="strokeLow"
+            type="number"
+            :min="lo"
+            :max="hi"
+            class="tabular h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono focus-ring"
+          />
+          <span class="text-mute">–</span>
+          <input
+            v-model.number="strokeHigh"
+            type="number"
+            :min="lo"
+            :max="hi"
+            class="tabular h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono focus-ring"
+          />
+        </span>
+      </label>
     </div>
 
-    <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-      <div class="flex items-center gap-2">
-        <span class="w-20 shrink-0 eyebrow">{{ t('filter.common') }}</span>
-        <div class="flex gap-1">
+    <div class="filter-line">
+      <div class="filter-field">
+        <span class="filter-label eyebrow">{{ t('filter.common') }}</span>
+        <div class="filter-control flex gap-1">
           <button
             v-for="region in visibleRegions"
             :key="region"
             type="button"
-            class="size-7 border rounded-md text-xs transition-colors duration-150 focus-ring"
+            class="size-7 border rounded-md text-xs transition duration-150 focus-ring"
             :class="
               chars.common.value.includes(region)
-                ? 'border-$c-ink bg-$c-ink text-$c-paper'
+                ? 'chip-on'
                 : 'border-rule bg-paper text-mute hover:border-ink/30'
             "
             :title="t(`region.${region}.full`)"
@@ -222,49 +224,60 @@ function toggleRegion(region: string) {
         </div>
       </div>
 
-      <label class="flex items-center gap-2">
-        <span class="eyebrow">{{ t('sort.label') }}</span>
-        <SegChoice v-model="sortModel" :options="sorts" @repeat="reverseSort" />
-      </label>
+      <div class="filter-field">
+        <span class="filter-label eyebrow">{{ t('sort.label') }}</span>
+        <span class="filter-control">
+          <SegChoice
+            v-model="sortModel"
+            class="w-full sm:w-auto"
+            :options="sorts"
+            @repeat="reverseSort"
+          />
+        </span>
+      </div>
 
       <button
         v-if="chars.dirty.value"
         type="button"
-        class="ml-auto text-xs text-mute underline-offset-4 hover:text-ink hover:underline focus-ring"
+        class="filter-clear text-xs text-mute underline-offset-4 hover:text-ink hover:underline focus-ring"
         @click="chars.reset()"
       >
         {{ t('filter.clear') }}
       </button>
     </div>
 
-    <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-      <span class="w-20 shrink-0 eyebrow">{{ t('filter.tier') }}</span>
-      <button
-        v-for="option in listingOptions"
-        :key="option.id"
-        type="button"
-        class="h-7 flex items-center gap-1.5 border rounded-md px-2 text-xs transition-colors duration-150 focus-ring"
-        :class="
-          chars.tiers.value.includes(option.id)
-            ? 'border-$c-ink bg-$c-ink text-$c-paper'
-            : 'border-rule bg-paper text-soft hover:border-ink/30'
-        "
-        :title="option.title"
-        :aria-pressed="chars.tiers.value.includes(option.id)"
-        @click="toggleTier(option.id)"
-      >
-        <RegionLabel
-          :flag="flagsOn"
-          :region="option.region"
-          class="opacity-60"
-        />
-        {{ option.label }}
-      </button>
+    <div class="filter-field filter-field-start">
+      <span class="filter-label h-7 flex items-center eyebrow">{{
+        t('filter.tier')
+      }}</span>
+      <div class="filter-control flex flex-wrap items-center gap-x-3 gap-y-2">
+        <button
+          v-for="option in listingOptions"
+          :key="option.id"
+          type="button"
+          class="chip gap-1.5 text-xs focus-ring"
+          :class="
+            chars.tiers.value.includes(option.id) ? 'chip-on' : 'chip-off'
+          "
+          :title="option.title"
+          :aria-pressed="chars.tiers.value.includes(option.id)"
+          @click="toggleTier(option.id)"
+        >
+          <RegionLabel
+            :flag="flagsOn"
+            :region="option.region"
+            class="opacity-60"
+          />
+          {{ option.label }}
+        </button>
+      </div>
     </div>
 
-    <div class="flex flex-wrap items-center gap-3">
-      <span class="w-20 shrink-0 eyebrow">{{ t('filter.dimension') }}</span>
-      <SegChoice v-model="chars.dimension.value" :options="dimensions" />
+    <div class="filter-field">
+      <span class="filter-label eyebrow">{{ t('filter.dimension') }}</span>
+      <div class="filter-control">
+        <SegChoice v-model="chars.dimension.value" :options="dimensions" />
+      </div>
     </div>
 
     <!--
@@ -273,36 +286,127 @@ function toggleRegion(region: string) {
       exact regional partitions share the second so either level scans as one
       set instead of several separate groups.
     -->
-    <div
-      class="grid grid-cols-[5rem_minmax(0,1fr)] items-start gap-x-3 gap-y-2"
-    >
-      <span class="h-7 flex items-center eyebrow">{{
+    <div class="filter-field filter-field-start">
+      <span class="filter-label h-7 flex items-center eyebrow">{{
         t('filter.pattern')
       }}</span>
-      <div class="flex flex-wrap items-center gap-1.5">
-        <VarietyChip
-          v-for="group in varieties"
-          :key="group.variety"
-          :label="group.label"
-          :count="group.count"
-          :active="group.active"
-          :partial="group.partial"
-          @toggle="chars.toggleVariety(group.variety, group.allPatterns)"
-        />
-      </div>
+      <div class="filter-control flex flex-col gap-2">
+        <div class="flex flex-wrap items-center gap-1.5">
+          <VarietyChip
+            v-for="group in varieties"
+            :key="group.variety"
+            :label="group.label"
+            :count="group.count"
+            :active="group.active"
+            :partial="group.partial"
+            @toggle="chars.toggleVariety(group.variety, group.allPatterns)"
+          />
+        </div>
 
-      <span aria-hidden="true" />
-      <div class="flex flex-wrap items-center gap-1.5">
-        <PatternChip
-          v-for="signature in exactPatterns"
-          :key="signature"
-          :signature="signature"
-          :count="chars.counts.value[signature] ?? 0"
-          :active="chars.patterns.value.includes(signature)"
-          :label="patternLabel(signature)"
-          @toggle="chars.togglePattern(signature)"
-        />
+        <div class="flex flex-wrap items-center gap-1.5">
+          <PatternChip
+            v-for="signature in exactPatterns"
+            :key="signature"
+            :signature="signature"
+            :count="chars.counts.value[signature] ?? 0"
+            :active="chars.patterns.value.includes(signature)"
+            :label="patternLabel(signature)"
+            @toggle="chars.togglePattern(signature)"
+          />
+        </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+/*
+ * One layout system the whole way down: every level here is flex, so a field
+ * behaves the same whether it stands on its own row or shares one.
+ *
+ * A field is a label and its control side by side. Every field that opens a row
+ * gives its label a fixed width, so the controls down the left edge -- search,
+ * common, listed, dimension, pattern -- all start on the same line. Only a
+ * field that joins a row already opened by another takes just the width of its
+ * word: it has nothing above or below it to line up with.
+ */
+.filter-form {
+  --filter-label-width: 4.5rem;
+  --filter-column-gap: 0.5rem;
+
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filter-line {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-field {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  column-gap: var(--filter-column-gap);
+}
+
+.filter-field-start {
+  align-items: flex-start;
+}
+
+.filter-label {
+  flex: none;
+  width: var(--filter-label-width);
+}
+
+.filter-control {
+  min-width: 0;
+  flex: 1;
+}
+
+.filter-count {
+  order: -1;
+  align-self: flex-end;
+}
+
+.filter-clear {
+  align-self: flex-end;
+}
+
+@media (min-width: 640px) {
+  .filter-form {
+    --filter-label-width: 5rem;
+    --filter-column-gap: 0.75rem;
+  }
+
+  .filter-line {
+    flex-flow: row wrap;
+    align-items: center;
+    column-gap: 1.25rem;
+  }
+
+  .filter-line .filter-field,
+  .filter-line .filter-control {
+    flex: none;
+  }
+
+  /* Second field onwards: “笔画” and “排序” sit against the field before them,
+     so a full label column there is only dead space. */
+  .filter-line .filter-field ~ .filter-field .filter-label {
+    width: auto;
+  }
+
+  .filter-count {
+    order: 1;
+    align-self: auto;
+    margin-left: auto;
+  }
+
+  .filter-clear {
+    align-self: auto;
+    margin-left: auto;
+  }
+}
+</style>

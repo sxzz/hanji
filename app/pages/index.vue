@@ -8,7 +8,7 @@ useSeoMeta({ description: () => t('meta.description') })
 </script>
 
 <template>
-  <div class="flex flex-col gap-10 pb-4">
+  <div class="flex flex-col gap-8 pb-4 sm:gap-10">
     <HeroOverprint :row="HERO_ROW" />
     <FilterBar />
     <CharTable />

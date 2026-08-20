@@ -14,12 +14,12 @@ const localize = (
 
 <template>
   <div class="text-sm">
-    <table class="w-full border-collapse text-left">
+    <table class="sources w-full border-collapse text-left">
       <thead>
         <tr class="border-b border-rule">
-          <th class="py-2 pr-4 eyebrow font-normal">{{ t('about.use') }}</th>
-          <th class="py-2 pr-4 eyebrow font-normal">{{ t('about.source') }}</th>
-          <th class="py-2 eyebrow font-normal">{{ t('about.license') }}</th>
+          <th class="eyebrow font-normal">{{ t('about.use') }}</th>
+          <th class="eyebrow font-normal">{{ t('about.source') }}</th>
+          <th class="eyebrow font-normal">{{ t('about.license') }}</th>
         </tr>
       </thead>
       <tbody>
@@ -28,13 +28,13 @@ const localize = (
           :key="source.id"
           class="border-b border-rule/60 align-top"
         >
-          <td class="py-2.5 pr-4 text-soft">{{ source.use[locale] }}</td>
-          <td class="py-2.5 pr-4">
+          <td class="cell-use text-soft">{{ source.use[locale] }}</td>
+          <td class="cell-name">
             <a
               :href="source.homepage"
               target="_blank"
               rel="noreferrer"
-              class="underline decoration-rule underline-offset-4 hover:decoration-ink focus-ring"
+              class="rule-link focus-ring"
               >{{ localize(source.name, source.localizedName) }}</a
             >
             <p
@@ -44,7 +44,7 @@ const localize = (
               {{ source.note[locale] }}
             </p>
           </td>
-          <td class="py-2.5 text-xs text-mute">
+          <td class="cell-license text-xs text-mute">
             <a
               :href="source.licenseUrl"
               target="_blank"
@@ -58,3 +58,80 @@ const localize = (
     </table>
   </div>
 </template>
+
+<style scoped>
+/*
+ * Three columns of Han text will not fit a phone -- squeezed to a third of
+ * 390px, a heading like “简繁、港台异体、日本新旧字体对应” sets one character
+ * per line. So below sm each source reads as a block instead: what it is for,
+ * what it is, what it is licensed under. The header row then has nothing left
+ * to head, and the first cell carries its own label register.
+ */
+.sources,
+.sources tbody,
+.sources tr,
+.sources td {
+  display: block;
+}
+
+.sources thead {
+  display: none;
+}
+
+.sources tr {
+  padding: 0.75rem 0;
+}
+
+.cell-use {
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--c-ink-mute);
+}
+
+.cell-name,
+.cell-license {
+  margin-top: 0.25rem;
+}
+
+@media (min-width: 640px) {
+  .sources {
+    display: table;
+  }
+  .sources thead {
+    display: table-header-group;
+  }
+  .sources tbody {
+    display: table-row-group;
+  }
+  .sources tr {
+    display: table-row;
+    padding: 0;
+  }
+  .sources td {
+    display: table-cell;
+  }
+
+  .sources th,
+  .sources td {
+    padding: 0.625rem 1rem 0.625rem 0;
+  }
+  .sources th {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+  .sources th:last-child,
+  .sources td:last-child {
+    padding-right: 0;
+  }
+
+  .cell-use {
+    font-size: inherit;
+    letter-spacing: normal;
+    color: var(--c-ink-soft);
+  }
+  .cell-name,
+  .cell-license {
+    margin-top: 0;
+  }
+}
+</style>

@@ -30,15 +30,7 @@ const segments = computed(() => segmentsOf(signature.value))
 
 /** One run means one form everywhere, which color cannot usefully encode. */
 const colorOf = (group: number) =>
-  segments.value.length === 1 ? 'var(--c-rule)' : `var(--c-g${group + 1})`
-
-const LANG = {
-  cn: 'zh-CN',
-  hk: 'zh-HK',
-  tw: 'zh-TW',
-  jp: 'ja',
-  kr: 'ko',
-} as const
+  segments.value.length === 1 ? 'var(--c-rule)' : groupColor(group)
 
 const cells = computed(() =>
   regions.value.map((region) => {
@@ -49,7 +41,7 @@ const cells = computed(() =>
       region,
       char,
       font: fontRegionOf(props.row, index),
-      lang: LANG[region],
+      lang: COLUMN_LANG[region],
       codePoint: `U+${char.codePointAt(0)!.toString(16).toUpperCase()}`,
       // Only Japan has a second historical form to show
       old: region === 'jp' && showOld.value ? props.row.old?.char : undefined,
@@ -65,8 +57,6 @@ const cells = computed(() =>
       :key="cell.region"
       class="min-w-0 flex flex-col items-center gap-0.5"
     >
-      <!-- lang is accessibility semantics, unrelated to the interface
-           language; it also drives fallback if a subset has not loaded -->
       <span
         :lang="cell.lang"
         :class="`hanji-${cell.font}`"
