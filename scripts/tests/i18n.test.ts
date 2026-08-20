@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { matchLocale } from '../../app/locales/index.ts'
+import {
+  LOCALE_FREQUENCY_REGION,
+  matchLocale,
+} from '../../app/locales/index.ts'
 import { jaJP } from '../../app/locales/ja-jp.ts'
 import { koKR } from '../../app/locales/ko-kr.ts'
 import { zhCN } from '../../app/locales/zh-cn.ts'
@@ -34,6 +37,18 @@ describe('browser locale matching', () => {
     expect(matchLocale(['zh-Hans'])).toBe('zh-CN')
     expect(matchLocale(['zh-Hant'])).toBe('zh-TW')
     expect(matchLocale(['zh-MO'])).toBe('zh-HK')
+  })
+})
+
+describe('locale-aware frequency defaults', () => {
+  it('uses the matching corpus and keeps Korea on the documented fallback', () => {
+    expect(LOCALE_FREQUENCY_REGION).toEqual({
+      'zh-CN': 'cn',
+      'zh-TW': 'tw',
+      'zh-HK': 'hk',
+      'ja-JP': 'jp',
+      'ko-KR': 'cn',
+    })
   })
 })
 

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { listingOptionsFor } from '~~/shared/listings.ts'
 import { varietyChoice } from '~~/shared/patterns.ts'
+import { FREQUENCY_REGIONS, type FrequencyRegion } from '~~/shared/types.ts'
 import {
   injectChars,
+  SORT_KEYS,
   type Dimension,
   type SortKey,
 } from '~/composables/chars.ts'
@@ -21,7 +23,7 @@ const dimensions = computed<
 ])
 
 const sorts = computed(() =>
-  (['common', 'strokes', 'cp', 'freq'] as const).map((value) => {
+  SORT_KEYS.map((value) => {
     const label = t(`sort.${value}`)
     const active = chars.sortKey.value === value
     const direction = t(`sort.${chars.order.value}`)
@@ -45,6 +47,17 @@ const sortModel = computed<SortKey>({
 
 function reverseSort() {
   chars.order.value = chars.order.value === 'asc' ? 'desc' : 'asc'
+}
+
+const frequencyRegions = computed(() =>
+  FREQUENCY_REGIONS.map((region) => ({
+    region,
+    title: t(`region.${region}.full`),
+  })),
+)
+
+function chooseFrequencyRegion(region: FrequencyRegion) {
+  chars.freqRegion.value = region
 }
 
 /** Read a partition as “Mainland+Taiwan | Hong Kong+Japan”. */
@@ -174,7 +187,7 @@ function toggleRegion(region: string) {
         <input
           v-model="chars.query.value"
           type="search"
-          class="filter-control h-7 w-full border border-rule rounded-md bg-sunk px-2.5 text-sm sm:w-52 placeholder:text-mute focus-ring"
+          class="filter-control focus-ring h-7 w-full border border-rule rounded-md bg-sunk px-2.5 text-sm sm:w-52 placeholder:text-mute"
           :placeholder="t('filter.searchPlaceholder')"
         />
       </label>
@@ -187,7 +200,7 @@ function toggleRegion(region: string) {
             type="number"
             :min="lo"
             :max="hi"
-            class="tabular h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono focus-ring"
+            class="tabular focus-ring h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono"
           />
           <span class="text-mute">–</span>
           <input
@@ -195,7 +208,7 @@ function toggleRegion(region: string) {
             type="number"
             :min="lo"
             :max="hi"
-            class="tabular h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono focus-ring"
+            class="tabular focus-ring h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono"
           />
         </span>
       </label>
@@ -209,7 +222,7 @@ function toggleRegion(region: string) {
             v-for="region in visibleRegions"
             :key="region"
             type="button"
-            class="size-7 border rounded-md text-xs transition duration-150 focus-ring"
+            class="focus-ring size-7 border rounded-md text-xs transition duration-150"
             :class="
               chars.common.value.includes(region)
                 ? 'chip-on'
@@ -226,20 +239,47 @@ function toggleRegion(region: string) {
 
       <div class="filter-field">
         <span class="filter-label eyebrow">{{ t('sort.label') }}</span>
-        <span class="filter-control">
+        <span class="filter-control flex items-center gap-1.5">
           <SegChoice
             v-model="sortModel"
             class="w-full sm:w-auto"
             :options="sorts"
             @repeat="reverseSort"
           />
+          <!-- Frequency is the only sort with a regional point of view. Keep
+               that choice visually subordinate: a compact index tab beside
+               the main sort, not another full-sized filter field. -->
+          <span
+            v-if="chars.sortKey.value === 'freq'"
+            role="group"
+            :aria-label="t('sort.freqRegion')"
+            class="h-7 inline-flex shrink-0 items-center gap-px border border-rule rounded-md bg-sunk p-[2px]"
+          >
+            <button
+              v-for="option in frequencyRegions"
+              :key="option.region"
+              type="button"
+              class="focus-ring size-[22px] flex-center rounded text-[0.6875rem] transition-colors duration-150"
+              :class="
+                chars.freqRegion.value === option.region
+                  ? 'bg-paper text-ink shadow-[0_1px_2px_rgb(0_0_0/0.06)]'
+                  : 'text-mute hover:text-soft'
+              "
+              :title="option.title"
+              :aria-label="option.title"
+              :aria-pressed="chars.freqRegion.value === option.region"
+              @click="chooseFrequencyRegion(option.region)"
+            >
+              <RegionLabel :flag="flagsOn" :region="option.region" />
+            </button>
+          </span>
         </span>
       </div>
 
       <button
         v-if="chars.dirty.value"
         type="button"
-        class="filter-clear text-xs text-mute underline-offset-4 hover:text-ink hover:underline focus-ring"
+        class="filter-clear focus-ring text-xs text-mute underline-offset-4 hover:text-ink hover:underline"
         @click="chars.reset()"
       >
         {{ t('filter.clear') }}
@@ -255,7 +295,7 @@ function toggleRegion(region: string) {
           v-for="option in listingOptions"
           :key="option.id"
           type="button"
-          class="chip gap-1.5 text-xs focus-ring"
+          class="focus-ring chip gap-1.5 text-xs"
           :class="
             chars.tiers.value.includes(option.id) ? 'chip-on' : 'chip-off'
           "

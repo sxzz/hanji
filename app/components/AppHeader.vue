@@ -16,7 +16,7 @@ const { t } = useT()
       <div class="relative h-[var(--nav-h)] flex items-center">
         <NuxtLink
           to="/"
-          class="mr-auto flex shrink-0 items-baseline gap-2 focus-ring"
+          class="focus-ring mr-auto flex shrink-0 items-baseline gap-2"
         >
           <h1 class="whitespace-nowrap text-base font-medium">
             {{ t('meta.title') }}
@@ -35,7 +35,7 @@ const { t } = useT()
         <nav class="flex items-center gap-1 text-sm text-mute md:gap-3">
           <NuxtLink
             to="/about"
-            class="nav-link order-3 h-8 w-8 flex-center rounded-md md:order-1 md:h-auto md:w-auto focus-ring"
+            class="nav-link focus-ring order-3 h-8 w-8 flex-center rounded-md md:order-1 md:h-auto md:w-auto"
             :aria-label="t('nav.about')"
           >
             <span
@@ -56,7 +56,7 @@ const { t } = useT()
             href="https://github.com/sxzz/hanji"
             target="_blank"
             rel="noopener noreferrer"
-            class="icon-btn order-6 focus-ring"
+            class="focus-ring order-6 icon-btn"
             :title="t('nav.github')"
             :aria-label="t('nav.github')"
           >

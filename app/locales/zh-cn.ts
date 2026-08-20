@@ -63,17 +63,16 @@ export const zhCN = {
   },
   sort: {
     label: '排序',
-    common: '常用',
     strokes: '笔画',
     cp: '码点',
     freq: '字频',
+    freqRegion: '字频地区',
     asc: '正序',
     desc: '倒序',
   },
   table: {
     scroll: '字表，可左右滚动',
     strokes: '笔画',
-    freq: '字频',
     old: '旧',
     empty: '没有符合条件的字。放宽笔画范围，或换一个差异模式。',
     page: '第{page}/{total}页',
@@ -85,7 +84,7 @@ export const zhCN = {
   char: {
     codePoint: 'Unicode码点',
     strokes: '笔画',
-    freq: '大陆字频',
+    freq: '字频',
     reading: '读音',
     mandarin: '普通话',
     cantonese: '粤语',
@@ -174,7 +173,7 @@ export const zhCN = {
     notice4: '汉字数量巨大，出错难免。发现数据有误，请通过{issues}反馈。',
     data1: '本站的字表数据以JSON提供，可直接取用：',
     thanks:
-      '感谢OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da《现代汉语单字频率列表》、Adobe Source Han与Noto CJK的维护者。逐字对照工具{tofu}是本项目的先行者，同样用Noto系列区分地区字形。',
+      '感谢OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粤典、国家教育研究院、scriptin/kanji-frequency、Adobe Source Han与Noto CJK的维护者。逐字对照工具{tofu}是本项目的先行者，同样用Noto系列区分地区字形。',
   },
   footer: {
     sources: '数据来源',

@@ -11,7 +11,7 @@ defineEmits<{ toggle: [] }>()
 <template>
   <button
     type="button"
-    class="chip justify-between gap-2 text-xs disabled:opacity-30 focus-ring"
+    class="focus-ring chip justify-between gap-2 text-xs disabled:opacity-30"
     :class="
       active
         ? 'chip-on'

@@ -1,6 +1,6 @@
 # 汉智 · hanji
 
-中国大陆、香港、台湾、日本、韩国五地常用汉字的字表。同一个字，各地写出来常常不一样——这里把五地写法并排列出，可按笔画、常用度排序，按差异模式筛选。韩国列默认关闭，可在显示选项中启用。
+中国大陆、香港、台湾、日本、韩国五地常用汉字的字表。同一个字，各地写出来常常不一样——这里把五地写法并排列出，默认按界面语言对应地区的字频排序，也可按笔画或码点排序，并按差异模式筛选。韩国没有字频数据，韩国列默认关闭，可在显示选项中启用。
 
 字形只是其中一个维度。收录范围是五地常用字表的并集，**写法完全相同的字同样收录**：这是一份五地汉字的资料表，不是一份差异清单。
 
@@ -58,7 +58,7 @@ Source Han Sans 与 Source Han Serif 各自的五个地区共享同一个字形�
 
 ```bash
 pnpm install
-pnpm build:data   # 生成字表与字体子集，首次会下载约 211MB 原始数据，之后走缓存
+pnpm build:data   # 生成字表与字体子集，首次会下载约 215MB 原始数据，之后走缓存
 pnpm update:sources # 检查并锁定新版第三方数据；有变化时下载并重新生成
 pnpm dev
 pnpm test
@@ -86,7 +86,7 @@ Cloudflare Pages 的 production branch 设为 `main`。在项目的 **Settings �
 
 全部 8,449 个字组详情页都会生成独立 HTML；页面数据在本地 bundle 中，因此关闭了每路由额外生成 `_payload.json` 的 payload extraction。地区异体别名也不另外生成跳转页，而是通过 `public/_redirects` 回到应用后由客户端跳转。同一条回退规则也让应用显示未知字符的 404；`public/_headers` 给带内容哈希的 `_nuxt/*` 设了长缓存。
 
-第三方资产的具体 commit、Unicode 版本与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析上游版本，版本有变化时下载变化的固定版本、更新 lockfile，并直接重新生成数据；版本未变则跳过下载与生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **211 MB** 原始数据（其中 195 MB 是十份 Noto CJK 字体）。Actions 分开缓存原始下载与生成字体：前者只由 lockfile 决定，后者由 lockfile、实际生成脚本、相关依赖、locale 与字表决定；字体输入完全不变时跳过数据生成。
+第三方资产的具体 commit、官方附件标识与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析有版本上游的版本号，并重新校验没有版本号的官方直链；内容有变化时更新 lockfile 并直接重新生成数据，完全未变则跳过生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **215 MB** 原始数据（其中 195 MB 是十份 Noto CJK 字体）；任何未显式更新的直链内容变化都会因校验和不符而失败，不会静默进入数据。Actions 分开缓存原始下载与生成字体：前者只由 lockfile 决定，后者由 lockfile、实际生成脚本、相关依赖、locale 与字表决定；字体输入完全不变时跳过数据生成。
 
 本地也可构建后直传：
 
@@ -99,16 +99,19 @@ pnpm wrangler pages deploy .output/public --project-name="$CLOUDFLARE_PROJECT_NA
 
 <!-- sources:start -->
 
-| 用途                             | 来源                                                                                                     | 许可                                                            |
-| -------------------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| 判定五地字形差异                 | [Adobe Source Han Sans / Serif（CMap 资源）](https://github.com/adobe-fonts/source-han-sans)             | [SIL OFL 1.1](https://openfontlicense.org/)                     |
-| 页面展示用字体                   | [Noto Sans / Noto Serif（含 CJK）](https://github.com/notofonts/noto-cjk)                                | [SIL OFL 1.1](https://openfontlicense.org/)                     |
-| 简繁、港台异体、日本新旧字体对应 | [OpenCC 开放中文转换](https://github.com/BYVoid/OpenCC)                                                  | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)       |
-| 日本字形笔顺动画                 | [KanjiVG](https://kanjivg.tagaini.net/)                                                                  | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/) |
-| 五地标准字表                     | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars)                                            | [仓库未声明](https://github.com/zispace/hanzi-chars)            |
-| 笔画数、读音                     | [Unicode Han Database (Unihan)](https://www.unicode.org/reports/tr38/)                                   | [Unicode License v3](https://www.unicode.org/license.txt)       |
-| 韩式异体对应                     | [Unicode IRG N2200（韩国教育用汉字提案）](https://www.unicode.org/L2/L2017/17173-irgn2200-unihan-db.pdf) | [Unicode License v3](https://www.unicode.org/license.txt)       |
-| 大陆字频排名                     | [hanziDB.csv（Jun Da《现代汉语单字频率列表》）](https://github.com/ruddfawcett/hanziDB.csv)              | [MIT](https://opensource.org/licenses/MIT)                      |
+| 用途                             | 来源                                                                                                            | 许可                                                                                                                        |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| 判定五地字形差异                 | [Adobe Source Han Sans / Serif（CMap 资源）](https://github.com/adobe-fonts/source-han-sans)                    | [SIL OFL 1.1](https://openfontlicense.org/)                                                                                 |
+| 页面展示用字体                   | [Noto Sans / Noto Serif（含 CJK）](https://github.com/notofonts/noto-cjk)                                       | [SIL OFL 1.1](https://openfontlicense.org/)                                                                                 |
+| 简繁、港台异体、日本新旧字体对应 | [OpenCC 开放中文转换](https://github.com/BYVoid/OpenCC)                                                         | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)                                                                   |
+| 日本字形笔顺动画                 | [KanjiVG](https://kanjivg.tagaini.net/)                                                                         | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)                                                             |
+| 五地标准字表                     | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars)                                                   | [仓库未声明](https://github.com/zispace/hanzi-chars)                                                                        |
+| 笔画数、读音                     | [Unicode Han Database (Unihan)](https://www.unicode.org/reports/tr38/)                                          | [Unicode License v3](https://www.unicode.org/license.txt)                                                                   |
+| 韩式异体对应                     | [Unicode IRG N2200（韩国教育用汉字提案）](https://www.unicode.org/L2/L2017/17173-irgn2200-unihan-db.pdf)        | [Unicode License v3](https://www.unicode.org/license.txt)                                                                   |
+| 大陆字频排名                     | [hanziDB.csv（Jun Da《现代汉语单字频率列表》）](https://github.com/ruddfawcett/hanziDB.csv)                     | [MIT](https://opensource.org/licenses/MIT)                                                                                  |
+| 香港字频排名                     | [粵典「語料庫單字使用頻率」](https://words.hk/faiman/analysis/charcount/)                                       | [Public Domain](https://words.hk/faiman/analysis/)                                                                          |
+| 台湾字频排名                     | [国家教育研究院《民國112年語料字頻表》](https://teric.naer.edu.tw/wSite/ct?ctNode=645&mp=teric_b&xItem=2068770) | [网站资料开放宣告（须注明出处）](https://teric.naer.edu.tw/wSite/ct?xItem=2000016&ctNode=624&mp=teric_b&idPath=588_623_624) |
+| 日本字频排名                     | [scriptin/kanji-frequency（Japanese Wikipedia）](https://scriptin.github.io/kanji-frequency/)                   | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)                                                                   |
 
 <!-- sources:end -->
 
@@ -116,7 +119,7 @@ pnpm wrangler pages deploy .output/public --project-name="$CLOUDFLARE_PROJECT_NA
 
 逐字对照工具 [tofu.tools](https://tofu.tools/) 是本项目的先行者，同样用 Noto 系列区分地区字形。
 
-字体为 Noto Sans CJK 与 Noto Serif CJK（SIL OFL 1.1）按本站用字子集化后的产物，声明随附于 `/fonts/OFL.txt`。生成的数据文件派生自上述来源，请遵守各自许可。
+字体为 Noto Sans CJK 与 Noto Serif CJK（SIL OFL 1.1）按本站用字子集化后的产物，声明随附于 `/fonts/OFL.txt`。生成的数据文件派生自上述来源，请遵守各自许可；逐项转换方式与署名也写入公开的 [`/data/NOTICE.md`](public/data/NOTICE.md)。
 
 ## License
 

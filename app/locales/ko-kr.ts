@@ -68,17 +68,16 @@ export const koKR: typeof zhCN = {
   },
   sort: {
     label: '정렬',
-    common: '상용도',
     strokes: '획수',
     cp: '코드 포인트',
     freq: '글자 빈도',
+    freqRegion: '글자 빈도 지역',
     asc: '오름차순',
     desc: '내림차순',
   },
   table: {
     scroll: '한자표, 좌우로 스크롤 가능',
     strokes: '획수',
-    freq: '글자 빈도',
     old: '구',
     empty:
       '조건에 맞는 한자가 없습니다. 획수 범위를 넓히거나 다른 차이 패턴을 선택해 보세요.',
@@ -91,7 +90,7 @@ export const koKR: typeof zhCN = {
   char: {
     codePoint: 'Unicode 코드 포인트',
     strokes: '획수',
-    freq: '중국 대륙 글자 빈도',
+    freq: '글자 빈도',
     reading: '독음',
     mandarin: '표준 중국어',
     cantonese: '광둥어',
@@ -181,7 +180,7 @@ export const koKR: typeof zhCN = {
       '한자는 수가 방대해 오류를 완전히 피하기 어렵습니다. 데이터 오류를 발견하면 {issues}로 알려 주세요.',
     data1: '이 사이트의 한자표 데이터는 JSON 형식으로 공개합니다:',
     thanks:
-      'OpenCC, Unicode Unihan, zispace/hanzi-chars, Jun Da의 《Modern Chinese Character Frequency List》, Adobe Source Han, Noto CJK 유지 관리자 여러분께 감사드립니다. 한 글자씩 비교할 수 있는 {tofu}는 이 프로젝트에 앞서 같은 방식으로 Noto 계열을 사용해 지역별 자형을 구분한 도구입니다.',
+      'OpenCC, Unicode Unihan, zispace/hanzi-chars, Jun Da, words.hk, 국가교육연구원, scriptin/kanji-frequency, Adobe Source Han, Noto CJK 유지 관리자 여러분께 감사드립니다. 한 글자씩 비교할 수 있는 {tofu}는 이 프로젝트에 앞서 같은 방식으로 Noto 계열을 사용해 지역별 자형을 구분한 도구입니다.',
   },
   footer: {
     sources: '데이터 출처',

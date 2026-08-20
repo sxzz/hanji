@@ -99,7 +99,7 @@ function toggle() {
       <button
         v-if="forms.length > 1"
         type="button"
-        class="btn-ghost mt-4 inline-flex items-center gap-1.5 px-3 py-1.5 text-sm focus-ring"
+        class="focus-ring mt-4 inline-flex items-center gap-1.5 btn-ghost px-3 py-1.5 text-sm"
         :aria-pressed="split"
         @click="toggle"
       >

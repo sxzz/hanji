@@ -1,5 +1,5 @@
 import { useRouteQuery } from '@vueuse/router'
-import type { Ref } from 'vue'
+import { toValue, type MaybeRefOrGetter, type Ref } from 'vue'
 
 /**
  * Two-way bind a piece of state to a URL query parameter.
@@ -12,20 +12,20 @@ import type { Ref } from 'vue'
  */
 export function useQueryState<T>(
   name: string,
-  defaultValue: T,
+  defaultValue: MaybeRefOrGetter<T>,
   parse: (raw: string) => T,
   serialize: (value: T) => string,
 ): Ref<T> {
-  const fallback = serialize(defaultValue)
+  const fallback = () => serialize(toValue(defaultValue))
 
   return useRouteQuery<string, T>(name, fallback, {
     transform: {
       get: (raw) => {
-        if (typeof raw !== 'string' || raw === '') return defaultValue
+        if (typeof raw !== 'string' || raw === '') return toValue(defaultValue)
         try {
           return parse(raw)
         } catch {
-          return defaultValue
+          return toValue(defaultValue)
         }
       },
       set: (value) => serialize(value),

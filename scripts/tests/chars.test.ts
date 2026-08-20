@@ -255,7 +255,12 @@ describe('the pre-reform form as a sixth column', () => {
     // 國 is what Hong Kong and Taiwan write, so it joins their group
     const guo = row('國')
     expect(guo.glyph).toBe('01101')
-    expect(guo.old).toEqual({ char: '國', glyph: 1, strokes: 11 })
+    expect(guo.old).toEqual({
+      char: '國',
+      glyph: 1,
+      strokes: 11,
+      freq: 1487,
+    })
   })
 
   it('gives it a sixth group when nobody writes that Japanese glyph', () => {

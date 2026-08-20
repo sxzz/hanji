@@ -27,8 +27,10 @@ export const kanjiVGViewerUrl = (char: string): string =>
   `${KANJIVG_HOME}viewer.html?kanji=${encodeURIComponent(Array.from(char)[0]!)}`
 
 const attribute = (tag: string, name: string): string | undefined => {
-  const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-  const match = new RegExp(`\\s${escaped}=(['"])(.*?)\\1`, 's').exec(tag)
+  const escaped = name.replaceAll(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)
+  const match = new RegExp(String.raw`\s${escaped}=(['"])(.*?)\1`, 's').exec(
+    tag,
+  )
   return match?.[2]
 }
 
@@ -38,7 +40,7 @@ const attribute = (tag: string, name: string): string | undefined => {
  * renderer the useful part without importing styles, links or markup.
  */
 export function parseKanjiVG(source: string): KanjiVGData {
-  const svg = /<svg\b[^>]*>/s.exec(source)?.[0]
+  const svg = /<svg\b[^>]*>/.exec(source)?.[0]
   const rawViewBox = svg ? attribute(svg, 'viewBox') : undefined
   const viewBoxValues = rawViewBox
     ?.trim()
@@ -49,11 +51,11 @@ export function parseKanjiVG(source: string): KanjiVGData {
       ? viewBoxValues.join(' ')
       : '0 0 109 109'
 
-  const strokes = [...source.matchAll(/<path\b[^>]*>/gs)]
+  const strokes = [...source.matchAll(/<path\b[^>]*>/g)]
     .map(([tag]) => {
       const id = attribute(tag, 'id')
       const d = attribute(tag, 'd')
-      const order = id ? Number(/-s(\d+)$/.exec(id)?.[1]) : Number.NaN
+      const order = id ? Number(/-s(\d+)$/.exec(id)?.[1]) : NaN
       return { d, order }
     })
     .filter(
