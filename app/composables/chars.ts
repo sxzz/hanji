@@ -86,7 +86,7 @@ const charIndex = ((): Map<string, number[]> => {
 /**
  * A row's partition signature under the chosen comparison dimension, read over
  * the columns on show. Hiding a column repartitions what is left, so a row
- * whose shown regions ran CN | HK+TW | JP becomes a two-form row once Japan is
+ * whose shown regions ran CN | JP | HK+TW becomes a two-form row once Japan is
  * out -- and lands under the chip that says so.
  */
 export const signatureOf = (

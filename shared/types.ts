@@ -1,5 +1,5 @@
-/** The five regions, fixed in CN-HK-TW-JP-KR order: column position carries
- * regional identity, color carries only grouping. */
+/** The five regions in stored tuple order. Column position carries regional
+ * identity in generated data; display order is defined separately below. */
 export const REGIONS = ['cn', 'hk', 'tw', 'jp', 'kr'] as const
 export type Region = (typeof REGIONS)[number]
 
@@ -11,10 +11,10 @@ export const STYLES = ['sans', 'serif'] as const
 export type Style = (typeof STYLES)[number]
 
 /**
- * What the detail page compares: the five regions, plus Japan's pre-reform
- * form where a row has one. The list pages compare regions alone.
+ * Display order for the five regions and Japan's pre-reform form. Keeping this
+ * separate from REGIONS lets generated tuples retain their stable data shape.
  */
-export const COLUMNS = [...REGIONS, 'old'] as const
+export const COLUMNS = ['cn', 'jp', 'old', 'hk', 'tw', 'kr'] as const
 export type Column = (typeof COLUMNS)[number]
 
 /** Korea is available as an opt-in comparison; all other columns start on. */

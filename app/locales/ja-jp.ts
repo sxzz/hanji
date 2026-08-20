@@ -32,7 +32,7 @@ export const jaJP: typeof zhCN = {
     title: '表示設定',
     language: '表示言語',
     emoji: '地域を旗で表示',
-    emojiHint: '「中・港・台・日・韓」を対応する旗の記号に置き換えます。',
+    emojiHint: '「中・日・港・台・韓」を対応する旗の記号に置き換えます。',
     outline: '重ね表示で輪郭線を使う',
     outlineHint:
       '重ねた字形を輪郭線で表示します。画が一つに潰れにくくなり、違いが分かりやすくなります。',

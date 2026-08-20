@@ -6,6 +6,7 @@ import { listingOptionsFor } from '../../shared/listings.ts'
 import {
   glyphSignature,
   projectSignature,
+  signatureIndexOf,
   varietyOf,
 } from '../../shared/row.ts'
 import {
@@ -37,6 +38,19 @@ const without = (...hidden: Region[]) =>
 
 const ALL_COLUMNS = [...REGIONS].map((region) => REGIONS.indexOf(region))
 const DEFAULT_COLUMNS = without('kr')
+
+describe('column ordering', () => {
+  it('shows mainland, Japan, old Japan, Hong Kong, Taiwan, then Korea', () => {
+    expect(COLUMNS).toEqual(['cn', 'jp', 'old', 'hk', 'tw', 'kr'])
+    expect(COLUMNS.map(signatureIndexOf)).toEqual([0, 3, 5, 1, 2, 4])
+    expect(
+      projectSignature(
+        glyphSignature(row('國')),
+        COLUMNS.map(signatureIndexOf),
+      ),
+    ).toBe('001111')
+  })
+})
 
 describe('reading a partition over the columns on show', () => {
   it('leaves a full row exactly as the data ships it', () => {
@@ -71,8 +85,7 @@ describe('reading a partition over the columns on show', () => {
     // 國: the mainland and Japan write 国, Hong Kong and Taiwan write 國 --
     // and so does the Japanese old form.
     expect(glyphSignature(row('國'))).toBe('011011')
-    const columns = (...keep: Column[]) =>
-      keep.map((column) => COLUMNS.indexOf(column))
+    const columns = (...keep: Column[]) => keep.map(signatureIndexOf)
     expect(
       projectSignature(glyphSignature(row('國')), columns('hk', 'tw', 'old')),
     ).toBe('000')

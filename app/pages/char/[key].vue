@@ -4,8 +4,9 @@ import {
   fontRegionOf,
   glyphSignature,
   projectSignature,
+  signatureIndexOf,
 } from '~~/shared/row.ts'
-import { COLUMNS, REGIONS, type Column } from '~~/shared/types.ts'
+import { REGIONS, type Column } from '~~/shared/types.ts'
 import {
   charPath,
   morphName,
@@ -100,7 +101,7 @@ const backTo = computed(() => listPlace.value?.fullPath ?? '/')
 const groups = computed(() =>
   projectSignature(
     glyphSignature(row.value!),
-    columns.value.map((column) => COLUMNS.indexOf(column)),
+    columns.value.map(signatureIndexOf),
   ),
 )
 

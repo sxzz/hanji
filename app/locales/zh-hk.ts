@@ -32,7 +32,7 @@ export const zhHK: typeof zhCN = {
     title: '顯示選項',
     language: '介面語言',
     emoji: '用旗幟顯示地區',
-    emojiHint: '把「中港台日韓」換成對應的旗幟符號。',
+    emojiHint: '把「中日港台韓」換成對應的旗幟符號。',
     outline: '疊印用空心字',
     outlineHint: '把疊在一起的字形改成描邊，筆畫不再糊成一團，分歧處更清楚。',
     columns: '參與對照的字形',

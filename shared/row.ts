@@ -1,4 +1,4 @@
-import { REGIONS, type CharRow, type Region } from './types.ts'
+import { REGIONS, type CharRow, type Column, type Region } from './types.ts'
 
 /**
  * Which region's font should render this cell: the earliest region in its
@@ -64,6 +64,11 @@ export function varietyOf(signature: string): number {
  */
 export function glyphSignature(row: CharRow): string {
   return row.old ? row.glyph + row.old.glyph : row.glyph
+}
+
+/** Position of a displayed column in glyphSignature's stored-region order. */
+export function signatureIndexOf(column: Column): number {
+  return column === 'old' ? REGIONS.length : REGIONS.indexOf(column)
 }
 
 /**
