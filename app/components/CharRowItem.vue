@@ -1,5 +1,11 @@
 <script setup lang="ts">
-import { charPath, morphName, useMorphingKey } from '~/composables/chars.ts'
+import {
+  charPath,
+  morphName,
+  opensElsewhere,
+  useMorphingKey,
+  useMorphTo,
+} from '~/composables/chars.ts'
 import type { CharRow } from '~~/shared/types.ts'
 
 const props = defineProps<{
@@ -8,6 +14,7 @@ const props = defineProps<{
 }>()
 
 const morphing = useMorphingKey()
+const morphTo = useMorphTo()
 const route = useRoute()
 const { regionIndices } = useColumnVisibility()
 
@@ -22,27 +29,15 @@ const strokes = computed(() => {
 })
 
 /**
- * Hand the thumbnail its view-transition-name before navigating, so the
- * browser has something to match against on the detail page. Only the row
- * being opened gets one: a name has to be unique in the document.
- *
- * A click asking for a new tab or window is left to the browser -- there is
- * nothing here to morph into, and the reader keeps their place in the list.
+ * Opening a row records where the reader was standing in the list, which is
+ * the only thing that does -- see router.options.ts. The morph itself is the
+ * same one the hero performs, and lives with it.
  */
 async function open(event: MouseEvent) {
-  if (
-    event.metaKey ||
-    event.ctrlKey ||
-    event.shiftKey ||
-    event.altKey ||
-    (event.button !== undefined && event.button !== 0)
-  )
-    return
+  if (opensElsewhere(event)) return
   event.preventDefault()
-  morphing.value = props.row.key
   listPlace.value = { fullPath: route.fullPath, scrollY: window.scrollY }
-  await nextTick()
-  await navigateTo(charPath(props.row.key))
+  await morphTo(props.row.key, 'row')
 }
 </script>
 
@@ -60,7 +55,11 @@ async function open(event: MouseEvent) {
       <OverprintChar
         :row="row"
         size="clamp(1.75rem, 7vw, 60px)"
-        :morph="morphing === row.key ? morphName(row.key) : undefined"
+        :morph="
+          morphing?.from === 'row' && morphing.key === row.key
+            ? morphName(row.key)
+            : undefined
+        "
         morph-whole
       />
     </div>

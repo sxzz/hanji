@@ -10,12 +10,25 @@ const config: RouterConfig = {
    * did afterwards.
    */
   scrollBehavior(to, from, savedPosition) {
+    const place = listPlace.value
+
+    /*
+     * A place describes one trip: out of the list by opening a row, and back.
+     * Landing anywhere that is not a character page ends that trip, used or
+     * not, so only a fresh row click can record another one.
+     *
+     * Without this a place outlived the trip it belonged to. Opening a
+     * character from the hero records nothing -- the reader was never in the
+     * list -- so returning from it found whichever place an earlier trip had
+     * left behind and scrolled to a row they had not been looking at.
+     */
+    if (!to.path.startsWith('/char/')) listPlace.value = null
+
     if (savedPosition) return savedPosition
 
-    // Only on the way back from a character page. The place stays recorded
-    // afterwards, and adjusting a filter can land on that very URL again --
-    // which is the reader arriving there anew, not returning to it.
-    const place = listPlace.value
+    // Only on the way back from a character page. Adjusting a filter can land
+    // on that very URL again -- which is the reader arriving there anew, not
+    // returning to it.
     if (
       place &&
       from.path.startsWith('/char/') &&

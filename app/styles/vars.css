@@ -136,4 +136,9 @@ html.dark {
   --c-g5: #3da294;
 
   --overprint-blend: lighten;
+
+  /* Brought down to about the accents' own lightness, so a departure crossing
+     the baseline still registers instead of being erased by it. On paper the
+     baseline is ink against a light ground and needs no such help. */
+  --overprint-baseline: 0.62;
 }

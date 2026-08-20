@@ -317,7 +317,7 @@ const references = computed(() => dictGroups(row.value!, visibleRegions.value))
  */
 const morphing = useMorphingKey()
 const morph = computed(() =>
-  morphing.value === key.value ? morphName(key.value) : undefined,
+  morphing.value?.key === key.value ? morphName(key.value) : undefined,
 )
 
 /**
@@ -366,6 +366,7 @@ useSeoMeta({
           :focus-group="hoveredGroup"
           morph-whole
           with-old
+          scrub
         />
       </div>
 

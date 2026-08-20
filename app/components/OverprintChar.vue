@@ -31,6 +31,8 @@ const props = withDefaults(
     focusGroup?: number
     /** Answer to a resting pointer by fanning and walking the forms. */
     interactive?: boolean
+    /** Let a press-and-drag pull the layers out of register by hand. */
+    scrub?: boolean
   }>(),
   {
     size: 32,
@@ -39,6 +41,7 @@ const props = withDefaults(
     withOld: false,
     focusGroup: undefined,
     interactive: true,
+    scrub: false,
   },
 )
 
@@ -90,8 +93,15 @@ const layers = computed(() => {
   }
   return [...seen.values()]
 })
-/** Read aloud in place of the stack, so the forms are enumerated for a locale
- * rather than punctuated by hand. */
+/**
+ * Read aloud in place of the stack, so the forms are enumerated for a locale
+ * rather than punctuated by hand.
+ *
+ * Deliberately not a `title` as well. The browser's own tooltip opens right
+ * where the pointer is resting, which is exactly over the stack it would be
+ * describing -- so it covered the walk through the forms, which answers the
+ * same question far better than a line of text ever did.
+ */
 const label = computed(() =>
   list(
     layers.value.map((l) => l.char),
@@ -109,7 +119,7 @@ const colorOf = (group: number) => groupColor(group)
 
 const cycle = useOverprintCycle(
   () => layers.value.map((layer) => layer.group),
-  () => props.interactive,
+  { enabled: () => props.interactive, scrub: () => props.scrub },
 )
 
 /**
@@ -117,6 +127,23 @@ const cycle = useOverprintCycle(
  * table -- outranks the stack's own walk through the forms.
  */
 const focused = computed(() => props.focusGroup ?? cycle.lit.value)
+
+/**
+ * Columns writing the form the walk has lit, for the label under the stack.
+ *
+ * Only the walk gets one. A group pinned from outside -- a reader hovering one
+ * cell of the comparison table -- is already under their pointer, and naming
+ * it back to them would say nothing they did not just do.
+ */
+const litColumns = computed(() => {
+  const group = cycle.lit.value
+  if (group === undefined) return []
+  return basis.value.filter(
+    (column, position) =>
+      Number(groups.value[position]) === group &&
+      (!props.only || props.only.includes(column)),
+  )
+})
 
 /** Ignore a focus request for a layer hidden by the current comparison. */
 const activeFocus = computed(() =>
@@ -137,13 +164,18 @@ const activeFocus = computed(() =>
   -->
   <span
     class="overprint"
-    :class="{ outlined: outlineOn, fanned: cycle.hovering.value }"
+    :class="{
+      outlined: outlineOn,
+      fanned: cycle.hovering.value,
+      scrubbable: scrub && layers.length > 1,
+      scrubbing: cycle.scrubbing.value,
+    }"
     :style="{
       '--size': typeof size === 'number' ? `${size}px` : size,
       '--n': layers.length,
+      '--fan-step': cycle.fan.value,
       viewTransitionName: morph && morphWhole ? morph : undefined,
     }"
-    :title="label"
     :aria-label="label"
     role="img"
     v-on="cycle.on"
@@ -168,11 +200,22 @@ const activeFocus = computed(() =>
       aria-hidden="true"
       >{{ layer.char }}</span
     >
+
+    <!-- Sits under the stack without taking any room from it: the square this
+         element occupies is what the row grid and the route transition are
+         both measured against. -->
+    <LitRegions
+      v-if="litColumns.length"
+      class="lit"
+      :columns="litColumns"
+      :group="cycle.lit.value!"
+      aria-hidden="true"
+    />
   </span>
 </template>
 
 <style scoped>
-/* Colour, blending, the fan and how the held-back layers behave are shared
+/* Color, blending, the fan and how the held-back layers behave are shared
    with every other stack on the site; see styles/overprint.css. */
 .overprint {
   position: relative;
@@ -188,6 +231,19 @@ const activeFocus = computed(() =>
   inset: 0;
   display: grid;
   place-items: center;
+}
+
+/* Carried on a patch of paper, because what is beneath it is whatever the
+   stack happens to be sitting above -- the next row of the table, most often. */
+.lit {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  left: 50%;
+  padding: 0 0.25rem;
+  border-radius: 3px;
+  background: var(--c-paper);
+  pointer-events: none;
+  translate: -50% 0;
 }
 
 /* Hollow: the color moves from the fill to the stroke, so the shapes read
