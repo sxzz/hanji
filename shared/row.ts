@@ -23,13 +23,13 @@ export function fontIndexOf(row: CharRow, region: number): number {
 
 /** The region whose font actually renders this cell. */
 export function fontRegionOf(row: CharRow, region: number): Region {
-  // REGIONS and every Quad are both length 4, so this index is always in range
+  // REGIONS and every regional tuple have the same length, so this is in range
   return REGIONS[fontIndexOf(row, region)]!
 }
 
 /**
- * Split a signature into runs, used both for the underline beneath the four
- * cells and for the filter chips.
+ * Split a signature into runs, used both for the underline beneath the
+ * regional cells and for the filter chips.
  * "0112" -> [{ start: 0, span: 1 }, { start: 1, span: 2 }, { start: 3, span: 1 }]
  * The number of runs is the number of distinct ways of writing the character,
  * so the reader can simply count them.
@@ -58,9 +58,9 @@ export function varietyOf(signature: string): number {
 }
 
 /**
- * The glyph partition over every column a row offers: the four regions, then
+ * The glyph partition over every column a row offers: the five regions, then
  * Japan's pre-reform form where the row has one. The kyujitai is numbered on
- * the same scale as the regions, so a fifth digit compares against the four.
+ * the same scale as the regions, so a sixth digit compares against the five.
  */
 export function glyphSignature(row: CharRow): string {
   return row.old ? row.glyph + row.old.glyph : row.glyph

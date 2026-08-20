@@ -11,7 +11,7 @@ const split = ref(false)
 
 /**
  * Groups over the regions on show, so the opening claim counts what the reader
- * is actually being shown rather than the four this row happens to carry.
+ * is actually being shown rather than every region this row happens to carry.
  */
 const groups = computed(() =>
   projectSignature(props.row.glyph, regionIndices.value),

@@ -1,14 +1,21 @@
-import { COLUMNS, REGIONS, type Column, type Region } from '~~/shared/types.ts'
+import {
+  COLUMNS,
+  DEFAULT_HIDDEN_COLUMNS,
+  REGIONS,
+  type Column,
+  type Region,
+} from '~~/shared/types.ts'
 
 const FLAGS: Record<Region, string> = {
   cn: '🇨🇳',
   hk: '🇭🇰',
   tw: '🇹🇼',
   jp: '🇯🇵',
+  kr: '🇰🇷',
 }
 
 export const HIDDEN_KEY = 'hanji:hidden'
-
+const VISIBILITY_VERSION_KEY = 'hanji:columns-v2'
 const isColumn = (value: string): value is Column =>
   (COLUMNS as readonly string[]).includes(value)
 
@@ -21,34 +28,52 @@ const isColumn = (value: string): value is Column =>
  * remaining forms are partitioned again among themselves, and two regions that
  * only ever parted company through the hidden one now read as one form.
  *
- * Stored as what is hidden rather than what is shown, so the default is the
- * whole comparison and a column added later starts out visible.
+ * Stored as what is hidden rather than what is shown. Korea is the one
+ * opt-in comparison: the original four regions and Japan's old form remain
+ * visible by default.
  */
 export function useColumnVisibility() {
-  const hidden = useLocalStorage<string[]>(HIDDEN_KEY, [])
+  const hidden = useLocalStorage<string[]>(HIDDEN_KEY, [
+    ...DEFAULT_HIDDEN_COLUMNS,
+  ])
+  const visibilityInitialized = useLocalStorage(VISIBILITY_VERSION_KEY, false)
 
   // Read on the client only: the prerendered HTML has to match what hydration
   // produces, and localStorage is not available while prerendering.
   const mounted = ref(false)
-  onMounted(() => (mounted.value = true))
+  onMounted(() => {
+    // Existing installations already have an empty `hanji:hidden` value from
+    // the four-region build. Mark Korea hidden once during the upgrade while
+    // preserving every earlier column choice. Afterwards the reader's Korea
+    // toggle is authoritative.
+    if (!visibilityInitialized.value) {
+      hidden.value = COLUMNS.filter(
+        (column) => column === 'kr' || hidden.value.includes(column),
+      )
+      visibilityInitialized.value = true
+    }
+    mounted.value = true
+  })
 
   const off = computed<Set<Column>>(() => {
-    if (!mounted.value) return new Set()
+    if (!mounted.value) return new Set(DEFAULT_HIDDEN_COLUMNS)
     const chosen = new Set(hidden.value.filter(isColumn))
     // A table with no columns compares nothing. A stored value that hides
     // every region is unusable, so none of it is applied -- which keeps the
     // toggles and what is drawn saying the same thing.
-    return REGIONS.every((region) => chosen.has(region)) ? new Set() : chosen
+    return REGIONS.every((region) => chosen.has(region))
+      ? new Set(DEFAULT_HIDDEN_COLUMNS)
+      : chosen
   })
 
-  /** Columns on show, in CN-HK-TW-JP-old order. */
+  /** Columns on show, in CN-HK-TW-JP-KR-old order. */
   const columns = computed(() =>
     COLUMNS.filter((column) => !off.value.has(column)),
   )
   const regions = computed(() =>
     REGIONS.filter((region) => !off.value.has(region)),
   )
-  /** The same regions as indices into REGIONS, which is how a Quad is read. */
+  /** The same regions as indices into REGIONS, which is how tuples are read. */
   const regionIndices = computed(() =>
     regions.value.map((region) => REGIONS.indexOf(region)),
   )

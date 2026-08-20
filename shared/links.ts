@@ -22,7 +22,7 @@ export interface Form {
 }
 
 /**
- * Every distinct character in the group: the four columns, plus the orthodox
+ * Every distinct character in the group: the five columns, plus the orthodox
  * forms that name it -- 唇 alongside 脣, 国 alongside 國.
  *
  * The references are listed per character rather than per region, because a

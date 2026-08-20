@@ -5,13 +5,14 @@ export const zhHK: typeof zhCN = {
     title: '漢智',
     name: 'Hanji',
     description:
-      '中國大陸、香港、台灣、日本四地常用漢字的字形對照。同一個字，各地寫出來常常不一樣。',
+      '中國大陸、香港、台灣、日本、韓國五地常用漢字的字形對照。同一個字，各地寫出來常常不一樣。',
   },
   region: {
     cn: { short: '中', full: '中國大陸' },
     hk: { short: '港', full: '香港' },
     tw: { short: '台', full: '台灣' },
     jp: { short: '日', full: '日本' },
+    kr: { short: '韓', full: '韓國' },
     old: { short: '舊字體', full: '日本舊字體' },
   },
   hero: {
@@ -31,11 +32,12 @@ export const zhHK: typeof zhCN = {
     title: '顯示選項',
     language: '介面語言',
     emoji: '用旗幟顯示地區',
-    emojiHint: '把「中港台日」換成對應的旗幟符號。',
+    emojiHint: '把「中港台日韓」換成對應的旗幟符號。',
     outline: '疊印用空心字',
     outlineHint: '把疊在一起的字形改成描邊，筆畫不再糊成一團，分歧處更清楚。',
     columns: '參與對照的字形',
-    columnsHint: '關掉的一列在字表和詳情頁都不再出現，剩下的字形重新分組。',
+    columnsHint:
+      '韓國列預設關閉；關掉的一列在字表和詳情頁都不再出現，剩下的字形重新分組。',
     columnsLast: '至少要留一個地區。',
   },
   style: {
@@ -49,7 +51,7 @@ export const zhHK: typeof zhCN = {
     dimension: '比較',
     glyph: '字形',
     cp: '碼點',
-    glyphHint: '按寫出來的樣子比較。四地用同一個碼點但筆畫不同，也算不同。',
+    glyphHint: '按寫出來的樣子比較。五地用同一個碼點但筆畫不同，也算不同。',
     cpHint: '只按Unicode碼點比較。骨這類同碼點異字形的字會歸為相同。',
     search: '搜尋',
     searchPlaceholder: '漢字 / 讀音 / U+9AA8',
@@ -91,6 +93,7 @@ export const zhHK: typeof zhCN = {
     cantonese: '粵語',
     on: '日語音讀',
     kun: '日語訓讀',
+    korean: '韓語',
     listed: '收錄',
     variety: '有{n}種寫法',
     identical: '寫法一致',
@@ -108,6 +111,7 @@ export const zhHK: typeof zhCN = {
     tierTw: { 1: '常用國字', 2: '次常用國字' },
     tierHk: { 1: '常用字' },
     tierJp: { 1: '常用漢字', 2: '教育漢字' },
+    tierKr: { 1: '教育用基礎漢字' },
   },
   about: {
     title: '關於',
@@ -127,25 +131,25 @@ export const zhHK: typeof zhCN = {
     source: '來源',
     license: '授權',
     method1:
-      'Source Han Sans與Source Han Serif（也就是Noto Sans CJK與Noto Serif CJK）各自的五個地區共用同一個字形池，每個地區有一份「碼點→CID」對應。同一個池子裏CID相同就是同一個字形，所以把中國大陸、香港、台灣、日本四份對應擺在一起比對，就能判斷這四地把一個字寫成了幾種樣子。',
+      'Source Han Sans與Source Han Serif（也就是Noto Sans CJK與Noto Serif CJK）各自的五個地區共用同一個字形池，每個地區有一份「碼點→CID」對應。同一個池子裏CID相同就是同一個字形，所以把中國大陸、香港、台灣、日本、韓國五份對應擺在一起比對，就能判斷這五地把一個字寫成了幾種樣子。',
     method2:
       '判定取兩種字體的並集：只要黑體或宋體之中有任何一方認為兩地同形，就算同形。因為Source Han Sans給日本單獨畫了約五分之一常用字的字形，其中兩百來個宋體並沒有跟着分——了、人、子、水、金都在其中。只有一種字體作出的區分是那套字體的設計取捨，不是地區規範的差異。',
     method3:
       '代價是：那些被合併的格子會改用同組代表地區的字體來繪製，也就不會顯示Noto Sans JP自己那個略有出入的字形。這是「視為一樣」的應有之義——頁面上寫着相同的兩格，畫出來也必須真的相同。',
     scope1:
-      '收錄《通用規範漢字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）四份字表的並集，把簡繁、日本新舊字體這類跨碼點的對應合併成一行，共{rows}行。',
+      '收錄《通用規範漢字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）、韓國《漢文教育用基礎漢字》（2000）五份字表的並集，把簡繁、日本新舊字體這類跨碼點的對應合併成一行，共{rows}行。韓國列預設關閉，可在顯示選項中啟用。',
     scope2:
-      '其中{identical}行四地寫法完全一致，{allDiffer}行四地各不相同。寫法相同的字同樣收錄——這裏是四地漢字的字表，字形差異只是其中一個維度。',
+      '其中{identical}行五地寫法完全一致，{allDiffer}行五地各不相同。寫法相同的字同樣收錄——這裏是五地漢字的字表，字形差異只是其中一個維度。',
     scope3:
       '台灣《次常用國字表》只為已有行提供二級收錄狀態和候選，不參與生成新行；其6,343個主條目中有3,599個獨有條目明確在產品範圍之外。',
     limit1:
-      '這裏測的是Source Han系列的地區字形設計，不是各地標準本身。它是個高質素的代理，因為Adobe的地區字形分別依據大陸《印刷通用漢字字形表》、台灣教育部《國字標準字體》、香港教育局《常用字字形表》、日本JIS X 0208/0213（JIS2004字形）。',
+      '這裏測的是Source Han系列的地區字形設計，不是各地標準本身。它是個高質素的代理，因為Adobe的地區字形分別依據大陸《印刷通用漢字字形表》、台灣教育部《國字標準字體》、香港教育局《常用字字形表》、日本JIS X 0208/0213（JIS2004字形）與韓國KS X 1001/1002。',
     limit2:
       'Source Han的香港字形覆蓋並不完整，所以「只有香港不同」這一類可能少報。',
     limit3:
-      '筆畫數逐地區取，先看Unihan的kAlternateTotalStrokes（它按IRG來源分別給數，最準，但只覆蓋一百來個碼點），日本再退到kRSAdobe_Japan1_6（它分析的是Adobe-Japan1-6收的日本字形，所以突是8畫而不是9畫），都沒有才用kTotalStrokes——後者至多區分zh-Hans與zh-Hant兩檔，港台共用後一檔。',
+      '筆畫數逐地區取，先看Unihan的kAlternateTotalStrokes（它按IRG來源分別給數，最準，但只覆蓋一百來個碼點），日本再退到kRSAdobe_Japan1_6（它分析的是Adobe-Japan1-6收的日本字形，所以突是8畫而不是9畫），都沒有才用kTotalStrokes——後者至多區分zh-Hans與zh-Hant兩檔，港台與韓國共用後一檔。',
     limit4:
-      '於是日本那一欄常與其餘三地不同，其中約五分之一其實字形一模一樣，只是數法不同：日本把阝數作三畫、ネ數作五畫，所以那四地寫法相同，筆畫卻是6/6/6/7。',
+      '於是日本那一欄常與其餘四地不同，其中約五分之一其實只因數法不同：日本把阝數作三畫、ネ數作五畫。所以「那」在預設顯示的中港台日四欄字形相同，筆畫卻是6/6/6/7；韓國欄為6畫。',
     limit5:
       'OpenCC與各地規範字表衝突時以規範字表為準。它的異體表裏混着「同字異形」和「一字代用另一字」；某地區的字表分開收錄兩者時就不合併。若只有一個地區提供證據，而候選還屬於另一字組，則保守拆分，並在詳情頁用雙向「關係未確認」連結提示。',
     limit6:
@@ -159,7 +163,7 @@ export const zhHK: typeof zhCN = {
     notice4: '漢字數量龐大，出錯難免。發現數據有誤，請透過{issues}回報。',
     data1: '本站的字表數據以JSON提供，可直接取用：',
     thanks:
-      '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da《現代漢語單字頻率列表》、Adobe Source Han與Noto CJK的維護者。逐字對照工具{tofu}是本項目的先行者，同樣用Noto系列區分四地字形。',
+      '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da《現代漢語單字頻率列表》、Adobe Source Han與Noto CJK的維護者。逐字對照工具{tofu}是本項目的先行者，同樣用Noto系列區分地區字形。',
   },
   footer: {
     sources: '數據來源',

@@ -3,7 +3,7 @@
  *
  * Source Han Sans shares one glyph pool across its five regions, each with its
  * own codepoint -> CID mapping. Within that pool an equal CID means an
- * identical glyph, so diffing the four CMaps decides exactly whether the four
+ * identical glyph, so diffing the five CMaps decides exactly whether the five
  * regions write a character differently -- no outline comparison, no font
  * parsing.
  *
@@ -46,11 +46,11 @@ export function parseCMap(text: string): Map<number, number> {
  * first appearance.
  *
  *   [a, b, b, c] -> "0112"    three ways of writing it; HK and TW agree
- *   [a, a, a, a] -> "0000"    all four regions agree
- *   [a, b, c, d] -> "0123"    all four differ
+ *   [a, a, a, a, a] -> "00000"    all five regions agree
+ *   [a, b, c, d, e] -> "01234"    all five differ
  *
- * A 4-element set has Bell(4) = 15 partitions; dropping the all-equal one
- * leaves 14 -- the filter's complete, mutually exclusive enumeration.
+ * A 5-element set has Bell(5) = 52 partitions. The filter derives the
+ * complete, mutually exclusive set actually present in the generated data.
  */
 export function partitionSignature(values: readonly unknown[]): string {
   const seen = new Map<unknown, number>()

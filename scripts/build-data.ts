@@ -1,7 +1,7 @@
 /**
  * Generates public/data/chars.json.
  *
- * A row is a character group: one abstract character, with each of the four
+ * A row is a character group: one abstract character, with each of the five
  * columns holding the codepoint that region actually uses. The row key is the
  * orthodox (traditional) form, derived by deterministic normalization rather
  * than union-find -- many-to-one relations like 台 -> 臺/檯/颱 and 发 -> 發/髮
@@ -29,8 +29,8 @@ import {
 import type {
   CharRow,
   ListedAlternative,
-  Quad,
   Region,
+  RegionalTuple,
   Stats,
   UncertainRelation,
 } from '../shared/types.ts'
@@ -49,6 +49,7 @@ const LISTS = [
   'hk-common',
   'jp-joyo',
   'jp-grade',
+  'kr-basic',
 ] as const
 type ListName = (typeof LISTS)[number]
 
@@ -74,6 +75,7 @@ const {
   'hk-common': hk,
   'jp-joyo': jpJoyo,
   'jp-grade': jpGrade,
+  'kr-basic': krBasic,
 } = covers
 
 const [st, ts, twVariants, hkVariants, jpShinjitai] = await Promise.all(
@@ -86,8 +88,10 @@ const [st, ts, twVariants, hkVariants, jpShinjitai] = await Promise.all(
   ].map(dict),
 )
 
-const CMAP_REGION = ['CN', 'HK', 'TW', 'JP'] as const
-const REGION_IDS = ['cn', 'hk', 'tw', 'jp'] as const
+const CMAP_REGION = ['CN', 'HK', 'TW', 'JP', 'KR'] as const
+const REGION_IDS = ['cn', 'hk', 'tw', 'jp', 'kr'] as const
+const JP_INDEX = REGION_IDS.indexOf('jp')
+const KR_INDEX = REGION_IDS.indexOf('kr')
 
 const loadCMaps = (style: 'sans' | 'serif') =>
   Promise.all(
@@ -107,6 +111,38 @@ const frequency = parseFrequency(await rawText('frequency/hanziDB.csv'))
 const twToStandard = reverseDict(twVariants)
 const hkToStandard = reverseDict(hkVariants)
 const standardToCn = reverseDict(st)
+
+/**
+ * Korean education-list form -> the shared character used as row identity.
+ *
+ * These are encoded regional/old forms, not merely KR-font outlines: Korea's
+ * source list enters 靑 while the other four enter 青, for example. Unicode
+ * IRG N2200 reproduces the official education list and its permitted standard
+ * forms; U+2E569 is its encoded replacement for the listed old form of 衰.
+ * Keeping the finite cross-codepoint pairs here lets the Korean column retain
+ * the official form without inventing a second abstract character.
+ *
+ * https://www.unicode.org/L2/L2017/17173-irgn2200-unihan-db.pdf
+ */
+const krToStandard = new Map<string, string[]>([
+  ['鎭', ['鎮']],
+  ['竝', ['並']],
+  ['飮', ['飲']],
+  ['墻', ['牆']],
+  ['尙', ['尚']],
+  ['屛', ['屏']],
+  ['慙', ['慚']],
+  ['旣', ['既']],
+  ['淸', ['清']],
+  ['鄕', ['鄉']],
+  ['靑', ['青']],
+  ['鷄', ['雞']],
+  ['𮕩', ['衰']],
+  ['郞', ['郎']],
+  ['峯', ['峰']],
+  ['脣', ['唇']],
+])
+const standardToKr = reverseDict(krToStandard)
 /**
  * Orthodox form -> the shinjitai Japan writes.
  *
@@ -138,6 +174,7 @@ const REGION_LISTS: Set<string>[][] = [
   [entries['hk-common']],
   [entries['tw-common']],
   [entries['jp-joyo']],
+  [entries['kr-basic']],
 ]
 
 /**
@@ -174,6 +211,7 @@ function normalize(char: string): string[] {
 
   for (const standard of twToStandard.get(char) ?? []) keys.add(standard)
   for (const standard of hkToStandard.get(char) ?? []) keys.add(standard)
+  for (const standard of krToStandard.get(char) ?? []) keys.add(standard)
 
   const traditional = st.get(char)
   if (traditional) {
@@ -218,7 +256,14 @@ const sameName = (a: string, b: string) => {
   if (ra !== rb) nameParent.set(rb, ra)
 }
 
-const regionSets = [cn1, cn2, cn3, twCommon, hk, jpJoyo]
+// Unlike a simplification that can stand for several characters, every pair
+// in the Korean normalization table is explicitly one character. Joining the
+// names here prevents a many-to-one ST mapping (鸡 -> 雞/鷄) from generating a
+// second Korean-only row for the regional form.
+for (const [regional, standards] of krToStandard)
+  for (const standard of standards) sameName(standard, regional)
+
+const regionSets = [cn1, cn2, cn3, twCommon, hk, jpJoyo, krBasic]
 const keys = new Set<string>()
 for (const set of regionSets)
   for (const char of set) {
@@ -232,21 +277,22 @@ for (const set of regionSets)
   }
 
 console.error(
-  `union of the four common-character lists: ${new Set(regionSets.flatMap((s) => [...s])).size} chars -> ${keys.size} orthodox keys`,
+  `union of the five common-character lists: ${new Set(regionSets.flatMap((s) => [...s])).size} chars -> ${keys.size} orthodox keys`,
 )
 
-function tierOf(chars: Quad<string>): Quad<number> {
-  const [cn, hkChar, tw, jp] = chars
+function tierOf(chars: RegionalTuple<string>): RegionalTuple<number> {
+  const [cn, hkChar, tw, jp, kr] = chars
   return [
     cn1.has(cn) ? 1 : cn2.has(cn) ? 2 : cn3.has(cn) ? 3 : 0,
     hk.has(hkChar) ? 1 : 0,
     twCommon.has(tw) ? 1 : twSub.has(tw) ? 2 : 0,
     jpGrade.has(jp) ? 2 : jpJoyo.has(jp) ? 1 : 0,
+    krBasic.has(kr) ? 1 : 0,
   ]
 }
 
 /** IRG source letter per region, per https://www.unicode.org/irg/prefixes.html */
-const IRG_SOURCE: Quad<string> = ['G', 'H', 'T', 'J']
+const IRG_SOURCE: RegionalTuple<string> = ['G', 'H', 'T', 'J', 'K']
 
 /**
  * Stroke counts, taken per region wherever Unihan supports it.
@@ -261,20 +307,20 @@ const IRG_SOURCE: Quad<string> = ['G', 'H', 'T', 'J']
  *    Japanese column, and applies to that column alone.
  * 3. kTotalStrokes otherwise. It carries at most two values, the first
  *    preferred for zh-Hans and the second for zh-Hant, with no finer split,
- *    so HK/TW/JP fall back to the second.
+ *    so HK/TW/JP/KR fall back to the second.
  */
 function strokesFor(char: string, region: number): number {
   const entry = unihan.get(char.codePointAt(0)!)
   const alternate = entry?.altStrokes?.[IRG_SOURCE[region]!]
   if (alternate) return alternate
-  if (region === 3 && entry?.adobeStrokes) return entry.adobeStrokes
+  if (region === JP_INDEX && entry?.adobeStrokes) return entry.adobeStrokes
   const values = entry?.strokes
   if (!values?.length) return 0
   return region === 0 ? values[0]! : (values[1] ?? values[0])!
 }
 
-function strokesOf(chars: Quad<string>): Quad<number> {
-  return chars.map(strokesFor) as Quad<number>
+function strokesOf(chars: RegionalTuple<string>): RegionalTuple<number> {
+  return chars.map(strokesFor) as RegionalTuple<number>
 }
 
 /** Keep only the named keys, dropping the ones that are absent. */
@@ -352,23 +398,26 @@ const mainlandCandidates = (key: string): string[] => {
   return choices(key, direct, reversed)
 }
 
-const convertedCandidates = (key: string): Quad<string[]> => [
+const convertedCandidates = (key: string): RegionalTuple<string[]> => [
   mainlandCandidates(key),
   choices(key, hkVariants.get(key)),
   choices(key, twVariants.get(key)),
   choices(key, standardToJp.get(key)),
+  choices(key, standardToKr.get(key)),
 ]
 
-const candidatesByRow = new WeakMap<CharRow, Quad<string[]>>()
+const candidatesByRow = new WeakMap<CharRow, RegionalTuple<string[]>>()
 
 function buildRow(
   key: string,
-  chars: Quad<string>,
+  chars: RegionalTuple<string>,
   aka?: string[],
-  candidates: Quad<string[]> = chars.map((char) => [char]) as Quad<string[]>,
+  candidates: RegionalTuple<string[]> = chars.map((char) => [
+    char,
+  ]) as RegionalTuple<string[]>,
   alternatives?: CharRow['alternatives'],
 ): CharRow | undefined {
-  const codePoints = chars.map((c) => c.codePointAt(0)!) as Quad<number>
+  const codePoints = chars.map((c) => c.codePointAt(0)) as RegionalTuple<number>
   const sansCids = codePoints.map((cp, i) => sansCMaps[i]!.get(cp))
   // A character Noto does not cover can be neither drawn nor judged
   if (sansCids.includes(undefined)) return undefined
@@ -380,19 +429,21 @@ function buildRow(
    * A different key and Japanese column alone proves nothing: it can also be
    * a regional substitution or a conservative unlisted fallback.
    */
-  const oldChar = standardToJp.get(key)?.includes(chars[3]) ? key : undefined
+  const oldChar = standardToJp.get(key)?.includes(chars[JP_INDEX])
+    ? key
+    : undefined
   const oldPoint = oldChar?.codePointAt(0)
   const oldSans =
-    oldPoint === undefined ? undefined : sansCMaps[3]!.get(oldPoint)
+    oldPoint === undefined ? undefined : sansCMaps[JP_INDEX]!.get(oldPoint)
   const hasOld = oldChar !== undefined && oldSans !== undefined
   const oldSerif =
-    oldPoint === undefined ? undefined : serifCMaps[3]!.get(oldPoint)
+    oldPoint === undefined ? undefined : serifCMaps[JP_INDEX]!.get(oldPoint)
 
   const signature = unifiedSignature(
     hasOld ? [...sansCids, oldSans] : sansCids,
     hasOld ? [...serifCids, oldSerif] : serifCids,
   )
-  const glyph = signature.slice(0, 4)
+  const glyph = signature.slice(0, REGION_IDS.length)
   const cp = partitionSignature(codePoints)
 
   const tier = tierOf(chars)
@@ -405,7 +456,8 @@ function buildRow(
   const readings = {
     ...unihan.get(codePoints[0])?.readings,
     ...pick(unihan.get(codePoints[1])?.readings, 'cantonese'),
-    ...pick(unihan.get(codePoints[3])?.readings, 'on', 'kun'),
+    ...pick(unihan.get(codePoints[JP_INDEX])?.readings, 'on', 'kun'),
+    ...pick(unihan.get(codePoints[KR_INDEX])?.readings, 'korean'),
   }
 
   const row: CharRow = {
@@ -419,8 +471,8 @@ function buildRow(
       ? {
           old: {
             char: oldChar,
-            glyph: Number(signature[4]),
-            strokes: strokesFor(oldChar, 3),
+            glyph: Number(signature[REGION_IDS.length]),
+            strokes: strokesFor(oldChar, JP_INDEX),
           },
         }
       : {}),
@@ -439,7 +491,9 @@ function buildRow(
 
 for (const key of keys) {
   const candidates = convertedCandidates(key)
-  const chars = candidates.map((forms) => forms[0] ?? key) as Quad<string>
+  const chars = candidates.map(
+    (forms) => forms[0] ?? key,
+  ) as RegionalTuple<string>
   const row = buildRow(key, chars, undefined, candidates)
   if (row) rows.push(row)
   if (++done % 1000 === 0) console.error(`  ${done}/${keys.size}`)
@@ -486,13 +540,17 @@ function listingOf(region: number, char: string): Listing | undefined {
       primary: entries['tw-common'].has(char) || entries['tw-sub'].has(char),
     }
   }
-  const tier = jpGrade.has(char) ? 2 : jpJoyo.has(char) ? 1 : 0
-  if (!tier) return undefined
-  return {
-    char,
-    tier,
-    primary: entries['jp-joyo'].has(char) || entries['jp-grade'].has(char),
+  if (region === JP_INDEX) {
+    const tier = jpGrade.has(char) ? 2 : jpJoyo.has(char) ? 1 : 0
+    if (!tier) return undefined
+    return {
+      char,
+      tier,
+      primary: entries['jp-joyo'].has(char) || entries['jp-grade'].has(char),
+    }
   }
+  if (!krBasic.has(char)) return undefined
+  return { char, tier: 1, primary: entries['kr-basic'].has(char) }
 }
 
 interface PendingUncertain {
@@ -515,24 +573,51 @@ const addressListedRegions = (char: string) =>
     hk.has(char),
     twCommon.has(char),
     jpJoyo.has(char),
+    krBasic.has(char),
+  ].filter(Boolean).length
+
+/** The original four-region scope, used to keep existing canonical keys. */
+const addressListedBaseRegions = (char: string) =>
+  [
+    cn1.has(char) || cn2.has(char) || cn3.has(char),
+    hk.has(char),
+    twCommon.has(char),
+    jpJoyo.has(char),
   ].filter(Boolean).length
 
 /** Prefer a group name; use a proven-safe displayed form only as a fallback. */
 function chooseKey(
   names: string[],
-  chars: Quad<string>,
+  chars: RegionalTuple<string>,
   fallback: string[] = [],
 ): string {
+  // Korea is opt-in, so adding its often older encoded forms must not rename
+  // an established row or canonical URL. Choose exactly as the original
+  // CN/HK/TW/JP table would when it has any evidence; Korean-only rows still
+  // fall through to the full five-region choice below.
+  const baseChars = chars.slice(0, JP_INDEX + 1)
+  const baseEligible = names.filter(
+    (name) => baseChars.includes(name) || addressListedBaseRegions(name) > 0,
+  )
   const eligible = names.filter(
     (name) => chars.includes(name) || addressListedRegions(name) > 0,
   )
   const candidates =
-    eligible.length > 0 ? eligible : fallback.length > 0 ? fallback : names
+    baseEligible.length > 0
+      ? baseEligible
+      : fallback.length > 0
+        ? fallback
+        : eligible.length > 0
+          ? eligible
+          : names
+  const keyChars = baseEligible.length > 0 ? baseChars : chars
+  const addressScore =
+    baseEligible.length > 0 ? addressListedBaseRegions : addressListedRegions
   return candidates.toSorted(
     (a, b) =>
-      chars.filter((char) => char === b).length -
-        chars.filter((char) => char === a).length ||
-      addressListedRegions(b) - addressListedRegions(a) ||
+      keyChars.filter((char) => char === b).length -
+        keyChars.filter((char) => char === a).length ||
+      addressScore(b) - addressScore(a) ||
       a.codePointAt(0)! - b.codePointAt(0)!,
   )[0]!
 }
@@ -543,17 +628,17 @@ function chooseKey(
  * Two things can put a character in the table twice. The tables can disagree
  * about which form is orthodox, which `sameName` has already recorded -- 群
  * and 羣, 唇 and 脣, 戸 and 戶. Or two orthodox forms can simply come out with
- * the same four columns, as 才 and 纔 do.
+ * the same five columns, as 才 and 纔 do.
  *
  * The columns are settled first and the key chosen from them afterwards. A
- * key that no table maps anywhere fills all four of its own columns, which
+ * key that no table maps anywhere fills all five of its own columns, which
  * would otherwise make it look like the form everyone writes: 戸 fills 戸戸戸戸
  * only because OpenCC has nothing to say about it, while 戶 knows it is 户 on
  * the mainland.
  */
 function fold(all: CharRow[]): CharRow[] {
   // Rows join a group either because the tables call their keys one character
-  // or because they come out with the same four columns anyway
+  // or because they come out with the same five columns anyway
   const byQuad = new Map<string, string>()
   for (const row of all) {
     const quad = row.chars.join('')
@@ -600,7 +685,7 @@ function fold(all: CharRow[]): CharRow[] {
             ]) as string[],
         ),
       ),
-    ]) as Quad<string[]>
+    ]) as RegionalTuple<string[]>
 
     const ownersOf = (char: string): Set<string> => {
       // A name is authoritative for its own group even when that spelling is
@@ -646,7 +731,7 @@ function fold(all: CharRow[]): CharRow[] {
             })
         return false
       }),
-    ) as Quad<string[]>
+    ) as RegionalTuple<string[]>
 
     /**
      * What each region writes. OpenCC's answer wins when that region's own
@@ -674,7 +759,7 @@ function fold(all: CharRow[]): CharRow[] {
         // With no listing evidence, preserve the group's inherited name
         reference
       )
-    }) as Quad<string>
+    }) as RegionalTuple<string>
 
     const alternatives: NonNullable<CharRow['alternatives']> = {}
     for (const [region, id] of REGION_IDS.entries()) {
@@ -730,6 +815,7 @@ const rowEntries: Set<string>[] = [
   entries['hk-common'],
   entries['tw-common'],
   entries['jp-joyo'],
+  entries['kr-basic'],
 ]
 const accountsFor = (region: number, char: string) =>
   rows.some(
@@ -743,7 +829,7 @@ const unrenderable: string[] = []
 for (const [region, source] of rowEntries.entries())
   for (const char of source) {
     if (accountsFor(region, char)) continue
-    const chars = REGION_IDS.map(() => char) as Quad<string>
+    const chars = REGION_IDS.map(() => char) as RegionalTuple<string>
     const fallback = buildRow(char, chars)
     if (fallback) {
       rootsByRow.set(fallback, [rootName(char)])
@@ -754,7 +840,7 @@ if (unrenderable.length > 0)
   throw new Error(`unrenderable source entries: ${unrenderable.join(' ')}`)
 
 /**
- * Substituting a form can leave two rows with the same four columns -- one of
+ * Substituting a form can leave two rows with the same five columns -- one of
  * them named by a pre-reform shape nobody writes. One group, one row.
  */
 {
@@ -900,13 +986,15 @@ const HAN_BLOCKS: [number, number][] = [
 ]
 let cmapTotal = 0
 let cmapDiffer = 0
+const identicalSignature = '0'.repeat(REGION_IDS.length)
+const allDifferSignature = REGION_IDS.map((_, index) => index).join('')
 for (const [lo, hi] of HAN_BLOCKS) {
   for (let cp = lo; cp <= hi; cp++) {
     const cids = sansCMaps.map((m) => m.get(cp))
     if (cids.includes(undefined)) continue
     const serif = serifCMaps.map((m) => m.get(cp))
     cmapTotal++
-    if (unifiedSignature(cids, serif) !== '0000') cmapDiffer++
+    if (unifiedSignature(cids, serif) !== identicalSignature) cmapDiffer++
   }
 }
 
@@ -914,8 +1002,8 @@ const stats: Stats = {
   cmapTotal,
   cmapDiffer,
   rows: rows.length,
-  identical: byGlyph['0000'] ?? 0,
-  allDiffer: byGlyph['0123'] ?? 0,
+  identical: byGlyph[identicalSignature] ?? 0,
+  allDiffer: byGlyph[allDifferSignature] ?? 0,
   byGlyph,
   byCp,
 }
@@ -964,8 +1052,8 @@ const tally = (counts: Record<string, number>) =>
     .join(' ')
 
 console.error(`
-whole CMap: ${cmapTotal} Han codepoints, ${cmapDiffer} differ between the four regions
-listed:     ${rows.length} rows, ${stats.identical} identical everywhere, ${stats.allDiffer} differ in all four
+whole CMap: ${cmapTotal} Han codepoints, ${cmapDiffer} differ between the five regions
+listed:     ${rows.length} rows, ${stats.identical} identical everywhere, ${stats.allDiffer} differ in all five
 by glyph:   ${tally(byGlyph)}
 by cp:      ${tally(byCp)}
 `)

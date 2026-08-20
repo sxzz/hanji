@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { REGIONS, type CharsData } from './shared/types.ts'
+import type { NuxtConfig } from 'nuxt/schema'
 
 /**
  * Character pages worth prerendering: those a reader is most likely to land on
@@ -10,7 +11,9 @@ const chars: CharsData = JSON.parse(
   readFileSync(new URL('public/data/chars.json', import.meta.url), 'utf8'),
 )
 const PRERENDERED_KEYS = new Set(
-  chars.rows.filter((row) => row.common === 4).map((row) => row.key),
+  chars.rows
+    .filter((row) => row.common === REGIONS.length)
+    .map((row) => row.key),
 )
 const KEYS = new Set(chars.rows.map((row) => row.key))
 
@@ -42,7 +45,7 @@ const PRERENDERED_CHARS = [
 ]
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
-export default defineNuxtConfig({
+export default {
   modules: ['@unocss/nuxt', '@vueuse/nuxt'],
 
   vue: {
@@ -90,7 +93,7 @@ export default defineNuxtConfig({
         {
           name: 'description',
           content:
-            '同一个汉字，中国大陆、香港、台湾、日本四地写法常常不同。这里把有差异的字全部列出来，可按笔画、常用度排序，按差异模式筛选。',
+            '同一个汉字，中国大陆、香港、台湾、日本、韩国五地写法常常不同。这里把五地常用字并排列出，可按笔画、常用度排序，按差异模式筛选。',
         },
       ],
     },
@@ -98,4 +101,4 @@ export default defineNuxtConfig({
 
   devtools: { enabled: false },
   compatibilityDate: 'latest',
-})
+} satisfies NuxtConfig

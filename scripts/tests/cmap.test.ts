@@ -42,6 +42,8 @@ it.each([
   [[1, 2, 3, 3], '0122'],
   [[1, 1, 2, 2], '0011'],
   [[1, 2, 1, 3], '0102'],
+  [[1, 2, 3, 4, 5], '01234'],
+  [[1, 2, 3, 2, 2], '01211'],
 ])('signs partition %j as %s', (values, signature) => {
   expect(partitionSignature(values)).toBe(signature)
 })

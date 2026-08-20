@@ -20,7 +20,7 @@ export interface LocaleMeta {
   /**
    * Interface body type. A page about glyph differences must not itself use
    * the wrong glyphs, so the body font follows the interface language.
-   * The four table columns stay pinned to their own regions regardless.
+   * The five table columns stay pinned to their own regions regardless.
    */
   sans: string
   /**

@@ -32,12 +32,18 @@ const segments = computed(() => segmentsOf(signature.value))
 const colorOf = (group: number) =>
   segments.value.length === 1 ? 'var(--c-rule)' : `var(--c-g${group + 1})`
 
-const LANG = { cn: 'zh-CN', hk: 'zh-HK', tw: 'zh-TW', jp: 'ja' } as const
+const LANG = {
+  cn: 'zh-CN',
+  hk: 'zh-HK',
+  tw: 'zh-TW',
+  jp: 'ja',
+  kr: 'ko',
+} as const
 
 const cells = computed(() =>
   regions.value.map((region) => {
     const index = REGIONS.indexOf(region)
-    // REGIONS and chars are both length 4, so this index is always in range
+    // REGIONS and chars have the same length, so this index is always in range
     const char = props.row.chars[index]!
     return {
       region,

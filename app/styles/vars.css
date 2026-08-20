@@ -1,6 +1,6 @@
 /*
  * Proof-sheet palette.
- * The four accents encode grouping, not region: regional identity comes from
+ * The accents encode grouping, not region: regional identity comes from
  * column position and its label. The primary signal for grouping is the gap
  * between runs, with color as a redundant second channel, so the grouping
  * stays readable in grayscale and with color vision deficiency.
@@ -17,7 +17,8 @@
   --c-g2: #2e5ea6; /* blue pencil */
   --c-g3: #b07b12; /* ochre */
   --c-g4: #7a4a9e; /* violet */
-  --c-g5: #177a70; /* verdigris -- only the kyujitai ever reaches a fifth group */
+  --c-g5: #177a70; /* verdigris */
+  --c-g6: #a13e70; /* magenta -- fifth region plus kyujitai can reach six */
 
   /* Overprint: multiply on light (ink over ink darkens), screen on dark */
   --overprint-blend: multiply;
@@ -109,6 +110,7 @@ html.dark {
   --c-g3: #d9a63c;
   --c-g4: #b48ada;
   --c-g5: #4fb3a6;
+  --c-g6: #dc79a8;
 
   --overprint-blend: screen;
 }

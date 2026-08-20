@@ -39,13 +39,14 @@ const LANG = {
   hk: 'zh-HK',
   tw: 'zh-TW',
   jp: 'ja',
+  kr: 'ko',
   old: 'ja',
 } as const
 const hex = (char: string) =>
   `U+${char.codePointAt(0)!.toString(16).toUpperCase()}`
 
 /**
- * The columns this row offers: the four regions, and Japan's pre-reform form
+ * The columns this row offers: the five regions, and Japan's pre-reform form
  * where there is one. The kyujitai is compared alongside the rest rather than
  * noted underneath, because it is usually the very character Hong Kong and
  * Taiwan still write, and that reads off the table itself.
@@ -162,7 +163,7 @@ type Cell = (typeof cells.value)[number]
  *
  * The columns stay one per region: only the values decide what merges, so a
  * row like the listing level -- which genuinely differs region by region --
- * keeps its four cells while the codepoint row collapses into one.
+ * keeps its regional cells while the codepoint row collapses into one.
  */
 function runs(keyOf: (cell: Cell) => string) {
   const out: { cell: Cell; span: number; from: number }[] = []
@@ -179,6 +180,7 @@ const TIER_KEY: Record<string, string> = {
   hk: 'tierHk',
   tw: 'tierTw',
   jp: 'tierJp',
+  kr: 'tierKr',
 }
 const tierLabel = (cell: Cell) => {
   if (cell.column === 'old') return '—'
@@ -223,7 +225,7 @@ const tierRuns = computed(() => runs(tierLabel))
 const readingRows = computed(() => {
   const readings = row.value?.readings
   if (!readings) return []
-  return (['mandarin', 'cantonese', 'on', 'kun'] as const)
+  return (['mandarin', 'cantonese', 'on', 'kun', 'korean'] as const)
     .map((kind) => ({ kind, values: readings[kind] ?? [] }))
     .filter((entry) => entry.values.length > 0)
 })
@@ -311,7 +313,7 @@ const references = computed(() => dictGroups(row.value!, visibleRegions.value))
 /**
  * Receives the morph from the list. The name goes on whatever the thumbnail
  * grows into: the stack when there is something to compare, the single
- * character when all four regions agree.
+ * character when all visible regions agree.
  *
  * It is left in place afterwards so going back animates in reverse.
  */
@@ -492,9 +494,11 @@ useSeoMeta({
                   :key="index"
                   class="whitespace-nowrap border-l border-rule/40 px-3 py-2.5 text-center text-soft"
                   :lang="
-                    entry.kind === 'on' || entry.kind === 'kun'
-                      ? 'ja'
-                      : undefined
+                    entry.kind === 'korean'
+                      ? 'ko'
+                      : entry.kind === 'on' || entry.kind === 'kun'
+                        ? 'ja'
+                        : undefined
                   "
                 >
                   {{ reading }}

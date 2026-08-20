@@ -24,6 +24,15 @@ describe('listing filters', () => {
     })
   })
 
+  it('offers the Korean education list as a listing choice', () => {
+    expect(LISTING_OPTIONS).toContainEqual({
+      id: 'kr1',
+      kind: 'tier',
+      region: 'kr',
+      tier: 1,
+    })
+  })
+
   it('matches only rows with a Japanese old form', () => {
     const matchesOld = createListingMatcher(['old'])
     expect(matchesOld(row('國'))).toBe(true)
@@ -39,5 +48,12 @@ describe('listing filters', () => {
     // A listing choice from another region remains an additional requirement.
     expect(createListingMatcher(['cn1', 'old'])(row('國'))).toBe(true)
     expect(createListingMatcher(['cn2', 'old'])(row('國'))).toBe(false)
+  })
+
+  it('matches Korean basic hanja, including the Korean-only 畓', () => {
+    const matchesKorean = createListingMatcher(['kr1'])
+    expect(matchesKorean(row('國'))).toBe(true)
+    expect(matchesKorean(row('畓'))).toBe(true)
+    expect(matchesKorean(row('瓶'))).toBe(false)
   })
 })

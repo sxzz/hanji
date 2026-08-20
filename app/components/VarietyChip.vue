@@ -24,7 +24,7 @@ defineEmits<{ toggle: [] }>()
     @click="$emit('toggle')"
   >
     <span class="whitespace-nowrap">{{ label }}</span>
-    <span class="tabular text-[0.6875rem] font-mono opacity-70">{{
+    <span class="tabular text-[0.6875rem] opacity-70 font-mono">{{
       count
     }}</span>
   </button>

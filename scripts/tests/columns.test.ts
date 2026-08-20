@@ -8,9 +8,16 @@ import {
   projectSignature,
   varietyOf,
 } from '../../shared/row.ts'
-import { COLUMNS, REGIONS } from '../../shared/types.ts'
+import {
+  COLUMNS,
+  DEFAULT_HIDDEN_COLUMNS,
+  REGIONS,
+  type CharRow,
+  type CharsData,
+  type Column,
+  type Region,
+} from '../../shared/types.ts'
 import { DATA_DIR } from '../sources.ts'
-import type { CharRow, CharsData, Column, Region } from '../../shared/types.ts'
 
 const data: CharsData = JSON.parse(
   readFileSync(join(DATA_DIR, 'chars.json'), 'utf8'),
@@ -29,6 +36,7 @@ const without = (...hidden: Region[]) =>
   )
 
 const ALL_COLUMNS = [...REGIONS].map((region) => REGIONS.indexOf(region))
+const DEFAULT_COLUMNS = without('kr')
 
 describe('reading a partition over the columns on show', () => {
   it('leaves a full row exactly as the data ships it', () => {
@@ -37,26 +45,32 @@ describe('reading a partition over the columns on show', () => {
   })
 
   it('renumbers from the first column still on show', () => {
-    // 骨 runs CN | HK | TW | HK. Drop the mainland and Hong Kong leads.
-    expect(projectSignature(row('骨').glyph, without('cn'))).toBe('010')
+    // 骨 runs CN | HK | TW | HK | HK. Drop the mainland and HK leads.
+    expect(projectSignature(row('骨').glyph, without('cn'))).toBe('0100')
     expect(varietyOf(projectSignature(row('骨').glyph, without('cn')))).toBe(2)
   })
 
   it('merges regions that only ever differed through a hidden column', () => {
-    // 海 is written one way everywhere but Japan, so hiding Japan leaves one
-    // form rather than a row of three cells and a gap.
-    expect(row('海').glyph).toBe('0001')
-    expect(projectSignature(row('海').glyph, without('jp'))).toBe('000')
+    // In the original four columns 海 differs only in Japan; Korea is also
+    // different, but is hidden by default.
+    expect(row('海').glyph).toBe('00012')
+    expect(projectSignature(row('海').glyph, without('jp', 'kr'))).toBe('000')
   })
 
   it('keeps a genuine disagreement when an unrelated column goes', () => {
-    expect(projectSignature(row('返').glyph, without('jp'))).toBe('012')
+    expect(projectSignature(row('返').glyph, without('jp', 'kr'))).toBe('012')
+  })
+
+  it('projects the default view onto the original four regions', () => {
+    expect(DEFAULT_HIDDEN_COLUMNS).toEqual(['kr'])
+    expect(projectSignature(row('返').glyph, DEFAULT_COLUMNS)).toBe('0123')
+    expect(projectSignature(row('青').glyph, DEFAULT_COLUMNS)).toBe('0010')
   })
 
   it('compares the kyujitai on the same numbering as the regions', () => {
     // 國: the mainland and Japan write 国, Hong Kong and Taiwan write 國 --
     // and so does the Japanese old form.
-    expect(glyphSignature(row('國'))).toBe('01101')
+    expect(glyphSignature(row('國'))).toBe('011011')
     const columns = (...keep: Column[]) =>
       keep.map((column) => COLUMNS.indexOf(column))
     expect(
@@ -74,7 +88,7 @@ describe('reading a partition over the columns on show', () => {
 
 describe('controls that belong to a hidden column', () => {
   it('offers every listing choice while every column is on show', () => {
-    expect(listingOptionsFor([...COLUMNS])).toHaveLength(9)
+    expect(listingOptionsFor([...COLUMNS])).toHaveLength(10)
   })
 
   it('drops the levels of a region that is off the page', () => {
@@ -89,6 +103,12 @@ describe('controls that belong to a hidden column', () => {
     expect(listingOptionsFor([...REGIONS]).map((o) => o.id)).not.toContain(
       'old',
     )
+  })
+
+  it('does not offer the Korean list while its default-hidden column is off', () => {
+    expect(
+      listingOptionsFor(['cn', 'hk', 'tw', 'jp', 'old']).map((o) => o.id),
+    ).not.toContain('kr1')
   })
 })
 
