@@ -1,48 +1,18 @@
 import { readFileSync } from 'node:fs'
-import { REGIONS, type CharsData } from './shared/types.ts'
+import type { CharsData } from './shared/types.ts'
 import type { NuxtConfig } from 'nuxt/schema'
 
 /**
- * Character pages worth prerendering: those a reader is most likely to land on
- * from a search. Rendering all 8,000 would put hundreds of MB of near-identical
- * HTML in the output for no gain; the rest are served by the SPA fallback.
+ * Every canonical row has a real static detail page. Aliases deliberately use
+ * the SPA fallback and redirect in char-alias middleware instead: emitting a
+ * tiny file for each alias would consume thousands of the host's file quota.
  */
 const chars: CharsData = JSON.parse(
   readFileSync(new URL('public/data/chars.json', import.meta.url), 'utf8'),
 )
-const PRERENDERED_KEYS = new Set(
-  chars.rows
-    .filter((row) => row.common === REGIONS.length)
-    .map((row) => row.key),
-)
-const KEYS = new Set(chars.rows.map((row) => row.key))
-
-/**
- * The regional forms redirect to the row they belong to (/char/国 ->
- * /char/國). An alias is prerendered when its target is, so a crawler that
- * finds one of these addresses gets the redirect from the host rather than
- * having to run the app to be told.
- */
-const ALIASES = new Map<string, string>()
-for (const row of chars.rows)
-  for (const char of [
-    ...row.chars,
-    row.old?.char ?? '',
-    ...(row.aka ?? []),
-    ...REGIONS.flatMap((region) =>
-      (row.alternatives?.[region] ?? []).map((entry) => entry.char),
-    ),
-  ])
-    if (char && !KEYS.has(char) && !ALIASES.has(char))
-      ALIASES.set(char, row.key)
 
 const path = (key: string) => `/char/${encodeURIComponent(key)}`
-const PRERENDERED_CHARS = [
-  ...[...PRERENDERED_KEYS].map(path),
-  ...[...ALIASES]
-    .filter(([, target]) => PRERENDERED_KEYS.has(target))
-    .map(([alias]) => path(alias)),
-]
+const PRERENDERED_CHARS = chars.rows.map((row) => path(row.key))
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default {
@@ -53,6 +23,10 @@ export default {
   },
 
   experimental: {
+    // Page data is bundled locally rather than loaded with useAsyncData, so
+    // the extracted payload for every route is just an empty 69-byte file.
+    // Keep hydration state inline and avoid spending one host file per page.
+    payloadExtraction: false,
     // Install Nuxt's View Transition integration. app.viewTransition below
     // leaves it off until the global route middleware opts in per navigation.
     viewTransition: true,
