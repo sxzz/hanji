@@ -74,7 +74,7 @@ pnpm generate     # 静态站点
 静态站点，`.output/public` 直接丢给任意静态托管即可。线上部署由 [GitHub Actions](.github/workflows/deploy.yml) 构建后直传 Cloudflare Pages：
 
 - `main` 的 push 部署到 production；
-- 指向 `main` 的 PR 部署到 `pr-<编号>` preview，后续提交沿用同一个预览地址。
+- 指向 `main` 的 PR 部署到 `pr-<编号>` preview，Actions 会在 PR 下方更新同一条评论，提供稳定的预览地址。
 
 仓库需要配置三个 Actions secrets：
 
@@ -86,7 +86,7 @@ Cloudflare Pages 的 production branch 设为 `main`。在项目的 **Settings �
 
 全部 8,449 个字组详情页都会生成独立 HTML；页面数据在本地 bundle 中，因此关闭了每路由额外生成 `_payload.json` 的 payload extraction。地区异体别名也不另外生成跳转页，而是通过 `public/_redirects` 回到应用后由客户端跳转。同一条回退规则也让应用显示未知字符的 404；`public/_headers` 给带内容哈希的 `_nuxt/*` 设了长缓存。
 
-第三方资产的具体 commit、Unicode 版本与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析上游版本，版本有变化时下载变化的固定版本、更新 lockfile，并直接重新生成数据；版本未变则跳过下载与生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **211 MB** 原始数据（其中 195 MB 是十份 Noto CJK 字体）。Actions 以 lockfile、生成脚本和依赖的内容作为缓存键：输入完全不变时跳过下载与数据生成，生成逻辑变化时也能复用已校验的下载。
+第三方资产的具体 commit、Unicode 版本与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析上游版本，版本有变化时下载变化的固定版本、更新 lockfile，并直接重新生成数据；版本未变则跳过下载与生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **211 MB** 原始数据（其中 195 MB 是十份 Noto CJK 字体）。Actions 分开缓存原始下载与生成字体：前者只由 lockfile 决定，后者由 lockfile、实际生成脚本、相关依赖、locale 与字表决定；字体输入完全不变时跳过数据生成。
 
 本地也可构建后直传：
 

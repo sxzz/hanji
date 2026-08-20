@@ -18,30 +18,39 @@ jobs:
   deploy:
     name: "Deploy ${{ github.event_name == 'pull_request' && format('PR #{0}', github.event.pull_request.number) || 'production' }}"
     runs-on: ubuntu-latest
+    outputs:
+      preview-url: ${{ steps.deploy.outputs.pages-deployment-alias-url || steps.deploy.outputs.deployment-url }}
 
     steps:
       - name: Setup JS
         uses: sxzz/workflows/setup-js@main
 
-      - name: Restore build data
-        id: build-data-cache
+      - name: Restore source downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/raw
+          key: sources-v1-${{ runner.os }}-${{ hashFiles('data/sources.lock.json') }}
+          restore-keys: sources-v1-${{ runner.os }}-
+
+      - name: Restore generated fonts
+        id: fonts-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
-            data/raw
             public/fonts/*.woff2
             public/fonts/fonts-*.css
-          key: build-data-${{ runner.os }}-${{ hashFiles('data/sources.lock.json', 'package.json', 'pnpm-lock.yaml', 'scripts/*.ts', 'shared/*.ts', 'app/locales/*.ts', 'app/generated/*.ts', 'public/data/*.json') }}
-          restore-keys: build-data-${{ runner.os }}-
+          key: fonts-v1-${{ runner.os }}-${{ hashFiles('data/sources.lock.json', 'package.json', 'pnpm-lock.yaml', 'scripts/build-data.ts', 'scripts/build-fonts.ts', 'scripts/cmap.ts', 'scripts/sources.ts', 'shared/links.ts', 'shared/row.ts', 'shared/types.ts', 'app/locales/*.ts', 'public/data/chars.json') }}
+          restore-keys: fonts-v1-${{ runner.os }}-
 
       - name: Build data
-        if: steps.build-data-cache.outputs.cache-hit != 'true'
+        if: steps.fonts-cache.outputs.cache-hit != 'true'
         run: pnpm build:data
 
       - name: Generate site
         run: pnpm generate
 
       - name: Deploy to Cloudflare Pages
+        id: deploy
         uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -51,3 +60,48 @@ jobs:
             pages deploy .output/public
             --project-name=${{ secrets.CLOUDFLARE_PROJECT_NAME }}
             --branch=${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'main' }}
+
+  comment:
+    name: Comment preview URL
+    if: github.event_name == 'pull_request'
+    needs: deploy
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Create or update comment
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          PREVIEW_URL: ${{ needs.deploy.outputs.preview-url }}
+        with:
+          script: |
+            const marker = '<!-- cloudflare-pages-preview -->'
+            const previewUrl = process.env.PREVIEW_URL
+            if (!previewUrl) throw new Error('Cloudflare Pages did not return a preview URL')
+
+            const body = [
+              marker,
+              '### Cloudflare Pages preview',
+              '',
+              `[${previewUrl}](${previewUrl})`,
+            ].join('\n')
+            const issue = { ...context.repo, issue_number: context.issue.number }
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { ...issue, per_page: 100 },
+            )
+            const previous = comments.find(
+              (comment) =>
+                comment.user?.type === 'Bot' && comment.body?.includes(marker),
+            )
+
+            if (previous) {
+              await github.rest.issues.updateComment({
+                ...context.repo,
+                comment_id: previous.id,
+                body,
+              })
+            } else {
+              await github.rest.issues.createComment({ ...issue, body })
+            }
