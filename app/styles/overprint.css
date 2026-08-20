@@ -1,0 +1,143 @@
+/*
+ * The overprint stack, wherever it appears: the hero, the thumbnail on every
+ * row, and the character a detail page is comparing. Layout stays with each of
+ * them -- the hero's layers also have to travel to a separated row -- but the
+ * things that make a stack recognizably the same object everywhere live here.
+ *
+ * See useOverprintCycle() for the behavior these classes are the appearance
+ * of, and groupColor() for why one layer is ink and the rest are accents.
+ */
+
+.overprint {
+  /* Closing overshoots a little, the way plates come back under their own
+     weight. It is the same curve for a 2.6px fan and a scrubbed 60px, which
+     at the small end is far too slight to notice and at the large end is the
+     whole character of the snap back into register. */
+  --overprint-spring: cubic-bezier(0.22, 1.4, 0.36, 1);
+
+  /* Distance between neighboring layers while fanned. Zero at rest: the
+     layers sit exactly on top of one another, which is the whole point of an
+     overprint. A scrub overrides it inline, and releasing drops the override
+     so the layers spring back to whichever of these applies. */
+  --fan-step: 0px;
+
+  /* Positioned so the layers have something to sit in, and so a stack being
+     scrubbed can be raised above the copy it fans across. */
+  position: relative;
+  isolation: isolate;
+
+  /*
+   * A stack is one picture of a character, not a run of four of them.
+   * Dragging across it used to select 裏裡里 -- three characters that were
+   * never written, and that paste as nonsense.
+   */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/*
+ * Fanned by a hair while a pointer rests on the stack: enough to say the
+ * picture has parts, far short of taking it apart. Mostly sideways, with a
+ * little drop, which is how a misregistered plate sits on a proof.
+ */
+.overprint.fanned {
+  --fan-step: 2.6px;
+}
+
+/*
+ * Pulled apart by hand. The layers track the pointer with nothing in between,
+ * because a transition here would put the picture a beat behind the finger
+ * that is moving it. Vertical panning is left to the page, so a stack the
+ * width of a phone can still be scrolled past.
+ */
+.overprint.scrubbable {
+  cursor: ew-resize;
+  touch-action: pan-y;
+}
+
+/*
+ * Lifted while it is being handled. A fanned deck reaches well past the square
+ * it started in, and has to pass over whatever it reaches across rather than
+ * disappearing behind it -- half a plate tucked under a button beside it, or
+ * under the nav the hero sits directly below, reads as breakage rather than as
+ * a deck being pulled apart.
+ *
+ * Above the nav's own 40, which is the highest thing on the page. It only
+ * holds while a pointer is down, so nothing the nav is meant to cover stays
+ * covered.
+ */
+.overprint.scrubbing {
+  z-index: 50;
+}
+
+.overprint.scrubbing .overprint-layer {
+  transition: none;
+}
+
+.overprint-layer {
+  /* Offset from the middle of the stack, so fanning spreads the layers about
+     the center instead of dragging the whole picture off to one side. */
+  --fan: calc((var(--i) - (var(--n) - 1) / 2) * var(--fan-step));
+
+  color: var(--layer-color);
+  mix-blend-mode: var(--overprint-blend);
+  translate: var(--fan) calc(var(--fan) * 0.42);
+
+  /*
+   * Every layer draws the same square, and none of them is reachable anyway --
+   * they are aria-hidden decoration. Hit-testing is the stack's own job, and
+   * has to be: a glyph carries the font's full ascent and descent whatever
+   * line-height it is set on, so at the hero's 176px each layer answered to a
+   * pointer some 36px below the picture -- far enough to swallow the field
+   * underneath it and set the stack walking when the reader reached to type.
+   */
+  pointer-events: none;
+
+  /*
+   * Any component that sets `transition` on its own layers overrides this
+   * shorthand wholesale, so it has to name `translate` itself -- HeroOverprint
+   * does, because its layers travel between the stack and the separated row.
+   */
+  transition:
+    opacity 220ms ease,
+    translate 420ms var(--overprint-spring);
+}
+
+/*
+ * An accent annotates the baseline rather than standing beside it as an equal
+ * plate. Held a little short of solid it is still perfectly legible alone,
+ * while the places where two of them cross settle further back again -- which
+ * is where a stack of four gets busiest, and where it has the least to say.
+ */
+.overprint-layer:not(.baseline) {
+  opacity: 0.78;
+}
+
+/*
+ * On a dark ground the baseline is the near-white layer, and near-white wins
+ * the blend against everything: the accents survived only where they reached
+ * outside it, so a form differing from the baseline somewhere inside its own
+ * strokes had nothing to show for it. Held back far enough that the accents
+ * carry across it, while it stays the largest and most solid shape and so
+ * still the one the character is read from.
+ */
+.overprint-layer.baseline {
+  opacity: var(--overprint-baseline, 1);
+}
+
+/*
+ * One form lit, the rest held back -- either walked through by the cycle or
+ * pinned by a reader hovering a cell on a detail page.
+ */
+.overprint-layer.dimmed {
+  opacity: 0.12;
+}
+
+/*
+ * The baseline keeps more of itself than the others. Lighting an accent form
+ * is a question about where it departs, and the answer needs the form it
+ * departs from still faintly on the page to be read against.
+ */
+.overprint-layer.dimmed.baseline {
+  opacity: 0.3;
+}

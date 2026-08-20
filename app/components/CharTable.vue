@@ -15,7 +15,7 @@ const headerViewport = ref<HTMLElement>()
  * padding; every visible region then keeps a comfortable character column.
  */
 const tableMinWidth = computed(
-  () => `${visibleRegions.value.length * 4.5 + 10}rem`,
+  () => `${visibleRegions.value.length * 4.5 + 10.75}rem`,
 )
 
 /** Keep the sticky header aligned with the horizontally moving data rows. */

@@ -15,9 +15,20 @@ export const zhCN = {
   },
   hero: {
     title: '一个汉字{n}种写法',
-    body: '{regions}，同一个字写出来常常不一样。',
+    // The standfirst is assembled from these: see HeroOverprint's `body`.
+    same: '{regions}写法完全相同。',
+    allDiffer: '{regions}，写出来每个都不一样。',
+    mixed: '{parts}。',
+    share: '{regions}一样',
+    only: '只有{region}不一样',
+    rest: '{regions}各不相同',
+    join: '，',
     split: '拆开看',
     merge: '叠回去',
+    field: '要对照的汉字',
+    fieldHint: '点汉字输入任意汉字',
+    missing: '「{char}」不在字表里',
+    detail: '查看详情',
   },
   nav: {
     about: '关于',
