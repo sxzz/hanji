@@ -38,13 +38,13 @@ body {
 }
 
 /*
- * The four table columns, pinned to their own region and never following the
+ * The five table columns, pinned to their own region and never following the
  * interface language. scripts/build-fonts.ts generates the @font-face rules
  * into /fonts/kanji.css, chunked by unicode-range so the browser fetches only
  * the chunks holding characters currently on screen.
  */
 /*
- * The four Han columns. The fallback is deliberately a generic family and
+ * The five Han columns. The fallback is deliberately a generic family and
  * never --font-ui: listing a webfont here would make every table character a
  * candidate for it, and the browser would pull dozens of that font's
  * unicode-range chunks. The lang attribute on each cell drives the system's
@@ -72,6 +72,9 @@ body {
 .hanji-jp {
   font-family: 'Hanji Sans JP', sans-serif;
 }
+.hanji-kr {
+  font-family: 'Hanji Sans KR', sans-serif;
+}
 
 html[data-style='serif'] .hanji-cn {
   font-family: 'Hanji Serif CN', serif;
@@ -85,10 +88,13 @@ html[data-style='serif'] .hanji-tw {
 html[data-style='serif'] .hanji-jp {
   font-family: 'Hanji Serif JP', serif;
 }
+html[data-style='serif'] .hanji-kr {
+  font-family: 'Hanji Serif KR', serif;
+}
 
 /*
- * Table grid. The four Han columns keep their shape at every width -- the run
- * underline has to span all four for "count the runs" to work, so narrow
+ * Table grid. The Han columns keep their shape at every width -- the run
+ * underline has to span all of them for "count the runs" to work, so narrow
  * screens scale the characters down rather than reflowing into 2x2.
  */
 .row-grid {

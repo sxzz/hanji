@@ -11,7 +11,7 @@ defineEmits<{ toggle: [] }>()
 <template>
   <!--
     Selection is a filled state rather than a border, so which chips are on
-    reads at a glance across a grid of fifteen.
+    reads at a glance across the grid.
   -->
   <button
     type="button"

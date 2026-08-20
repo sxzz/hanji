@@ -19,6 +19,7 @@ export const LISTING_OPTIONS: readonly ListingOption[] = [
   { id: 'tw2', kind: 'tier', region: 'tw', tier: 2 },
   { id: 'jp1', kind: 'tier', region: 'jp', tier: 1 },
   { id: 'jp2', kind: 'tier', region: 'jp', tier: 2 },
+  { id: 'kr1', kind: 'tier', region: 'kr', tier: 1 },
   { id: 'old', kind: 'old', region: 'jp' },
 ]
 

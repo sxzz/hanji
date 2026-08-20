@@ -90,10 +90,10 @@ onKeyStroke('Escape', () => (open.value = false))
         <!--
           Which columns are compared at all. Same chip as the filter bar, but
           not the same state: down there the exceptional thing is a filter being
-          on, so selection is a filled slab. Here every column starts on, so the
-          exceptional thing is one being off -- and a chip that is off simply
-          fades. That also keeps a solid ink field from ever landing behind a
-          flag, where the emoji's own colors fight it.
+          on, so selection is a filled slab. Here an enabled column is the
+          normal state (except Korea, which starts off), so a chip that is off
+          simply fades. That also keeps a solid ink field from landing behind
+          a flag, where the emoji's own colors fight it.
         -->
         <div class="mt-3 border-t border-rule pt-3">
           <span class="text-sm text-ink font-medium">{{

@@ -3,7 +3,7 @@ import { Buffer } from 'node:buffer'
  * Builds subset woff2 files from the regional Noto CJK faces, in both sans and
  * serif.
  *
- * The four table columns are pinned to their own region's font and never
+ * The five table columns are pinned to their own region's font and never
  * follow the interface language -- those columns are the content. Self-hosting
  * rather than pulling Google's families keeps the display fonts and the CMaps
  * used to judge the differences on the same source, so what the table claims

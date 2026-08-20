@@ -1,6 +1,6 @@
 /**
  * End-to-end check of this project's central claim: the differences derived
- * from the four Adobe CMaps are the differences the subset fonts actually
+ * from the five Adobe CMaps are the differences the subset fonts actually
  * draw.
  *
  * One side is plain-text CMap arithmetic, the other is real glyph outlines. If
@@ -59,12 +59,13 @@ describe('what the subsets draw matches what the CMaps decided', () => {
     }
   })
 
-  it('draws 返 as four genuinely different outlines', () => {
-    expect(new Set(outlinesOf('返')).size).toBe(4)
+  it('draws 返 as five genuinely different outlines', () => {
+    expect(new Set(outlinesOf('返')).size).toBe(5)
   })
 
-  it('borrows the HK font for 骨 in Japan, leaving three distinct shapes', () => {
+  it('borrows the HK font for 骨 in Japan and Korea', () => {
     expect(fontIndexOf(rows.get('骨')!, 3)).toBe(1)
+    expect(fontIndexOf(rows.get('骨')!, 4)).toBe(1)
     const shapes = ['cn', 'hk', 'tw'].map((region) => outline(region, '骨'))
     expect(new Set(shapes).size).toBe(3)
   })
@@ -75,7 +76,7 @@ describe('subset coverage', () => {
     const sample = [
       ...data.rows.slice(0, 60),
       ...data.rows.slice(-60),
-      ...data.rows.filter((r) => r.glyph === '0123').slice(0, 40),
+      ...data.rows.filter((r) => r.glyph === '01234').slice(0, 40),
     ]
     for (const row of sample)
       for (let i = 0; i < REGIONS.length; i++)

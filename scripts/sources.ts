@@ -45,11 +45,11 @@ export const SOURCES: Source[] = [
   {
     id: 'source-han',
     use: {
-      'zh-CN': '判定四地字形差异',
-      'zh-TW': '判定四地字形差異',
-      'zh-HK': '判定四地字形差異',
-      'ja-JP': '4地域の字形差を判定',
-      'ko-KR': '네 지역의 자형 차이 판정',
+      'zh-CN': '判定五地字形差异',
+      'zh-TW': '判定五地字形差異',
+      'zh-HK': '判定五地字形差異',
+      'ja-JP': '5地域の字形差を判定',
+      'ko-KR': '다섯 지역의 자형 차이 판정',
     },
     name: 'Adobe Source Han Sans / Serif（CMap 资源）',
     localizedName: {
@@ -61,15 +61,15 @@ export const SOURCES: Source[] = [
     licenseUrl: 'https://openfontlicense.org/',
     note: {
       'zh-CN':
-        '每套字体的四份地区 CMap 给出「码点 → CID」映射，同一字形池内 CID 相同即同一字形。判定取黑体与宋体的并集。',
+        '每套字体的五份地区 CMap 给出「码点 → CID」映射，同一字形池内 CID 相同即同一字形。判定取黑体与宋体的并集。',
       'zh-TW':
-        '每套字體的四份地區 CMap 給出「碼位 → CID」對映，同一字形池內 CID 相同即同一字形。判定取黑體與宋體的聯集。',
+        '每套字體的五份地區 CMap 給出「碼位 → CID」對映，同一字形池內 CID 相同即同一字形。判定取黑體與宋體的聯集。',
       'zh-HK':
-        '每套字體的四份地區 CMap 給出「碼點 → CID」對應，同一字形池內 CID 相同即同一字形。判定取黑體與宋體的並集。',
+        '每套字體的五份地區 CMap 給出「碼點 → CID」對應，同一字形池內 CID 相同即同一字形。判定取黑體與宋體的並集。',
       'ja-JP':
-        '各書体の4地域向けCMapには「コードポイント → CID」の対応があり、同じ字形プール内でCIDが同じなら同一字形です。判定にはゴシック体と明朝体の和集合を使います。',
+        '各書体の5地域向けCMapには「コードポイント → CID」の対応があり、同じ字形プール内でCIDが同じなら同一字形です。判定にはゴシック体と明朝体の和集合を使います。',
       'ko-KR':
-        '각 글꼴의 네 지역용 CMap은 ‘코드 포인트 → CID’ 매핑을 제공합니다. 같은 자형 풀에서 CID가 같으면 같은 자형입니다. 판정에는 고딕체와 명조체의 합집합을 사용합니다.',
+        '각 글꼴의 다섯 지역용 CMap은 ‘코드 포인트 → CID’ 매핑을 제공합니다. 같은 자형 풀에서 CID가 같으면 같은 자형입니다. 판정에는 고딕체와 명조체의 합집합을 사용합니다.',
     },
   },
   {
@@ -123,11 +123,11 @@ export const SOURCES: Source[] = [
   {
     id: 'hanzi-chars',
     use: {
-      'zh-CN': '四地标准字表',
-      'zh-TW': '四地標準字表',
-      'zh-HK': '四地標準字表',
-      'ja-JP': '4地域の標準字表',
-      'ko-KR': '네 지역의 표준 한자표',
+      'zh-CN': '五地标准字表',
+      'zh-TW': '五地標準字表',
+      'zh-HK': '五地標準字表',
+      'ja-JP': '5地域の標準字表',
+      'ko-KR': '다섯 지역의 표준 한자표',
     },
     name: 'zispace/hanzi-chars',
     homepage: 'https://github.com/zispace/hanzi-chars',
@@ -139,15 +139,15 @@ export const SOURCES: Source[] = [
     licenseUrl: 'https://github.com/zispace/hanzi-chars',
     note: {
       'zh-CN':
-        '转录自各地官方规范：《通用规范汉字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）与《学年別漢字配当表》（2017）。',
+        '转录自各地官方规范：《通用规范汉字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）与《学年別漢字配当表》（2017）、韩国《漢文教育用基礎漢字》（2000）。',
       'zh-TW':
-        '轉錄自各地官方規範：《通用規範漢字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）與《学年別漢字配当表》（2017）。',
+        '轉錄自各地官方規範：《通用規範漢字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）與《学年別漢字配当表》（2017）、韓國《漢文教育用基礎漢字》（2000）。',
       'zh-HK':
-        '轉錄自各地官方規範：《通用規範漢字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）與《学年別漢字配当表》（2017）。',
+        '轉錄自各地官方規範：《通用規範漢字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）與《学年別漢字配当表》（2017）、韓國《漢文教育用基礎漢字》（2000）。',
       'ja-JP':
-        '各地域の公式規範である中国大陸の『通用規範漢字表』（2013年）、台湾の『常用國字標準字體表』（1982年）、香港の『常用字字形表』、日本の『常用漢字表』（2010年）と『学年別漢字配当表』（2017年）から転記されています。',
+        '各地域の公式規範である中国大陸の『通用規範漢字表』（2013年）、台湾の『常用國字標準字體表』（1982年）、香港の『常用字字形表』、日本の『常用漢字表』（2010年）と『学年別漢字配当表』（2017年）、韓国の『漢文教育用基礎漢字』（2000年）から転記されています。',
       'ko-KR':
-        '각 지역의 공식 규범인 중국 대륙의 《통용규범한자표》(通用規範漢字表, 2013), 대만의 《상용국자표준자체표》(常用國字標準字體表, 1982), 홍콩의 《상용자자형표》(常用字字形表), 일본의 《상용한자표》(常用漢字表, 2010)와 《학년별한자배당표》(学年別漢字配当表, 2017)에서 옮긴 자료입니다.',
+        '각 지역의 공식 규범인 중국 대륙의 《통용규범한자표》(通用規範漢字表, 2013), 대만의 《상용국자표준자체표》(常用國字標準字體表, 1982), 홍콩의 《상용자자형표》(常用字字形表), 일본의 《상용한자표》(常用漢字表, 2010)와 《학년별한자배당표》(学年別漢字配当表, 2017), 한국의 《한문교육용기초한자》(漢文教育用基礎漢字, 2000)에서 옮긴 자료입니다.',
     },
   },
   {
@@ -163,6 +163,34 @@ export const SOURCES: Source[] = [
     homepage: 'https://www.unicode.org/reports/tr38/',
     license: 'Unicode License v3',
     licenseUrl: 'https://www.unicode.org/license.txt',
+  },
+  {
+    id: 'korean-hanja-variants',
+    use: {
+      'zh-CN': '韩式异体对应',
+      'zh-TW': '韓式異體對應',
+      'zh-HK': '韓式異體對應',
+      'ja-JP': '韓国の異体字対応',
+    },
+    name: 'Unicode IRG N2200（韩国教育用汉字提案）',
+    localizedName: {
+      'zh-TW': 'Unicode IRG N2200（韓國教育用漢字提案）',
+      'zh-HK': 'Unicode IRG N2200（韓國教育用漢字提案）',
+      'ja-JP': 'Unicode IRG N2200（韓国の教育用漢字提案）',
+    },
+    homepage: 'https://www.unicode.org/L2/L2017/17173-irgn2200-unihan-db.pdf',
+    license: 'Unicode License v3',
+    licenseUrl: 'https://www.unicode.org/license.txt',
+    note: {
+      'zh-CN':
+        '用于把韩国字表中跨码点的旧字形归入同一字组，包括以U+2E569编码的「衰」旧形。',
+      'zh-TW':
+        '用於把韓國字表中跨碼位的舊字形歸入同一字組，包括以U+2E569編碼的「衰」舊形。',
+      'zh-HK':
+        '用於把韓國字表中跨碼點的舊字形歸入同一字組，包括以U+2E569編碼的「衰」舊形。',
+      'ja-JP':
+        '韓国の字表にあるコードポイントの異なる旧字形を同じ文字グループへ統合するために使用します。「衰」の旧字形はU+2E569で符号化されています。',
+    },
   },
   {
     id: 'hanzidb',
@@ -230,6 +258,9 @@ export const ASSETS: Record<string, string> = {
   'charlist/hk-common.txt': charList('香港《常用字表》.txt'),
   'charlist/jp-joyo.txt': charList('日本《常用漢字表》（2010年）.txt'),
   'charlist/jp-grade.txt': charList('日本《学年別漢字配当表》（2017年）.txt'),
+  'charlist/kr-basic.txt': charList(
+    '韩国《漢文教育用基礎漢字》（2000年版）.txt',
+  ),
 
   'opencc/STCharacters.txt': openCC('STCharacters'),
   'opencc/TSCharacters.txt': openCC('TSCharacters'),
@@ -241,10 +272,12 @@ export const ASSETS: Record<string, string> = {
   'cmap/sans-HK.txt': cmap('sans', 'HK'),
   'cmap/sans-TW.txt': cmap('sans', 'TW'),
   'cmap/sans-JP.txt': cmap('sans', 'JP'),
+  'cmap/sans-KR.txt': cmap('sans', 'KR'),
   'cmap/serif-CN.txt': cmap('serif', 'CN'),
   'cmap/serif-HK.txt': cmap('serif', 'HK'),
   'cmap/serif-TW.txt': cmap('serif', 'TW'),
   'cmap/serif-JP.txt': cmap('serif', 'JP'),
+  'cmap/serif-KR.txt': cmap('serif', 'KR'),
 
   'frequency/hanziDB.csv': gh(
     'ruddfawcett/hanziDB.csv',

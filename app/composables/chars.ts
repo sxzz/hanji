@@ -64,7 +64,7 @@ const namesOf = (row: CharRow): string[] => [
 ]
 
 /**
- * Character -> row indices. All four columns, the row key and the kyujitai go
+ * Character -> row indices. All five columns, the row key and the kyujitai go
  * into the index, so searching 国 and searching 國 land on the same row. That
  * is the "normalize, then match" behavior, without rerunning any conversion
  * at runtime.
@@ -86,7 +86,7 @@ const charIndex = ((): Map<string, number[]> => {
 /**
  * A row's partition signature under the chosen comparison dimension, read over
  * the columns on show. Hiding a column repartitions what is left, so a row
- * whose four regions ran CN | HK+TW | JP becomes a two-form row once Japan is
+ * whose shown regions ran CN | HK+TW | JP becomes a two-form row once Japan is
  * out -- and lands under the chip that says so.
  */
 export const signatureOf = (
@@ -162,9 +162,8 @@ export const morphName = (key: string) =>
  */
 
 /**
- * The character the hero opens with. 返 is one of the 642 rows where all four
- * regions differ, and the differences sit in the radical, so they read even at
- * a glance.
+ * The character the hero opens with. All five regions give 返 a distinct
+ * glyph, and the differences sit in the radical, so they read at a glance.
  */
 export const HERO_ROW = rowsByKey.get('返')!
 
@@ -309,8 +308,8 @@ export function useChars() {
   })
 
   /**
-   * The partitions the chips offer. Four columns describe fifteen of them,
-   * three describe five, so the grid is rebuilt whenever a column goes.
+   * The partition chips are rebuilt whenever a column goes, because each
+   * number of visible regions has a different set of possible partitions.
    */
   const patternGroups = computed(() => {
     const all = new Set<string>()

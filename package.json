@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "private": true,
   "packageManager": "pnpm@11.22.0",
-  "description": "中国大陆、香港、台湾、日本四地汉字数据",
+  "description": "中国大陆、香港、台湾、日本、韩国五地汉字数据",
   "author": "Kevin Deng <sxzz@sxzz.moe>",
   "license": "MIT",
   "engines": {

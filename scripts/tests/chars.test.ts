@@ -36,6 +36,7 @@ const LIST_NAMES = [
   'tw-sub',
   'jp-joyo',
   'jp-grade',
+  'kr-basic',
 ] as const
 type ListName = (typeof LIST_NAMES)[number]
 const listText = (name: ListName) =>
@@ -53,56 +54,56 @@ const jpShinjitai = parseDict(
   readFileSync(join(RAW_DIR, 'opencc', 'JPShinjitaiCharacters.txt'), 'utf8'),
 )
 
-describe('glyph partitions, columns in CN HK TW JP order', () => {
+describe('glyph partitions, columns in CN HK TW JP KR order', () => {
   it.each([
-    ['骨', '0121', 'CN | HK+JP | TW'],
-    ['返', '0123', 'all four differ'],
-    ['青', '0010', 'TW alone'],
-    ['海', '0001', 'JP alone'],
-    ['直', '0102', 'CN+TW | HK | JP'],
-    ['次', '0012', 'CN+HK | TW | JP'],
-    ['天', '0001', 'JP alone, and the serif faces agree'],
+    ['骨', '01211', 'CN | HK+JP+KR | TW'],
+    ['返', '01234', 'all five differ'],
+    ['青', '00102', 'TW and KR each differ'],
+    ['海', '00012', 'JP and KR each differ'],
+    ['直', '01022', 'CN+TW | HK | JP+KR'],
+    ['次', '00123', 'CN+HK | TW | JP | KR'],
+    ['天', '00011', 'JP+KR, and the serif faces agree'],
   ])('%s is %s (%s)', (key, signature) => {
     expect(row(key).glyph).toBe(signature)
   })
 
-  it.each(['一', '者', '的', '了', '人', '子', '水', '金'])(
+  it.each(['一', '的', '了', '人', '子', '水', '金'])(
     'counts %s as written the same way everywhere',
     (key) => {
-      expect(row(key).glyph).toBe('0000')
+      expect(row(key).glyph).toBe('00000')
     },
   )
 
   it('lists characters written identically everywhere too', () => {
-    // This is a dictionary of the four regions' common characters, not only
+    // This is a dictionary of the five regions' common characters, not only
     // of the differences between them
     expect(data.stats.identical).toBeGreaterThan(1000)
-    expect(data.rows.some((r) => r.glyph === '0000')).toBe(true)
+    expect(data.rows.some((r) => r.glyph === '00000')).toBe(true)
   })
 })
 
 describe('character grouping', () => {
   it('keys 国 under its orthodox form and fills each column', () => {
     expect(row('國')).toMatchObject({
-      chars: ['国', '國', '國', '国'],
+      chars: ['国', '國', '國', '国', '國'],
       old: { char: '國', glyph: 1, strokes: 11 },
-      cp: '0110',
+      cp: '01101',
     })
   })
 
   it('splits 发 into the two orthodox characters it stands for', () => {
-    expect(row('發').chars).toEqual(['发', '發', '發', '発'])
-    expect(row('髮').chars).toEqual(['发', '髮', '髮', '髪'])
+    expect(row('發').chars).toEqual(['发', '發', '發', '発', '發'])
+    expect(row('髮').chars).toEqual(['发', '髮', '髮', '髪', '髮'])
   })
 
   it('puts the shinjitai in the jp column and the kyujitai in old', () => {
     expect(row('澤')).toMatchObject({
-      chars: ['泽', '澤', '澤', '沢'],
+      chars: ['泽', '澤', '澤', '沢', '澤'],
       old: { char: '澤', glyph: 3, strokes: 16 },
     })
   })
 
-  it('has no old form when all four share a codepoint', () => {
+  it('has no old form when all five share a codepoint', () => {
     expect(row('骨').old).toBeUndefined()
   })
 
@@ -123,27 +124,33 @@ describe('scale', () => {
     expect(data.rows.length).toBeLessThan(20_000)
   })
 
-  it('has an instance of all 15 partitions', () => {
-    expect(Object.keys(data.stats.byGlyph)).toHaveLength(15)
+  it('has many canonical five-region partitions, including full disagreement', () => {
+    expect(Object.keys(data.stats.byGlyph).length).toBeGreaterThan(40)
+    expect(Object.keys(data.stats.byGlyph).every((p) => p.length === 5)).toBe(
+      true,
+    )
+    expect(data.stats.byGlyph).toHaveProperty('01234')
     expect(Object.values(data.stats.byGlyph).every((n) => n > 0)).toBe(true)
   })
 
   it('sorts widely-common frequent characters first by default', () => {
-    expect(data.rows.slice(0, 50).every((r) => r.common === 4)).toBe(true)
+    expect(
+      data.rows.slice(0, 50).every((r) => r.common === REGIONS.length),
+    ).toBe(true)
   })
 })
 
 describe('taking either typeface as agreement', () => {
   it('merges differences only the sans faces make', () => {
     // Source Han Sans gives Japan its own 了 and 人; the serif faces do not
-    expect(row('了').glyph).toBe('0000')
-    expect(row('人').glyph).toBe('0000')
+    expect(row('了').glyph).toBe('00000')
+    expect(row('人').glyph).toBe('00000')
   })
 
   it('keeps differences both typefaces make', () => {
     // 天 really is written differently in Japan, and both faces say so
-    expect(row('天').glyph).toBe('0001')
-    expect(row('骨').glyph).not.toBe('0000')
+    expect(row('天').glyph).toBe('00011')
+    expect(row('骨').glyph).not.toBe('00000')
   })
 })
 
@@ -164,10 +171,10 @@ describe('per-region stroke counts', () => {
     expect(row(key).strokes[3]).toBe(strokes)
   })
 
-  it('leaves the other three columns on kTotalStrokes', () => {
-    // zh-Hans first, zh-Hant second; HK and TW share the second
-    expect(row('那').strokes).toEqual([6, 6, 6, 7])
-    expect(row('國').strokes).toEqual([8, 11, 11, 8])
+  it('uses regional fallback counts in all five columns', () => {
+    // zh-Hans first, zh-Hant second; HK, TW and KR share the second
+    expect(row('那').strokes).toEqual([6, 6, 6, 7, 6])
+    expect(row('國').strokes).toEqual([8, 11, 11, 8, 11])
   })
 
   it('never leaves a column without a count', () => {
@@ -184,11 +191,11 @@ describe('outside references', () => {
   })
 
   it('counts a name the group merged with as a character of its own', () => {
-    // 唇 fills all four columns; 脣 only names the group
+    // 唇 and 脣 fill the five columns and name one group
     expect(formsOf(row('唇')).map((f) => f.char)).toEqual(['唇', '脣'])
   })
 
-  it('lists one character when the four regions agree', () => {
+  it('lists one character when the five regions agree', () => {
     expect(dictGroups(row('的')).map((g) => g.form.char)).toEqual(['的'])
   })
 
@@ -210,22 +217,21 @@ describe('outside references', () => {
   })
 })
 
-describe('the pre-reform form as a fifth column', () => {
+describe('the pre-reform form as a sixth column', () => {
   it('groups the kyujitai with whichever regions still write it', () => {
     // 國 is what Hong Kong and Taiwan write, so it joins their group
     const guo = row('國')
-    expect(guo.glyph).toBe('0110')
+    expect(guo.glyph).toBe('01101')
     expect(guo.old).toEqual({ char: '國', glyph: 1, strokes: 11 })
   })
 
-  it('gives it a group of its own when nobody writes it', () => {
-    // 說 already differs in all four; the kyujitai makes a fifth form
-    const shuo = row('說')
-    expect(shuo.glyph).toBe('0123')
-    expect(shuo.old?.glyph).toBe(4)
+  it('gives it a sixth group when nobody writes that Japanese glyph', () => {
+    const xu = row('續')
+    expect(xu.glyph).toBe('01234')
+    expect(xu.old?.glyph).toBe(5)
   })
 
-  it('never renumbers the four regions to fit it in', () => {
+  it('never renumbers the five regions to fit it in', () => {
     for (const r of data.rows)
       if (r.old) expect(r.old.glyph).toBeLessThanOrEqual(new Set(r.glyph).size)
   })
@@ -246,16 +252,16 @@ describe('the pre-reform form as a fifth column', () => {
 
 describe('what counts as one character group', () => {
   it('keeps 拐 and 柺 as independently addressable groups', () => {
-    expect(row('拐').chars).toEqual(['拐', '拐', '拐', '拐'])
-    expect(row('柺').chars).toEqual(['拐', '枴', '枴', '柺'])
+    expect(row('拐').chars).toEqual(['拐', '拐', '拐', '拐', '拐'])
+    expect(row('柺').chars).toEqual(['拐', '枴', '枴', '柺', '柺'])
     expect(row('柺').old).toBeUndefined()
   })
 
   it('keeps a row for a character its own region lists separately', () => {
     // Taiwan writes 着 as 著, but 著 is an entry of its own in the mainland,
     // Hong Kong and Japanese lists -- 著名 is not 看着
-    expect(row('著').chars).toEqual(['著', '著', '著', '著'])
-    expect(row('着').chars).toEqual(['着', '着', '著', '着'])
+    expect(row('著').chars).toEqual(['著', '著', '著', '著', '著'])
+    expect(row('着').chars).toEqual(['着', '着', '著', '着', '着'])
   })
 
   it.each([
@@ -272,26 +278,27 @@ describe('what counts as one character group', () => {
     // 別﹝别﹞ and 溫〔温〕 are one entry each, not two
     expect(rows.has('别')).toBe(false)
     expect(rows.has('温')).toBe(false)
-    expect(row('別').chars).toEqual(['别', '別', '別', '別'])
+    expect(row('別').chars).toEqual(['别', '別', '別', '別', '別'])
   })
 
   it('merges two orthodox forms naming the same group', () => {
     expect(rows.has('脣')).toBe(false)
     expect(row('唇')).toMatchObject({
-      chars: ['唇', '脣', '脣', '唇'],
+      chars: ['唇', '脣', '脣', '唇', '脣'],
       aka: ['脣'],
     })
     expect(row('才').aka).toEqual(['纔'])
   })
 
   it('settles the columns before choosing the key', () => {
-    // 稜 fills three columns and 棱 one, so 稜 keeps the address
-    expect(row('稜').chars).toEqual(['棱', '稜', '稜', '稜'])
+    // In the original four columns 稜 fills three and 棱 one, so 稜 keeps the
+    // established address after Korea is added.
+    expect(row('稜').chars).toEqual(['棱', '稜', '稜', '稜', '棱'])
     expect(rows.has('棱')).toBe(false)
-    // 戸 fills all four of its own columns only because OpenCC maps it
-    // nowhere; 戶 knows it is 户 on the mainland, and keeps the address
+    // A bare 戸 group would fill every column only because OpenCC maps it
+    // nowhere; 戶 knows it is 户 on the mainland, and keeps the address.
     expect(row('戶')).toMatchObject({
-      chars: ['户', '户', '戶', '戸'],
+      chars: ['户', '户', '戶', '戸', '戶'],
       aka: ['戸'],
     })
     expect(rows.has('戸')).toBe(false)
@@ -300,20 +307,20 @@ describe('what counts as one character group', () => {
   it('lets a region’s own table override OpenCC’s variant mapping', () => {
     // 常用國字標準字體表 and 常用字字形表 both list 脣, 祕 and 羣; OpenCC
     // converts all three away, to 唇, 秘 and 群
-    expect(row('唇').chars).toEqual(['唇', '脣', '脣', '唇'])
-    expect(row('祕').chars).toEqual(['秘', '祕', '祕', '秘'])
+    expect(row('唇').chars).toEqual(['唇', '脣', '脣', '唇', '脣'])
+    expect(row('祕').chars).toEqual(['秘', '祕', '祕', '秘', '祕'])
     expect(row('祕').alternatives?.cn).toContainEqual({
       char: '祕',
       tier: 3,
       kind: 'primary',
     })
-    expect(row('群').chars).toEqual(['群', '羣', '群', '群'])
-    expect(row('峰').chars).toEqual(['峰', '峯', '峰', '峰'])
+    expect(row('群').chars).toEqual(['群', '羣', '群', '群', '群'])
+    expect(row('峰').chars).toEqual(['峰', '峯', '峰', '峰', '峯'])
   })
 
   it('keeps 克 and 剋 as separate entries while accounting for regional forms', () => {
-    expect(row('克').chars).toEqual(['克', '克', '克', '克'])
-    expect(row('剋').chars).toEqual(['克', '剋', '剋', '剋'])
+    expect(row('克').chars).toEqual(['克', '克', '克', '克', '克'])
+    expect(row('剋').chars).toEqual(['克', '剋', '剋', '剋', '剋'])
     expect(row('剋').alternatives?.cn).toContainEqual({
       char: '剋',
       tier: 2,
@@ -325,8 +332,8 @@ describe('what counts as one character group', () => {
     // 群 -> 群 羣 says they are one character; 台 -> 臺 says they are two
     expect(rows.has('羣')).toBe(false)
     expect(row('群').aka).toEqual(['羣'])
-    expect(row('台').chars).toEqual(['台', '台', '台', '台'])
-    expect(row('臺').chars).toEqual(['台', '台', '臺', '台'])
+    expect(row('台').chars).toEqual(['台', '台', '台', '台', '台'])
+    expect(row('臺').chars).toEqual(['台', '台', '臺', '台', '臺'])
   })
 
   it('keeps a simplification that stands for several characters apart', () => {
@@ -365,15 +372,15 @@ describe('what counts as one character group', () => {
       false
 
     expect(hasAlternative('像', 'cn', '象')).toBe(false)
-    for (const region of ['hk', 'tw', 'jp'] as const)
+    for (const region of ['hk', 'tw', 'jp', 'kr'] as const)
       expect(hasAlternative('剋', region, '克')).toBe(false)
-    for (const region of ['cn', 'hk', 'jp'] as const)
+    for (const region of ['cn', 'hk', 'jp', 'kr'] as const)
       expect(hasAlternative('着', region, '著')).toBe(false)
     expect(hasAlternative('逕', 'jp', '径')).toBe(false)
   })
 
   it('splits one-region ambiguity and links both groups without naming it', () => {
-    expect(row('鎗').chars).toEqual(['鎗', '鎗', '鎗', '鎗'])
+    expect(row('鎗').chars).toEqual(['鎗', '鎗', '鎗', '鎗', '鎗'])
     expect(row('鎗').uncertain).toContainEqual({
       key: '槍',
       char: '枪',
@@ -389,13 +396,23 @@ describe('what counts as one character group', () => {
     expect(row('鎗').alternatives).toBeUndefined()
   })
 
-  it('never shows a region a form its own table does not enter', () => {
+  it('keeps the original four columns while Korea uses its encoded form', () => {
     // JPShinjitaiCharacters records pre-reform shapes -- 郎 -> 郞, 研 -> 硏,
     // 晃 -> 晄 -- as plain orthodox forms, and they used to become the key and
-    // then fill three columns no place writes, with a listing level of zero
-    for (const key of ['郎', '研', '晃', '萌', '慎', '概', '瓶', '翻'])
-      expect(row(key).chars).toEqual([key, key, key, key])
-    expect(row('郎').tier).toEqual([1, 1, 1, 1])
+    // then fill the other base columns with a form no place writes.
+    const examples = [
+      ['郎', '郞'],
+      ['研', '硏'],
+      ['晃', '晄'],
+      ['萌', '萠'],
+      ['慎', '愼'],
+      ['概', '槪'],
+      ['瓶', '甁'],
+      ['翻', '飜'],
+    ] as const
+    for (const [key, korean] of examples)
+      expect(row(key).chars).toEqual([key, key, key, key, korean])
+    expect(row('郎').tier).toEqual([1, 1, 1, 1, 1])
     expect(rows.has('郞')).toBe(false)
     expect(row('郎').aka).toEqual(['郞'])
   })
@@ -403,8 +420,8 @@ describe('what counts as one character group', () => {
   it('keeps a form a region files under a secondary list', () => {
     // 檯 is 次常用國字, so Taiwan writes it even though the primary table has
     // only 台 -- swapping in 台 would be a different character
-    expect(row('檯').chars).toEqual(['台', '枱', '檯', '檯'])
-    expect(row('台').chars).toEqual(['台', '台', '台', '台'])
+    expect(row('檯').chars).toEqual(['台', '枱', '檯', '檯', '檯'])
+    expect(row('台').chars).toEqual(['台', '台', '台', '台', '台'])
   })
 
   it('hands Japan a shinjitai its own tables carry', () => {
@@ -417,14 +434,14 @@ describe('what counts as one character group', () => {
   it('lists every row under at least one region', () => {
     for (const r of data.rows) {
       expect(r.common).toBeGreaterThanOrEqual(1)
-      expect(r.common).toBeLessThanOrEqual(4)
+      expect(r.common).toBeLessThanOrEqual(REGIONS.length)
       expect(r.common).toBe(r.tier.filter(Boolean).length)
     }
   })
 
-  it('leaves no two rows carrying the same four characters', () => {
-    const quads = new Set(data.rows.map((r) => r.chars.join('')))
-    expect(quads.size).toBe(data.rows.length)
+  it('leaves no two rows carrying the same regional characters', () => {
+    const tuples = new Set(data.rows.map((r) => r.chars.join('')))
+    expect(tuples.size).toBe(data.rows.length)
   })
 
   it('leaves no two rows with the same key', () => {
@@ -468,7 +485,7 @@ describe('regional listing state', () => {
               : 0,
           entered['tw-common'].has(char) || entered['tw-sub'].has(char),
         )
-      default:
+      case 3:
         return state(
           covered['jp-grade'].has(char)
             ? 2
@@ -476,6 +493,11 @@ describe('regional listing state', () => {
               ? 1
               : 0,
           entered['jp-joyo'].has(char) || entered['jp-grade'].has(char),
+        )
+      default:
+        return state(
+          covered['kr-basic'].has(char) ? 1 : 0,
+          entered['kr-basic'].has(char),
         )
     }
   }
@@ -507,6 +529,7 @@ describe('source-entry accounting', () => {
     [['hk-common'], 1],
     [['tw-common'], 2],
     [['jp-joyo'], 3],
+    [['kr-basic'], 4],
   ] as const
 
   it('selects or records every primary entry from the row-generating lists', () => {
@@ -540,7 +563,7 @@ describe('source-entry accounting', () => {
 
   it('keeps drawable entries when their mapped form cannot be rendered', () => {
     for (const char of ['𫭼', '暅', '𬒗']) {
-      expect(row(char).chars).toEqual([char, char, char, char])
+      expect(row(char).chars).toEqual([char, char, char, char, char])
       expect(row(char).tier[0]).toBeGreaterThan(0)
     }
   })
@@ -587,5 +610,28 @@ describe('source-entry accounting', () => {
     expect(entered['tw-sub'].size).toBe(6343)
     expect(outside).toHaveLength(3599)
     expect(outside).toContain('丌')
+  })
+})
+
+describe('Korean education hanja', () => {
+  it('accounts for all 1,800 entries in the 2000 basic list', () => {
+    expect(entered['kr-basic'].size).toBe(1800)
+    expect(data.rows.filter((entry) => entry.tier[4] === 1)).toHaveLength(1800)
+  })
+
+  it.each([
+    ['青', '靑'],
+    ['清', '淸'],
+    ['雞', '鷄'],
+    ['衰', '𮕩'],
+    ['郎', '郞'],
+  ])('puts the Korean form %s/%s in the same row', (key, korean) => {
+    expect(row(key).chars[4]).toBe(korean)
+    expect(rows.has(korean)).toBe(false)
+  })
+
+  it('adds the Korean-only common character 畓', () => {
+    expect(row('畓').tier).toEqual([0, 0, 0, 0, 1])
+    expect(row('畓').listing[4]).toBe('primary')
   })
 })
