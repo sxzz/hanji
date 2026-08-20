@@ -9,7 +9,7 @@ import {
 
 const chars = injectChars()
 const { t, locale } = useT()
-const { regionLabel, labelClass, visibleColumns, visibleRegions } = usePrefs()
+const { flagsOn, visibleColumns, visibleRegions } = usePrefs()
 
 // Every label has to be computed, not built once: t() reads the active locale
 // and the reader can change it after the component is set up
@@ -217,7 +217,7 @@ function toggleRegion(region: string) {
             :aria-pressed="chars.common.value.includes(region)"
             @click="toggleRegion(region)"
           >
-            <span :class="labelClass">{{ regionLabel(region) }}</span>
+            <RegionLabel :flag="flagsOn" :region="region" />
           </button>
         </div>
       </div>
@@ -253,9 +253,11 @@ function toggleRegion(region: string) {
         :aria-pressed="chars.tiers.value.includes(option.id)"
         @click="toggleTier(option.id)"
       >
-        <span class="opacity-60" :class="labelClass">{{
-          regionLabel(option.region)
-        }}</span>
+        <RegionLabel
+          :flag="flagsOn"
+          :region="option.region"
+          class="opacity-60"
+        />
         {{ option.label }}
       </button>
     </div>

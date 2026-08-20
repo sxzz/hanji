@@ -3,7 +3,7 @@ import { injectChars } from '~/composables/chars.ts'
 
 const chars = injectChars()
 const { t } = useT()
-const { regionLabel, labelClass, visibleRegions, columnTracks } = usePrefs()
+const { flagsOn, visibleRegions, columnTracks } = usePrefs()
 const scrollToTop = useScrollToTop()
 
 const list = ref<HTMLElement>()
@@ -26,8 +26,8 @@ function turnTo(page: number) {
           :key="region"
           class="text-center eyebrow !text-$c-ink-soft"
           :title="t(`region.${region}.full`)"
-          ><span :class="labelClass">{{ regionLabel(region) }}</span></span
-        >
+          ><RegionLabel :flag="flagsOn" :region="region"
+        /></span>
       </div>
       <span class="text-right eyebrow">{{ t('table.strokes') }}</span>
       <span class="hidden text-right eyebrow sm:block">{{

@@ -6,14 +6,6 @@ import {
   type Region,
 } from '~~/shared/types.ts'
 
-const FLAGS: Record<Region, string> = {
-  cn: '🇨🇳',
-  hk: '🇭🇰',
-  tw: '🇹🇼',
-  jp: '🇯🇵',
-  kr: '🇰🇷',
-}
-
 export const HIDDEN_KEY = 'hanji:hidden'
 const VISIBILITY_VERSION_KEY = 'hanji:columns-v2'
 const isColumn = (value: string): value is Column =>
@@ -117,8 +109,9 @@ export function useColumnVisibility() {
  * set, so they live in localStorage and stay out of the URL.
  */
 export function usePrefs() {
-  const { t } = useT()
-  const emojiFlags = useLocalStorage('hanji:emoji-flags', false)
+  // Keep the original storage key so existing readers retain their choice
+  // after the visual labels move from platform emoji to local SVG artwork.
+  const flagLabels = useLocalStorage('hanji:emoji-flags', false)
   /**
    * Draw the stacked forms as outlines instead of solid ink. Filled strokes
    * that agree pile into a single mass; hollow ones stay legible through each
@@ -130,17 +123,7 @@ export function usePrefs() {
   // produces, and localStorage is not available while prerendering.
   const mounted = ref(false)
   onMounted(() => (mounted.value = true))
-  const flagsOn = computed(() => mounted.value && emojiFlags.value)
-
-  /** Short label for a region, as a flag or as a single character. */
-  const regionLabel = (region: Region) =>
-    flagsOn.value ? FLAGS[region] : t(`region.${region}.short`)
-
-  /**
-   * Flag emoji sit smaller than Han characters at the same font size, so they
-   * need scaling up to hold the same weight in a row of labels.
-   */
-  const labelClass = computed(() => (flagsOn.value ? 'flag-label' : ''))
+  const flagsOn = computed(() => mounted.value && flagLabels.value)
 
   const outlineOn = computed(() => mounted.value && outline.value)
 
@@ -156,12 +139,10 @@ export function usePrefs() {
   } = useColumnVisibility()
 
   return {
-    emojiFlags,
+    flagLabels,
     flagsOn,
     outline,
     outlineOn,
-    regionLabel,
-    labelClass,
     visibleColumns,
     visibleRegions,
     regionIndices,

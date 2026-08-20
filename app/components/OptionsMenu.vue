@@ -2,10 +2,9 @@
 import { localeName, type Locale } from '~/locales/index.ts'
 const { t } = useT()
 const {
-  emojiFlags,
+  flagLabels,
+  flagsOn,
   outline,
-  regionLabel,
-  labelClass,
   COLUMNS,
   columnShown,
   columnLocked,
@@ -16,7 +15,7 @@ const languages = locales.map((code) => ({ code, label: localeName(code) }))
 
 /** Reader preferences, each labeled by `options.<key>` and `<key>Hint`. */
 const options = [
-  { key: 'emoji', model: emojiFlags },
+  { key: 'flags', model: flagLabels },
   { key: 'outline', model: outline },
 ]
 
@@ -93,7 +92,7 @@ onKeyStroke('Escape', () => (open.value = false))
           on, so selection is a filled slab. Here an enabled column is the
           normal state (except Korea, which starts off), so a chip that is off
           simply fades. That also keeps a solid ink field from landing behind
-          a flag, where the emoji's own colors fight it.
+          a flag, where the artwork's own colors fight it.
         -->
         <div class="mt-3 border-t border-rule pt-3">
           <span class="text-sm text-ink font-medium">{{
@@ -122,9 +121,10 @@ onKeyStroke('Escape', () => (open.value = false))
               :aria-pressed="columnShown(column)"
               @click="toggleColumn(column)"
             >
-              <span :class="labelClass">{{
-                regionLabel(column === 'old' ? 'jp' : column)
-              }}</span>
+              <RegionLabel
+                :flag="flagsOn"
+                :region="column === 'old' ? 'jp' : column"
+              />
               <span v-if="column === 'old'">{{ t('region.old.short') }}</span>
             </button>
           </div>

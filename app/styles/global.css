@@ -118,14 +118,14 @@ html[data-style='serif'] .hanji-kr {
   border-radius: 4px;
 }
 
-/*
- * Flag emoji have a smaller optical size than Han characters at the same font
- * size, so a row mixing them with text labels looks uneven without this.
- */
-.flag-label {
+/* Circle flags keep the same optical weight as the one-character labels they
+   replace, without depending on each platform's emoji artwork. */
+.region-flag {
   display: inline-block;
-  transform: scale(1.35);
-  transform-origin: center;
+  width: 1.35em;
+  max-width: none;
+  height: 1.35em;
+  vertical-align: -0.2em;
 }
 
 /* Named character thumbnails morph into their detail-page stack. These

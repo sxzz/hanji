@@ -29,8 +29,8 @@ export const zhCN = {
   options: {
     title: '显示选项',
     language: '界面语言',
-    emoji: '用旗帜显示地区',
-    emojiHint: '把「中日港台韩」换成对应的旗帜符号。',
+    flags: '用旗帜显示地区',
+    flagsHint: '把「中日港台韩」换成对应的旗帜符号。',
     outline: '叠印用空心字',
     outlineHint: '把叠在一起的字形改成描边，笔画不再糊成一团，分歧处更清楚。',
     columns: '参与对照的字形',
