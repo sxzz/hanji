@@ -1,0 +1,53 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: pages-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'production' }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    name: "Deploy ${{ github.event_name == 'pull_request' && format('PR #{0}', github.event.pull_request.number) || 'production' }}"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup JS
+        uses: sxzz/workflows/setup-js@main
+
+      - name: Restore build data
+        id: build-data-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            data/raw
+            public/fonts/*.woff2
+            public/fonts/fonts-*.css
+          key: build-data-${{ runner.os }}-${{ hashFiles('package.json', 'pnpm-lock.yaml', 'scripts/*.ts', 'shared/*.ts', 'app/locales/*.ts', 'app/generated/*.ts', 'public/data/*.json') }}
+          restore-keys: build-data-${{ runner.os }}-
+
+      - name: Build data
+        if: steps.build-data-cache.outputs.cache-hit != 'true'
+        run: pnpm build:data
+
+      - name: Generate site
+        run: pnpm generate
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: >-
+            pages deploy .output/public
+            --project-name=${{ secrets.CLOUDFLARE_PROJECT_NAME }}
+            --branch=${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'main' }}
