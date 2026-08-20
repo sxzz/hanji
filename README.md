@@ -57,7 +57,7 @@ Source Han Sans 与 Source Han Serif 各自的五个地区共享同一个字形�
 
 ```bash
 pnpm install
-pnpm build:data   # 生成字表与字体子集，首次会下载约 170MB 原始数据，之后走缓存
+pnpm build:data   # 生成字表与字体子集，首次会下载约 210MB 原始数据，之后走缓存
 pnpm dev
 pnpm test
 pnpm generate     # 静态站点
@@ -79,7 +79,7 @@ pnpm generate     # 静态站点
 
 `public/_redirects` 把没有预渲染的单字页交回给应用（静态文件优先，预渲染的 4 千多页仍按文件直出），`public/_headers` 给带内容哈希的 `_nuxt/*` 设了长缓存。
 
-构建时 `pnpm build:data` 会下载约 **168 MB** 原始数据（其中 156 MB 是八份 Noto CJK 字体），CI 上每次构建都要重下。若嫌慢，可改为本地构建后直传：
+构建时 `pnpm build:data` 会下载约 **210 MB** 原始数据（其中 195 MB 是十份 Noto CJK 字体），CI 上每次构建都要重下。若嫌慢，可改为本地构建后直传：
 
 ```bash
 pnpm build:data && pnpm generate

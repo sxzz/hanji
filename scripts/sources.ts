@@ -49,10 +49,12 @@ export const SOURCES: Source[] = [
       'zh-TW': '判定四地字形差異',
       'zh-HK': '判定四地字形差異',
       'ja-JP': '4地域の字形差を判定',
+      'ko-KR': '네 지역의 자형 차이 판정',
     },
     name: 'Adobe Source Han Sans / Serif（CMap 资源）',
     localizedName: {
       'ja-JP': 'Adobe Source Han Sans / Serif（CMapリソース）',
+      'ko-KR': 'Adobe Source Han Sans / Serif(CMap 리소스)',
     },
     homepage: 'https://github.com/adobe-fonts/source-han-sans',
     license: 'SIL OFL 1.1',
@@ -66,6 +68,8 @@ export const SOURCES: Source[] = [
         '每套字體的四份地區 CMap 給出「碼點 → CID」對應，同一字形池內 CID 相同即同一字形。判定取黑體與宋體的並集。',
       'ja-JP':
         '各書体の4地域向けCMapには「コードポイント → CID」の対応があり、同じ字形プール内でCIDが同じなら同一字形です。判定にはゴシック体と明朝体の和集合を使います。',
+      'ko-KR':
+        '각 글꼴의 네 지역용 CMap은 ‘코드 포인트 → CID’ 매핑을 제공합니다. 같은 자형 풀에서 CID가 같으면 같은 자형입니다. 판정에는 고딕체와 명조체의 합집합을 사용합니다.',
     },
   },
   {
@@ -75,10 +79,12 @@ export const SOURCES: Source[] = [
       'zh-TW': '頁面顯示用字體',
       'zh-HK': '頁面顯示用字體',
       'ja-JP': '画面表示用フォント',
+      'ko-KR': '화면 표시용 글꼴',
     },
     name: 'Noto Sans / Noto Serif（含 CJK）',
     localizedName: {
       'ja-JP': 'Noto Sans / Noto Serif（CJK対応）',
+      'ko-KR': 'Noto Sans / Noto Serif(CJK 지원)',
     },
     homepage: 'https://github.com/notofonts/noto-cjk',
     license: 'SIL OFL 1.1',
@@ -92,6 +98,8 @@ export const SOURCES: Source[] = [
         '漢字取自 CJK 版本，拉丁字母與數字取自拉丁版本，都按站內用字子集化後自行託管，OFL 聲明隨附於 /fonts/OFL.txt。',
       'ja-JP':
         '漢字はCJK版、ラテン文字と数字はラテン版を使用し、サイト内で使う文字だけにサブセット化してセルフホストしています。OFLの表記は/fonts/OFL.txtに同梱しています。',
+      'ko-KR':
+        '한자는 CJK 버전, 라틴 문자와 숫자는 라틴 버전을 사용합니다. 사이트에서 쓰는 문자만 서브셋으로 만들어 자체 호스팅하며, OFL 고지문은 /fonts/OFL.txt에 함께 제공합니다.',
     },
   },
   {
@@ -101,10 +109,12 @@ export const SOURCES: Source[] = [
       'zh-TW': '簡繁、港臺異體、日本新舊字體對應',
       'zh-HK': '簡繁、港台異體、日本新舊字體對應',
       'ja-JP': '簡体字・繁体字、香港・台湾の異体字、日本の新字体・旧字体の対応',
+      'ko-KR': '간체·번체, 홍콩·대만 이체자, 일본 신자체·구자체 대응',
     },
     name: 'OpenCC 开放中文转换',
     localizedName: {
       'ja-JP': 'OpenCC（Open Chinese Convert）',
+      'ko-KR': 'OpenCC(Open Chinese Convert)',
     },
     homepage: 'https://github.com/BYVoid/OpenCC',
     license: 'Apache-2.0',
@@ -117,12 +127,14 @@ export const SOURCES: Source[] = [
       'zh-TW': '四地標準字表',
       'zh-HK': '四地標準字表',
       'ja-JP': '4地域の標準字表',
+      'ko-KR': '네 지역의 표준 한자표',
     },
     name: 'zispace/hanzi-chars',
     homepage: 'https://github.com/zispace/hanzi-chars',
     license: '仓库未声明',
     localizedLicense: {
       'ja-JP': 'リポジトリに記載なし',
+      'ko-KR': '저장소에 명시되지 않음',
     },
     licenseUrl: 'https://github.com/zispace/hanzi-chars',
     note: {
@@ -134,6 +146,8 @@ export const SOURCES: Source[] = [
         '轉錄自各地官方規範：《通用規範漢字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）與《学年別漢字配当表》（2017）。',
       'ja-JP':
         '各地域の公式規範である中国大陸の『通用規範漢字表』（2013年）、台湾の『常用國字標準字體表』（1982年）、香港の『常用字字形表』、日本の『常用漢字表』（2010年）と『学年別漢字配当表』（2017年）から転記されています。',
+      'ko-KR':
+        '각 지역의 공식 규범인 중국 대륙의 《통용규범한자표》(通用規範漢字表, 2013), 대만의 《상용국자표준자체표》(常用國字標準字體表, 1982), 홍콩의 《상용자자형표》(常用字字形表), 일본의 《상용한자표》(常用漢字表, 2010)와 《학년별한자배당표》(学年別漢字配当表, 2017)에서 옮긴 자료입니다.',
     },
   },
   {
@@ -143,6 +157,7 @@ export const SOURCES: Source[] = [
       'zh-TW': '筆畫數、讀音',
       'zh-HK': '筆畫數、讀音',
       'ja-JP': '画数・読み',
+      'ko-KR': '획수와 독음',
     },
     name: 'Unicode Han Database (Unihan)',
     homepage: 'https://www.unicode.org/reports/tr38/',
@@ -156,11 +171,14 @@ export const SOURCES: Source[] = [
       'zh-TW': '大陸字頻排名',
       'zh-HK': '大陸字頻排名',
       'ja-JP': '中国大陸の文字頻度順位',
+      'ko-KR': '중국 대륙 글자 빈도 순위',
     },
     name: 'hanziDB.csv（Jun Da《现代汉语单字频率列表》）',
     localizedName: {
       'ja-JP':
         'hanziDB.csv（Jun Da『Modern Chinese Character Frequency List』）',
+      'ko-KR':
+        'hanziDB.csv(Jun Da, 《Modern Chinese Character Frequency List》)',
     },
     homepage: 'https://github.com/ruddfawcett/hanziDB.csv',
     license: 'MIT',
@@ -189,6 +207,7 @@ const NOTO_DIR: Record<string, string> = {
   hk: 'TraditionalChineseHK',
   tc: 'TraditionalChinese',
   jp: 'Japanese',
+  kr: 'Korean',
 }
 
 const noto = (style: 'Sans' | 'Serif', region: string) =>
@@ -239,10 +258,12 @@ export const ASSETS: Record<string, string> = {
   'font/NotoSansCJKhk-Regular.otf': noto('Sans', 'hk'),
   'font/NotoSansCJKtc-Regular.otf': noto('Sans', 'tc'),
   'font/NotoSansCJKjp-Regular.otf': noto('Sans', 'jp'),
+  'font/NotoSansCJKkr-Regular.otf': noto('Sans', 'kr'),
   'font/NotoSerifCJKsc-Regular.otf': noto('Serif', 'sc'),
   'font/NotoSerifCJKhk-Regular.otf': noto('Serif', 'hk'),
   'font/NotoSerifCJKtc-Regular.otf': noto('Serif', 'tc'),
   'font/NotoSerifCJKjp-Regular.otf': noto('Serif', 'jp'),
+  'font/NotoSerifCJKkr-Regular.otf': noto('Serif', 'kr'),
 
   // Latin, digits and punctuation for the interface, plus the tone marks the
   // readings carry. Cut from faces designed for Latin rather than from the

@@ -8,7 +8,7 @@ import {
 } from '~/composables/chars.ts'
 
 const chars = injectChars()
-const { t } = useT()
+const { t, locale } = useT()
 const { regionLabel, labelClass, visibleColumns, visibleRegions } = usePrefs()
 
 // Every label has to be computed, not built once: t() reads the active locale
@@ -88,9 +88,11 @@ const varieties = computed(() => {
         label:
           variety === 1
             ? t('filter.identical', {
-                n: hanNumber(visibleRegions.value.length),
+                n: hanNumber(visibleRegions.value.length, locale.value),
               })
-            : t('filter.variety', { n: hanNumber(variety) }),
+            : t('filter.variety', {
+                n: hanNumber(variety, locale.value),
+              }),
         count: allPatterns.reduce(
           (total, pattern) => total + (chars.counts.value[pattern] ?? 0),
           0,

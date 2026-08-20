@@ -37,7 +37,13 @@ import { REGIONS, STYLES, type CharsData, type Style } from '../shared/types.ts'
 import { DATA_DIR, FONT_DIR, raw, ROOT, SOURCES } from './sources.ts'
 
 /** Region code as Noto names it. */
-const NOTO: Record<string, string> = { cn: 'sc', hk: 'hk', tw: 'tc', jp: 'jp' }
+const NOTO: Record<string, string> = {
+  cn: 'sc',
+  hk: 'hk',
+  tw: 'tc',
+  jp: 'jp',
+  kr: 'kr',
+}
 
 const otf = (style: Style, region: string) =>
   `font/Noto${style === 'sans' ? 'Sans' : 'Serif'}CJK${NOTO[region]}-Regular.otf`
@@ -188,6 +194,7 @@ const UI_FONT: Record<string, (style: Style) => string> = {
   'zh-TW': (style) => otf(style, 'tw'),
   'zh-HK': (style) => otf(style, 'hk'),
   'ja-JP': (style) => otf(style, 'jp'),
+  'ko-KR': (style) => otf(style, 'kr'),
 }
 
 /**
@@ -294,7 +301,7 @@ async function faceMarks(): Promise<string> {
       const char = messages[locale].style[style]
       // Labels shared by several locales only need one outline. Locale order
       // keeps the existing Chinese marks on the default face, while unique
-      // Japanese labels come from the Japanese face.
+      // Japanese and Korean labels come from their respective faces.
       if (marks[style]?.[char]) continue
       const source = UI_FONT[locale]
       if (!source) continue

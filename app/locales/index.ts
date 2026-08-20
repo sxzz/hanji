@@ -6,7 +6,7 @@ import { zhCN } from './zh-cn.ts'
  * not indexed, and cannot be linked to -- hence no hreflang either. Switching
  * to locale-prefixed routes means changing this file and useT, nothing else.
  */
-export const LOCALES = ['zh-CN', 'zh-TW', 'zh-HK', 'ja-JP'] as const
+export const LOCALES = ['zh-CN', 'zh-TW', 'zh-HK', 'ja-JP', 'ko-KR'] as const
 export type Locale = (typeof LOCALES)[number]
 
 /** What the prerendered HTML carries, and what anything unmatched falls back to. */
@@ -53,6 +53,11 @@ export const LOCALE_META: Record<Locale, LocaleMeta> = {
     sans: "'Noto Sans JP'",
     uiFamily: 'UI ja-JP',
   },
+  'ko-KR': {
+    htmlLang: 'ko-KR',
+    sans: "'Noto Sans KR'",
+    uiFamily: 'UI ko-KR',
+  },
 }
 
 /**
@@ -73,20 +78,23 @@ export const LOADERS: Record<Locale, () => Promise<Messages>> = {
   'zh-TW': async () => (await import('./zh-tw.ts')).zhTW,
   'zh-HK': async () => (await import('./zh-hk.ts')).zhHK,
   'ja-JP': async () => (await import('./ja-jp.ts')).jaJP,
+  'ko-KR': async () => (await import('./ko-kr.ts')).koKR,
 }
 
 /**
  * The best locale for a browser's language list, in the browser's own order of
- * preference. Japanese tags take the Japanese copy. A Chinese tag naming Hong
- * Kong or Macao takes the Hong Kong copy, one naming Taiwan or the traditional
- * script takes the Taiwanese copy, and any other Chinese tag takes the
- * simplified. Anything else leaves it undecided, so the caller can fall back.
+ * preference. Japanese and Korean tags take their respective copy. A Chinese
+ * tag naming Hong Kong or Macao takes the Hong Kong copy, one naming Taiwan or
+ * the traditional script takes the Taiwanese copy, and any other Chinese tag
+ * takes the simplified. Anything else leaves it undecided, so the caller can
+ * fall back.
  */
 export function matchLocale(tags: readonly string[]): Locale | undefined {
   for (const tag of tags) {
     const lower = tag.toLowerCase()
     const language = lower.split('-', 1)[0]
     if (language === 'ja') return 'ja-JP'
+    if (language === 'ko') return 'ko-KR'
     if (language !== 'zh') continue
     const parts = new Set(lower.split('-'))
     if (parts.has('hk') || parts.has('mo')) return 'zh-HK'
