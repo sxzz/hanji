@@ -2,7 +2,11 @@
 import { RESTORE_SCRIPT, useStyle } from '~/composables/style.ts'
 
 const { t, meta } = useT()
+const route = useRoute()
 const style = useStyle()
+
+const isHome = computed(() => route.name === 'index')
+const showFooter = computed(() => route.name !== 'about')
 
 // Picks the reader's language once the client is running; the prerendered
 // HTML is always the default locale
@@ -34,7 +38,29 @@ useHead({
 </script>
 
 <template>
-  <NuxtLayout>
-    <NuxtPage />
-  </NuxtLayout>
+  <div class="min-h-screen flex flex-col">
+    <AppHeader />
+
+    <div class="mx-auto max-w-6xl w-full flex flex-1 flex-col px-4 sm:px-6">
+      <main class="flex-1">
+        <NuxtPage />
+      </main>
+
+      <footer
+        v-if="showFooter"
+        class="mt-16 border-t border-rule"
+        :class="isHome ? 'py-8' : 'py-6'"
+      >
+        <template v-if="isHome">
+          <h2 class="mb-3 eyebrow">{{ t('footer.sources') }}</h2>
+          <DataSources />
+        </template>
+        <p class="text-xs text-mute" :class="{ 'mt-4': isHome }">
+          <NuxtLink to="/about" class="focus-ring rule-link">{{
+            t('footer.detail')
+          }}</NuxtLink>
+        </p>
+      </footer>
+    </div>
+  </div>
 </template>
