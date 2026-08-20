@@ -103,6 +103,7 @@ export interface CharRow {
     cantonese?: string[]
     on?: string[]
     kun?: string[]
+    korean?: string[]
   }
 }
 

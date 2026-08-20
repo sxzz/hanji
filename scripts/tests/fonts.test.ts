@@ -92,3 +92,33 @@ describe('subset coverage', () => {
       expect(() => outline('jp', row.old!.char)).not.toThrow()
   })
 })
+
+describe('interface subset coverage', () => {
+  it('carries every Korean reading in every locale font', () => {
+    const hangul = [
+      ...new Set(
+        data.rows.flatMap((row) => row.readings?.korean ?? []).join(''),
+      ),
+    ]
+    const uiFonts = readdirSync(FONT_DIR)
+      .filter((name) =>
+        /^ui-sans-(?:zh-CN|zh-TW|zh-HK|ja-JP|ko-KR)\.woff2$/.test(name),
+      )
+      .map(
+        (name) =>
+          [
+            name,
+            fontkit.create(readFileSync(join(FONT_DIR, name))) as fontkit.Font,
+          ] as const,
+      )
+
+    expect(hangul.length).toBeGreaterThan(300)
+    expect(uiFonts).toHaveLength(5)
+    for (const [name, font] of uiFonts)
+      for (const char of hangul)
+        expect(
+          font.glyphForCodePoint(char.codePointAt(0)!).id,
+          `${name} does not carry ${char}`,
+        ).not.toBe(0)
+  })
+})

@@ -97,6 +97,7 @@ export const koKR: typeof zhCN = {
     cantonese: '광둥어',
     on: '일본어 음독',
     kun: '일본어 훈독',
+    korean: '한국 한자음',
     listed: '수록',
     variety: '{n}가지 자형',
     identical: '자형이 같음',

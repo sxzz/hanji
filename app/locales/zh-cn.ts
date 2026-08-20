@@ -91,6 +91,7 @@ export const zhCN = {
     cantonese: '粤语',
     on: '日语音读',
     kun: '日语训读',
+    korean: '韩语',
     listed: '收录',
     variety: '有{n}种写法',
     identical: '写法一致',

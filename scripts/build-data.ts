@@ -91,6 +91,7 @@ const [st, ts, twVariants, hkVariants, jpShinjitai] = await Promise.all(
 const CMAP_REGION = ['CN', 'HK', 'TW', 'JP', 'KR'] as const
 const REGION_IDS = ['cn', 'hk', 'tw', 'jp', 'kr'] as const
 const JP_INDEX = REGION_IDS.indexOf('jp')
+const KR_INDEX = REGION_IDS.indexOf('kr')
 
 const loadCMaps = (style: 'sans' | 'serif') =>
   Promise.all(
@@ -456,6 +457,7 @@ function buildRow(
     ...unihan.get(codePoints[0])?.readings,
     ...pick(unihan.get(codePoints[1])?.readings, 'cantonese'),
     ...pick(unihan.get(codePoints[JP_INDEX])?.readings, 'on', 'kun'),
+    ...pick(unihan.get(codePoints[KR_INDEX])?.readings, 'korean'),
   }
 
   const row: CharRow = {

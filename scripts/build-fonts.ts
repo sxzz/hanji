@@ -169,13 +169,19 @@ const KANA = String.fromCodePoint(
   ...Array.from({ length: 0x30ff - 0x3040 + 1 }, (_, i) => 0x3040 + i),
 )
 
+/** Hangul shown on character pages is data rather than interface copy. */
+const KOREAN_READINGS = data.rows
+  .flatMap((row) => row.readings?.korean ?? [])
+  .join('')
+
 /**
  * Everything the interface can render in body type.
  *
  * Besides the message file this has to cover the attribution table (worded in
- * sources.ts), the dictionary names (in links.ts) and kana. Anything missed
- * falls through to Google's Noto Sans SC, which is chunked by codepoint range
- * and will happily fetch a dozen chunks for a handful of characters.
+ * sources.ts), the dictionary names (in links.ts), kana and Korean readings.
+ * Anything missed falls through to Google's Noto Sans SC, which is chunked by
+ * codepoint range and will happily fetch a dozen chunks for a handful of
+ * characters.
  */
 function uiText(): string {
   const sample = data.rows[0]!
@@ -186,6 +192,7 @@ function uiText(): string {
       .map((link) => link.name)
       .join(''),
     KANA,
+    KOREAN_READINGS,
   ].join('')
 }
 

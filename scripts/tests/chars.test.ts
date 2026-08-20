@@ -112,6 +112,36 @@ describe('character grouping', () => {
   })
 })
 
+describe('readings', () => {
+  it.each([
+    ['一', ['일']],
+    ['國', ['국']],
+    ['女', ['녀', '여']],
+    ['樂', ['낙', '락', '악', '요']],
+    ['行', ['항', '행']],
+    ['金', ['금', '김']],
+  ])('gives %s its modern Korean reading(s)', (key, readings) => {
+    expect(row(key).readings?.korean).toEqual(readings)
+  })
+
+  it('covers every character in the Korean education list', () => {
+    const korean = data.rows.filter((entry) => entry.tier[4] > 0)
+    expect(korean).toHaveLength(1800)
+    expect(
+      korean.every((entry) => (entry.readings?.korean?.length ?? 0) > 0),
+    ).toBe(true)
+  })
+
+  it('stores normalized Hangul without Unihan source tags', () => {
+    const readings = data.rows.flatMap((entry) => entry.readings?.korean ?? [])
+    expect(readings.length).toBeGreaterThan(6000)
+    for (const reading of readings) {
+      expect(reading).toBe(reading.normalize('NFC'))
+      expect(reading).toMatch(/^\p{Script=Hangul}+$/u)
+    }
+  })
+})
+
 describe('scale', () => {
   it('matches the measured whole-CMap difference ratio', () => {
     expect(data.stats.cmapDiffer / data.stats.cmapTotal).toBeCloseTo(0.388, 2)

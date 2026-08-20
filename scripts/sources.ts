@@ -171,12 +171,14 @@ export const SOURCES: Source[] = [
       'zh-TW': '韓式異體對應',
       'zh-HK': '韓式異體對應',
       'ja-JP': '韓国の異体字対応',
+      'ko-KR': '한국식 이체자 대응',
     },
     name: 'Unicode IRG N2200（韩国教育用汉字提案）',
     localizedName: {
       'zh-TW': 'Unicode IRG N2200（韓國教育用漢字提案）',
       'zh-HK': 'Unicode IRG N2200（韓國教育用漢字提案）',
       'ja-JP': 'Unicode IRG N2200（韓国の教育用漢字提案）',
+      'ko-KR': 'Unicode IRG N2200(한국 교육용 한자 제안)',
     },
     homepage: 'https://www.unicode.org/L2/L2017/17173-irgn2200-unihan-db.pdf',
     license: 'Unicode License v3',
@@ -190,6 +192,8 @@ export const SOURCES: Source[] = [
         '用於把韓國字表中跨碼點的舊字形歸入同一字組，包括以U+2E569編碼的「衰」舊形。',
       'ja-JP':
         '韓国の字表にあるコードポイントの異なる旧字形を同じ文字グループへ統合するために使用します。「衰」の旧字形はU+2E569で符号化されています。',
+      'ko-KR':
+        '한국 한자표에서 코드 포인트가 다른 구자형을 같은 글자 그룹으로 통합하는 데 사용합니다. ‘衰’의 구자형은 U+2E569로 인코딩되어 있습니다.',
     },
   },
   {
@@ -412,6 +416,8 @@ export interface Readings {
   on?: string[]
   /** Japanese kun'yomi, in hiragana. */
   kun?: string[]
+  /** Modern Korean readings, in Hangul. */
+  korean?: string[]
 }
 
 export interface UnihanEntry {
@@ -438,6 +444,9 @@ const UNIHAN_FIELDS = new Set([
   'kMandarin',
   'kCantonese',
   'kJapanese',
+  // kHangul is the recommended modern Korean property. kKorean contains Yale
+  // romanization and UAX #38 discourages its use.
+  'kHangul',
 ])
 
 /** Dictionary readings come as `page.entry:reading`, sometimes several. */
@@ -449,6 +458,19 @@ function pronunciations(value: string): string[] {
       : token
     for (const one of reading.split(','))
       if (one && !out.includes(one)) out.push(one)
+  }
+  return out
+}
+
+/** kHangul tokens are `reading:sources`; sources describe provenance only. */
+function hangulPronunciations(value: string): string[] {
+  const out: string[] = []
+  for (const token of value.trim().split(' ')) {
+    const colon = token.indexOf(':')
+    const reading = (colon === -1 ? token : token.slice(0, colon)).normalize(
+      'NFC',
+    )
+    if (reading && !out.includes(reading)) out.push(reading)
   }
   return out
 }
@@ -542,6 +564,10 @@ export async function loadUnihan(): Promise<Map<number, UnihanEntry>> {
           const kun = tokens.filter((t) => !KATAKANA.test(t))
           if (on.length) readings.on = on
           if (kun.length) readings.kun = kun
+          break
+        }
+        case 'kHangul': {
+          readings.korean = hangulPronunciations(value)
           break
         }
         default: {

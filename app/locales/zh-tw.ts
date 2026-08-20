@@ -93,6 +93,7 @@ export const zhTW: typeof zhCN = {
     cantonese: '粵語',
     on: '日語音讀',
     kun: '日語訓讀',
+    korean: '韓語',
     listed: '收錄',
     variety: '有{n}種寫法',
     identical: '寫法一致',

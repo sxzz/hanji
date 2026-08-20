@@ -168,11 +168,7 @@ export const morphName = (key: string) =>
 export const HERO_ROW = rowsByKey.get('返')!
 
 export function useChars() {
-  const {
-    columns: visibleColumns,
-    regions: visibleRegions,
-    regionIndices,
-  } = useColumnVisibility()
+  const { columns: visibleColumns, regionIndices } = useColumnVisibility()
 
   const asDimension = asOneOf(DIMENSIONS)
   const dimension = useQueryState(
@@ -244,8 +240,8 @@ export function useChars() {
       for (const index of charIndex.get(char) ?? []) hits.add(index)
     if (hits.size) return hits
 
-    // Fall back to a reading prefix: pinyin, jyutping or kana all work, and
-    // tone marks are optional so `nian` finds nián
+    // Fall back to a reading prefix: pinyin, jyutping, kana or Hangul all work,
+    // and tone marks are optional so `nian` finds nián
     const lower = plainReading(text)
     for (const [index, row] of data.rows.entries()) {
       const readings = row.readings
@@ -255,6 +251,7 @@ export function useChars() {
         ...(readings.cantonese ?? []),
         ...(readings.on ?? []),
         ...(readings.kun ?? []),
+        ...(readings.korean ?? []),
       ].some((reading) => plainReading(reading).startsWith(lower))
       if (match) hits.add(index)
     }

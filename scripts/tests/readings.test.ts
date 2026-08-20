@@ -18,4 +18,8 @@ describe('reading normalization', () => {
     expect(plainReading('lù')).toBe('lu')
     expect(plainReading('nián')).toBe('nian')
   })
+
+  it('matches precomposed and decomposed Hangul', () => {
+    expect(plainReading('국')).toBe(plainReading('국'))
+  })
 })

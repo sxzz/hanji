@@ -225,7 +225,7 @@ const tierRuns = computed(() => runs(tierLabel))
 const readingRows = computed(() => {
   const readings = row.value?.readings
   if (!readings) return []
-  return (['mandarin', 'cantonese', 'on', 'kun'] as const)
+  return (['mandarin', 'cantonese', 'on', 'kun', 'korean'] as const)
     .map((kind) => ({ kind, values: readings[kind] ?? [] }))
     .filter((entry) => entry.values.length > 0)
 })
@@ -494,9 +494,11 @@ useSeoMeta({
                   :key="index"
                   class="whitespace-nowrap border-l border-rule/40 px-3 py-2.5 text-center text-soft"
                   :lang="
-                    entry.kind === 'on' || entry.kind === 'kun'
-                      ? 'ja'
-                      : undefined
+                    entry.kind === 'korean'
+                      ? 'ko'
+                      : entry.kind === 'on' || entry.kind === 'kun'
+                        ? 'ja'
+                        : undefined
                   "
                 >
                   {{ reading }}

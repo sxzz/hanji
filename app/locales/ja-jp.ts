@@ -97,6 +97,7 @@ export const jaJP: typeof zhCN = {
     cantonese: '広東語',
     on: '音読み',
     kun: '訓読み',
+    korean: '韓国語',
     listed: '収録区分',
     variety: '{n}種類の字形',
     identical: '字形は共通',
