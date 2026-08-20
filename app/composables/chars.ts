@@ -1,5 +1,14 @@
 import charsRaw from '~~/public/data/chars.json?raw'
 import { createListingMatcher, listingOptionsFor } from '~~/shared/listings.ts'
+import {
+  applicablePatternChoices,
+  DEFAULT_PATTERN_CHOICES,
+  parsePatternChoices,
+  patternChoicesMatch,
+  serializePatternChoices,
+  toggleExactPatternChoice,
+  toggleVarietyChoice,
+} from '~~/shared/patterns.ts'
 import { plainReading } from '~~/shared/readings.ts'
 import { projectSignature, varietyOf } from '~~/shared/row.ts'
 import {
@@ -175,9 +184,9 @@ export function useChars() {
   )
   const patterns = useQueryState(
     'p',
-    [] as string[],
-    asList.parse,
-    asList.serialize,
+    [...DEFAULT_PATTERN_CHOICES] as string[],
+    parsePatternChoices,
+    serializePatternChoices,
   )
   const sortKey = useQueryState(
     's',
@@ -329,12 +338,14 @@ export function useChars() {
   const rows = computed(() => {
     // A selection made against a different set of columns describes partitions
     // that no longer exist; it waits, unapplied, until those columns return.
-    const chosen = new Set(
-      patterns.value.filter((p) => p.length === visibleRegions.value.length),
-    )
-    const filtered = chosen.size
+    const available = patternGroups.value.flatMap((group) => group.patterns)
+    const chosen = applicablePatternChoices(patterns.value, available)
+    const filtered = chosen.length
       ? base.value.filter((row) =>
-          chosen.has(signatureOf(row, dimension.value, regionIndices.value)),
+          patternChoicesMatch(
+            signatureOf(row, dimension.value, regionIndices.value),
+            chosen,
+          ),
         )
       : base.value
 
@@ -408,7 +419,8 @@ export function useChars() {
 
   const dirty = computed(
     () =>
-      patterns.value.length > 0 ||
+      serializePatternChoices(patterns.value) !==
+        serializePatternChoices(DEFAULT_PATTERN_CHOICES) ||
       query.value !== '' ||
       common.value.length > 0 ||
       tiers.value.length > 0 ||
@@ -417,7 +429,7 @@ export function useChars() {
   )
 
   function reset() {
-    patterns.value = []
+    patterns.value = [...DEFAULT_PATTERN_CHOICES]
     query.value = ''
     common.value = []
     tiers.value = []
@@ -425,10 +437,11 @@ export function useChars() {
   }
 
   function togglePattern(pattern: string) {
-    const chosen = new Set(patterns.value)
-    if (chosen.has(pattern)) chosen.delete(pattern)
-    else chosen.add(pattern)
-    patterns.value = [...chosen]
+    patterns.value = toggleExactPatternChoice(patterns.value, pattern)
+  }
+
+  function toggleVariety(variety: number, groupPatterns: readonly string[]) {
+    patterns.value = toggleVarietyChoice(patterns.value, variety, groupPatterns)
   }
 
   return {
@@ -453,6 +466,7 @@ export function useChars() {
     dirty,
     reset,
     togglePattern,
+    toggleVariety,
     strokeBounds: STROKE_BOUNDS,
   }
 }

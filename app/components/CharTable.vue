@@ -35,12 +35,19 @@ function turnTo(page: number) {
       }}</span>
     </div>
 
-    <p
+    <div
       v-if="!chars.rows.value.length"
-      class="px-5 py-16 text-center text-sm text-mute"
+      class="flex flex-col items-center px-5 py-16 text-center text-sm text-mute"
     >
-      {{ t('table.empty') }}
-    </p>
+      <p>{{ t('table.empty') }}</p>
+      <button
+        type="button"
+        class="mt-4 border border-rule rounded-md bg-paper px-3 py-1.5 text-xs text-soft transition-colors duration-150 hover:border-ink/25 hover:text-ink focus-ring"
+        @click="chars.reset()"
+      >
+        {{ t('filter.clear') }}
+      </button>
+    </div>
 
     <template v-else>
       <CharRowItem

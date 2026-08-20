@@ -66,6 +66,8 @@ export const zhCN = {
     strokes: '笔画',
     cp: '码点',
     freq: '字频',
+    asc: '正序',
+    desc: '倒序',
   },
   table: {
     strokes: '笔画',
