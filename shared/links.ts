@@ -92,6 +92,11 @@ export function dictLinks(char: string): DictLink[] {
       url: `https://jisho.org/search/${enc(char)}%20%23kanji`,
     },
     {
+      id: 'zitools',
+      name: '字統网',
+      url: `https://zi.tools/zi/${enc(char)}`,
+    },
+    {
       id: 'wiktionary',
       name: 'Wiktionary',
       icon: 'i-ooui-logo-wiktionary',

@@ -214,10 +214,10 @@ describe('per-region stroke counts', () => {
 
 describe('outside references', () => {
   it('lists every character in the group, each with the full set', () => {
-    // 國 is written 国 and 國; both get all seven references
+    // 國 is written 国 and 國; both get all eight references
     const groups = dictGroups(row('國'))
     expect(groups.map((g) => g.form.char)).toEqual(['国', '國'])
-    expect(groups.every((g) => g.links.length === 7)).toBe(true)
+    expect(groups.every((g) => g.links.length === 8)).toBe(true)
   })
 
   it('counts a name the group merged with as a character of its own', () => {
@@ -234,6 +234,9 @@ describe('outside references', () => {
     expect(links.get('zdic')).toContain(encodeURIComponent('國'))
     expect(links.get('moedict')).toContain(encodeURIComponent('國'))
     expect(links.get('jisho')).toContain(encodeURIComponent('國'))
+    expect(links.get('zitools')).toBe(
+      `https://zi.tools/zi/${encodeURIComponent('國')}`,
+    )
     expect(links.get('unihan')).toContain('codepoint=570B')
   })
 
