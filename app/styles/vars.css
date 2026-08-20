@@ -58,6 +58,12 @@ html[lang='ja-JP'] {
     'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
 }
 
+html[lang='ko-KR'] {
+  --font-ui:
+    'UI Latin Sans', 'UI ko-KR Sans', 'Noto Sans', 'Noto Sans KR',
+    'Noto Sans SC', ui-sans-serif, system-ui, sans-serif;
+}
+
 /* The typeface switch reaches the whole interface, not only the table. The
    language pairs stay more specific so they keep winning. */
 html[data-style='serif'] {
@@ -81,6 +87,12 @@ html[data-style='serif'][lang='zh-HK'] {
 html[data-style='serif'][lang='ja-JP'] {
   --font-ui:
     'UI Latin Serif', 'UI ja-JP Serif', 'Noto Serif', 'Noto Serif JP',
+    'Noto Serif SC', ui-serif, Georgia, serif;
+}
+
+html[data-style='serif'][lang='ko-KR'] {
+  --font-ui:
+    'UI Latin Serif', 'UI ko-KR Serif', 'Noto Serif', 'Noto Serif KR',
     'Noto Serif SC', ui-serif, Georgia, serif;
 }
 

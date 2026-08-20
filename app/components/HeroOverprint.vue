@@ -4,7 +4,7 @@ import { REGIONS, type CharRow } from '~~/shared/types.ts'
 
 const props = defineProps<{ row: CharRow }>()
 
-const { t, list } = useT()
+const { t, list, locale } = useT()
 const { regionLabel, labelClass, outlineOn, visibleRegions, regionIndices } =
   usePrefs()
 const split = ref(false)
@@ -88,7 +88,7 @@ function toggle() {
 
     <div class="max-w-lg">
       <h2 class="text-2xl leading-snug sm:text-3xl">
-        {{ t('hero.title', { n: hanNumber(groupCount) }) }}
+        {{ t('hero.title', { n: hanNumber(groupCount, locale) }) }}
       </h2>
       <p class="mt-3 text-sm text-soft leading-relaxed sm:text-base">
         {{ t('hero.body', { regions: places }) }}

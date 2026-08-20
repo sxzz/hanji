@@ -1,4 +1,5 @@
 import { jaJP } from './ja-jp.ts'
+import { koKR } from './ko-kr.ts'
 import { zhCN } from './zh-cn.ts'
 import { zhHK } from './zh-hk.ts'
 import { zhTW } from './zh-tw.ts'
@@ -16,6 +17,7 @@ export const messages: Record<Locale, Messages> = {
   'zh-TW': zhTW,
   'zh-HK': zhHK,
   'ja-JP': jaJP,
+  'ko-KR': koKR,
 }
 
 export { LOCALES, type Locale }

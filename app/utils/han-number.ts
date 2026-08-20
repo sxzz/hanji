@@ -1,14 +1,16 @@
 /**
  * A small count as a Han numeral.
  *
- * Every interface language here is written in Han script and spells these the
- * same way, so the numeral is a formatting detail rather than a message of its
- * own: 三地同形 reads in Chinese exactly as 三つの字形 reads in Japanese.
+ * Chinese and Japanese use Han numerals here. Korean needs the attributive
+ * native forms that precede its counters: 한 가지, 두 가지, and so on.
  */
 const hanNumberFormat = new Intl.NumberFormat('zh', {
   numberingSystem: 'hanidec',
   useGrouping: false,
 })
+const KOREAN_COUNTERS = ['영', '한', '두', '세', '네', '다섯']
 
-export const hanNumber = (value: number): string =>
-  hanNumberFormat.format(value)
+export const hanNumber = (value: number, locale = 'zh-CN'): string =>
+  locale.startsWith('ko')
+    ? (KOREAN_COUNTERS[value] ?? String(value))
+    : hanNumberFormat.format(value)
