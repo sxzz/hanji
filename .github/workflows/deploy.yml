@@ -30,6 +30,9 @@ jobs:
           key: sources-v1-${{ runner.os }}-${{ hashFiles('data/sources.lock.json') }}
           restore-keys: sources-v1-${{ runner.os }}-
 
+      - name: Build dataset
+        run: pnpm build:dataset
+
       - name: Restore generated fonts
         id: fonts-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -37,12 +40,11 @@ jobs:
           path: |
             public/fonts/*.woff2
             public/fonts/fonts-*.css
-          key: fonts-v1-${{ runner.os }}-${{ hashFiles('data/sources.lock.json', 'package.json', 'pnpm-lock.yaml', 'scripts/build-data.ts', 'scripts/build-fonts.ts', 'scripts/cmap.ts', 'scripts/sources.ts', 'shared/links.ts', 'shared/row.ts', 'shared/types.ts', 'app/locales/*.ts', 'public/data/chars.json') }}
-          restore-keys: fonts-v1-${{ runner.os }}-
+          key: fonts-v1-${{ runner.os }}-${{ hashFiles('data/sources.lock.json', 'package.json', 'pnpm-lock.yaml', 'scripts/build-fonts.ts', 'scripts/sources.ts', 'shared/links.ts', 'shared/row.ts', 'shared/types.ts', 'app/locales/*.ts', 'public/data/chars.json') }}
 
-      - name: Build data
+      - name: Build fonts
         if: steps.fonts-cache.outputs.cache-hit != 'true'
-        run: pnpm build:data
+        run: pnpm build:fonts
 
       - name: Generate site
         run: pnpm generate

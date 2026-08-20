@@ -19,7 +19,9 @@
     "lint": "eslint --cache",
     "format": "prettier --write .",
     "test": "vitest run",
-    "build:data": "node scripts/build-data.ts && node scripts/build-fonts.ts",
+    "build:dataset": "node scripts/build-data.ts",
+    "build:fonts": "node scripts/build-fonts.ts",
+    "build:data": "pnpm build:dataset && pnpm build:fonts",
     "update:sources": "node scripts/update-sources.ts",
     "postinstall": "nuxt prepare"
   },
