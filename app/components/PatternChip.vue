@@ -3,6 +3,7 @@ defineProps<{
   signature: string
   count: number
   active: boolean
+  label: string
 }>()
 defineEmits<{ toggle: [] }>()
 </script>
@@ -20,7 +21,9 @@ defineEmits<{ toggle: [] }>()
         ? 'border-$c-ink bg-$c-ink text-$c-paper'
         : 'border-rule bg-paper text-soft hover:border-ink/30'
     "
-    :disabled="count === 0"
+    :disabled="count === 0 && !active"
+    :title="label"
+    :aria-label="label"
     :aria-pressed="active"
     @click="$emit('toggle')"
   >

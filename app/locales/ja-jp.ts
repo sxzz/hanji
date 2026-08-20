@@ -72,6 +72,8 @@ export const jaJP: typeof zhCN = {
     strokes: '画数',
     cp: 'コードポイント',
     freq: '文字頻度',
+    asc: '昇順',
+    desc: '降順',
   },
   table: {
     strokes: '画数',

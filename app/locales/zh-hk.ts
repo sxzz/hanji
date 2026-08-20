@@ -68,6 +68,8 @@ export const zhHK: typeof zhCN = {
     strokes: '筆畫',
     cp: '碼點',
     freq: '字頻',
+    asc: '正序',
+    desc: '倒序',
   },
   table: {
     strokes: '筆畫',

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { listingOptionsFor } from '~~/shared/listings.ts'
+import { varietyChoice } from '~~/shared/patterns.ts'
 import {
   injectChars,
   type Dimension,
@@ -19,25 +20,92 @@ const dimensions = computed<
   { value: 'cp', label: t('filter.cp'), title: t('filter.cpHint') },
 ])
 
-const sorts = computed<{ value: SortKey; label: string }[]>(() =>
-  (['common', 'strokes', 'cp', 'freq'] as const).map((value) => ({
-    value,
-    label: t(`sort.${value}`),
-  })),
+const sorts = computed(() =>
+  (['common', 'strokes', 'cp', 'freq'] as const).map((value) => {
+    const label = t(`sort.${value}`)
+    const active = chars.sortKey.value === value
+    const direction = t(`sort.${chars.order.value}`)
+    return {
+      value,
+      label,
+      suffix: active ? (chars.order.value === 'asc' ? '↑' : '↓') : undefined,
+      title: active ? `${label} · ${direction}` : undefined,
+      ariaLabel: active ? `${label}，${direction}` : label,
+    }
+  }),
 )
 
-/** Only show patterns that actually occur in the chosen dimension. */
-const varieties = computed(() =>
-  chars.patternGroups.value
-    .map(({ variety, patterns }) => ({
-      variety,
-      label:
-        variety === 1
-          ? t('filter.identical', { n: hanNumber(visibleRegions.value.length) })
-          : t('filter.variety', { n: variety }),
-      patterns: patterns.filter((p) => p in chars.counts.value),
-    }))
-    .filter((group) => group.patterns.length > 0),
+const sortModel = computed<SortKey>({
+  get: () => chars.sortKey.value,
+  set: (value) => {
+    chars.sortKey.value = value
+    chars.order.value = 'asc'
+  },
+})
+
+function reverseSort() {
+  chars.order.value = chars.order.value === 'asc' ? 'desc' : 'asc'
+}
+
+/** Read a partition as “Mainland+Taiwan | Hong Kong+Japan”. */
+function patternLabel(signature: string): string {
+  const groups = new Map<string, string[]>()
+  for (const [index, group] of [...signature].entries()) {
+    const region = visibleRegions.value[index]
+    if (!region) continue
+    groups.set(group, [
+      ...(groups.get(group) ?? []),
+      t(`region.${region}.full`),
+    ])
+  }
+  const partition = [...groups.values()]
+    .map((regions) => regions.join('+'))
+    .join(' | ')
+  return `${partition} · ${t('filter.matched', {
+    n: (chars.counts.value[signature] ?? 0).toLocaleString(),
+  })}`
+}
+
+/**
+ * Zero-count choices normally stay out of the way, except when selected: an
+ * active choice must remain on screen so the reader can always turn it off.
+ */
+const varieties = computed(() => {
+  const selected = new Set(chars.patterns.value)
+  return chars.patternGroups.value
+    .map(({ variety, patterns: allPatterns }) => {
+      const broad = varietyChoice(variety)
+      const active = selected.has(broad)
+      const partial =
+        !active && allPatterns.some((pattern) => selected.has(pattern))
+      const patterns = allPatterns.filter(
+        (pattern) =>
+          (allPatterns.length > 1 && pattern in chars.counts.value) ||
+          selected.has(pattern),
+      )
+      return {
+        variety,
+        label:
+          variety === 1
+            ? t('filter.identical', {
+                n: hanNumber(visibleRegions.value.length),
+              })
+            : t('filter.variety', { n: hanNumber(variety) }),
+        count: allPatterns.reduce(
+          (total, pattern) => total + (chars.counts.value[pattern] ?? 0),
+          0,
+        ),
+        active,
+        partial,
+        patterns,
+        allPatterns,
+      }
+    })
+    .filter((group) => group.count > 0 || group.active || group.partial)
+})
+
+const exactPatterns = computed(() =>
+  varieties.value.flatMap((group) => group.patterns),
 )
 
 const [lo, hi] = chars.strokeBounds
@@ -94,24 +162,6 @@ function toggleRegion(region: string) {
   <div class="flex flex-col gap-3 text-sm">
     <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
       <label class="flex items-center gap-3">
-        <span class="w-20 shrink-0 eyebrow">{{ t('filter.dimension') }}</span>
-        <SegChoice v-model="chars.dimension.value" :options="dimensions" />
-      </label>
-
-      <label class="flex items-center gap-2">
-        <span class="eyebrow">{{ t('sort.label') }}</span>
-        <SegChoice v-model="chars.sortKey.value" :options="sorts" />
-      </label>
-
-      <span class="tabular ml-auto text-xs text-mute font-mono">
-        {{
-          t('filter.matched', { n: chars.rows.value.length.toLocaleString() })
-        }}
-      </span>
-    </div>
-
-    <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
-      <label class="flex items-center gap-3">
         <span class="w-20 shrink-0 eyebrow">{{ t('filter.search') }}</span>
         <input
           v-model="chars.query.value"
@@ -140,8 +190,16 @@ function toggleRegion(region: string) {
         />
       </label>
 
+      <span class="tabular ml-auto text-xs text-mute font-mono">
+        {{
+          t('filter.matched', { n: chars.rows.value.length.toLocaleString() })
+        }}
+      </span>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-2">
       <div class="flex items-center gap-2">
-        <span class="eyebrow">{{ t('filter.common') }}</span>
+        <span class="w-20 shrink-0 eyebrow">{{ t('filter.common') }}</span>
         <div class="flex gap-1">
           <button
             v-for="region in visibleRegions"
@@ -161,6 +219,11 @@ function toggleRegion(region: string) {
           </button>
         </div>
       </div>
+
+      <label class="flex items-center gap-2">
+        <span class="eyebrow">{{ t('sort.label') }}</span>
+        <SegChoice v-model="sortModel" :options="sorts" @repeat="reverseSort" />
+      </label>
 
       <button
         v-if="chars.dirty.value"
@@ -195,29 +258,46 @@ function toggleRegion(region: string) {
       </button>
     </div>
 
+    <div class="flex flex-wrap items-center gap-3">
+      <span class="w-20 shrink-0 eyebrow">{{ t('filter.dimension') }}</span>
+      <SegChoice v-model="chars.dimension.value" :options="dimensions" />
+    </div>
+
     <!--
       Every partition the columns on show can describe -- fifteen of them for
-      four columns, five for three -- grouped by how many distinct forms each
-      one names. The chip is the same run graphic used under the cells, so no
-      wording is needed: "CN+HK | TW | JP" reads slower than seeing three runs.
+      four columns, five for three. Broad “N forms” choices share the first row;
+      exact regional partitions share the second so either level scans as one
+      set instead of several separate groups.
     -->
-    <div class="flex flex-col gap-2">
-      <div
-        v-for="group in varieties"
-        :key="group.variety"
-        class="grid grid-cols-[5rem_minmax(0,1fr)] items-start gap-x-3"
-      >
-        <span class="h-7 flex items-center eyebrow">{{ group.label }}</span>
-        <div class="flex flex-wrap items-center gap-1.5">
-          <PatternChip
-            v-for="signature in group.patterns"
-            :key="signature"
-            :signature="signature"
-            :count="chars.counts.value[signature] ?? 0"
-            :active="chars.patterns.value.includes(signature)"
-            @toggle="chars.togglePattern(signature)"
-          />
-        </div>
+    <div
+      class="grid grid-cols-[5rem_minmax(0,1fr)] items-start gap-x-3 gap-y-2"
+    >
+      <span class="h-7 flex items-center eyebrow">{{
+        t('filter.pattern')
+      }}</span>
+      <div class="flex flex-wrap items-center gap-1.5">
+        <VarietyChip
+          v-for="group in varieties"
+          :key="group.variety"
+          :label="group.label"
+          :count="group.count"
+          :active="group.active"
+          :partial="group.partial"
+          @toggle="chars.toggleVariety(group.variety, group.allPatterns)"
+        />
+      </div>
+
+      <span aria-hidden="true" />
+      <div class="flex flex-wrap items-center gap-1.5">
+        <PatternChip
+          v-for="signature in exactPatterns"
+          :key="signature"
+          :signature="signature"
+          :count="chars.counts.value[signature] ?? 0"
+          :active="chars.patterns.value.includes(signature)"
+          :label="patternLabel(signature)"
+          @toggle="chars.togglePattern(signature)"
+        />
       </div>
     </div>
   </div>
