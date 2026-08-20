@@ -18,7 +18,7 @@ import { listPlace } from '~/utils/list-place.ts'
 
 // char-alias sends the regional forms -- /char/国, /char/著 -- to the row they
 // belong to, so only a character naming no row at all reaches the 404 below.
-definePageMeta({ layout: 'plain', middleware: 'char-alias' })
+definePageMeta({ middleware: 'char-alias' })
 
 const route = useRoute()
 const { t, list } = useT()
