@@ -59,6 +59,7 @@ Source Han Sans 与 Source Han Serif 各自的五个地区共享同一个字形�
 ```bash
 pnpm install
 pnpm build:data   # 生成字表与字体子集，首次会下载约 211MB 原始数据，之后走缓存
+pnpm update:sources # 检查并锁定新版第三方数据；有变化时下载并重新生成
 pnpm dev
 pnpm test
 pnpm generate     # 静态站点
@@ -70,21 +71,28 @@ pnpm generate     # 静态站点
 
 ## 部署
 
-静态站点，`.output/public` 直接丢给任意静态托管即可。Cloudflare Pages 的设置：
+静态站点，`.output/public` 直接丢给任意静态托管即可。线上部署由 [GitHub Actions](.github/workflows/deploy.yml) 构建后直传 Cloudflare Pages：
 
-|           |                                    |
-| --------- | ---------------------------------- |
-| 构建命令  | `pnpm build:data && pnpm generate` |
-| 输出目录  | `.output/public`                   |
-| Node 版本 | LTS（`.node-version`）             |
+- `main` 的 push 部署到 production；
+- 指向 `main` 的 PR 部署到 `pr-<编号>` preview，后续提交沿用同一个预览地址。
+
+仓库需要配置三个 Actions secrets：
+
+- `CLOUDFLARE_API_TOKEN`：具有 `Account / Cloudflare Pages / Edit` 权限的 API token；
+- `CLOUDFLARE_ACCOUNT_ID`：Pages 项目所在的 Cloudflare account ID；
+- `CLOUDFLARE_PROJECT_NAME`：Cloudflare Pages 项目名。
+
+Cloudflare Pages 的 production branch 设为 `main`。在项目的 **Settings → Builds → Branch control** 中关闭 **Enable automatic production branch deployments**，并将 **Preview branch** 设为 **None**；Cloudflare 只托管 Actions 上传的成品，不再自行构建。
 
 全部 8,449 个字组详情页都会生成独立 HTML；页面数据在本地 bundle 中，因此关闭了每路由额外生成 `_payload.json` 的 payload extraction。地区异体别名也不另外生成跳转页，而是通过 `public/_redirects` 回到应用后由客户端跳转。同一条回退规则也让应用显示未知字符的 404；`public/_headers` 给带内容哈希的 `_nuxt/*` 设了长缓存。
 
-构建时 `pnpm build:data` 会下载约 **211 MB** 原始数据（其中 195 MB 是十份 Noto CJK 字体），CI 上每次构建都要重下。若嫌慢，可改为本地构建后直传：
+第三方资产的具体 commit、Unicode 版本与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析上游版本，版本有变化时下载变化的固定版本、更新 lockfile，并直接重新生成数据；版本未变则跳过下载与生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **211 MB** 原始数据（其中 195 MB 是十份 Noto CJK 字体）。Actions 以 lockfile、生成脚本和依赖的内容作为缓存键：输入完全不变时跳过下载与数据生成，生成逻辑变化时也能复用已校验的下载。
+
+本地也可构建后直传：
 
 ```bash
 pnpm build:data && pnpm generate
-pnpm dlx wrangler pages deploy .output/public
+pnpm wrangler pages deploy .output/public --project-name="$CLOUDFLARE_PROJECT_NAME"
 ```
 
 ## 数据来源
