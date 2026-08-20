@@ -74,7 +74,7 @@ pnpm generate     # 静态站点
 静态站点，`.output/public` 直接丢给任意静态托管即可。线上部署由 [GitHub Actions](.github/workflows/deploy.yml) 构建后直传 Cloudflare Pages：
 
 - `main` 的 push 部署到 production；
-- 指向 `main` 的 PR 部署到 `pr-<编号>` preview，Actions 会在 PR 下方更新同一条评论，提供稳定的预览地址。
+- 指向 `main` 的 PR 部署到 `pr-<编号>` preview，GitHub 会在 PR 中显示对应的 deployment 与访问地址，后续提交沿用同一个分支预览地址。
 
 仓库需要配置三个 Actions secrets：
 
