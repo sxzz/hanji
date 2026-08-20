@@ -66,12 +66,14 @@ export function useColumnVisibility() {
       : chosen
   })
 
-  /** Columns on show, in CN-HK-TW-JP-KR-old order. */
+  /** Columns on show, in CN-JP-old-HK-TW-KR display order. */
   const columns = computed(() =>
     COLUMNS.filter((column) => !off.value.has(column)),
   )
   const regions = computed(() =>
-    REGIONS.filter((region) => !off.value.has(region)),
+    COLUMNS.filter(
+      (column): column is Region => column !== 'old' && !off.value.has(column),
+    ),
   )
   /** The same regions as indices into REGIONS, which is how tuples are read. */
   const regionIndices = computed(() =>

@@ -3,9 +3,9 @@ import {
   fontRegionOf,
   glyphSignature,
   projectSignature,
+  signatureIndexOf,
 } from '~~/shared/row.ts'
 import {
-  COLUMNS,
   REGIONS,
   type CharRow,
   type Column,
@@ -57,7 +57,7 @@ const basis = computed(() =>
 const groups = computed(() =>
   projectSignature(
     glyphSignature(props.row),
-    basis.value.map((column) => COLUMNS.indexOf(column)),
+    basis.value.map(signatureIndexOf),
   ),
 )
 

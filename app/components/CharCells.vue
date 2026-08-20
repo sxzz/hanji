@@ -19,7 +19,7 @@ const { t } = useT()
 const { regions, regionIndices, tracks, showOld } = useColumnVisibility()
 
 // Read over the columns on show: with Japan hidden, a row that ran
-// CN | HK+TW | JP has two runs, not three with a gap where Japan was.
+// CN | JP | HK+TW has two runs, not three with a gap where Japan was.
 const signature = computed(() =>
   projectSignature(
     props.dimension === 'glyph' ? props.row.glyph : props.row.cp,

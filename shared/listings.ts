@@ -14,13 +14,13 @@ export const LISTING_OPTIONS: readonly ListingOption[] = [
   { id: 'cn1', kind: 'tier', region: 'cn', tier: 1 },
   { id: 'cn2', kind: 'tier', region: 'cn', tier: 2 },
   { id: 'cn3', kind: 'tier', region: 'cn', tier: 3 },
+  { id: 'jp1', kind: 'tier', region: 'jp', tier: 1 },
+  { id: 'jp2', kind: 'tier', region: 'jp', tier: 2 },
+  { id: 'old', kind: 'old', region: 'jp' },
   { id: 'hk1', kind: 'tier', region: 'hk', tier: 1 },
   { id: 'tw1', kind: 'tier', region: 'tw', tier: 1 },
   { id: 'tw2', kind: 'tier', region: 'tw', tier: 2 },
-  { id: 'jp1', kind: 'tier', region: 'jp', tier: 1 },
-  { id: 'jp2', kind: 'tier', region: 'jp', tier: 2 },
   { id: 'kr1', kind: 'tier', region: 'kr', tier: 1 },
-  { id: 'old', kind: 'old', region: 'jp' },
 ]
 
 /**
