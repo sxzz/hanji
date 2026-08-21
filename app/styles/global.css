@@ -14,6 +14,17 @@ html.dark {
   color-scheme: dark;
 }
 
+/*
+ * The static page is always rendered with default preferences. An inline head
+ * script adds this attribute only when local state says Vue will replace that
+ * first frame. Keeping the body hidden turns a wrong-content flash into one
+ * reveal after hydration. With JavaScript disabled the attribute is never
+ * added, so the complete SSG page remains available.
+ */
+html[data-restoring-preferences] body {
+  visibility: hidden;
+}
+
 @media (min-width: 768px) {
   html {
     --nav-h: 4.5rem;

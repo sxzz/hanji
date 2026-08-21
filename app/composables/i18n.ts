@@ -8,6 +8,7 @@ import {
   type Messages,
 } from '~/locales/index.ts'
 import { zhCN } from '~/locales/zh-cn.ts'
+import { LOCALE_KEY } from '~/utils/preference-restore.ts'
 
 /**
  * Messages that have arrived. The default is here from the start -- it is what
@@ -17,10 +18,21 @@ import { zhCN } from '~/locales/zh-cn.ts'
 const loaded = reactive<Partial<Record<Locale, Messages>>>({
   'zh-CN': zhCN,
 })
+const loading: Partial<Record<Locale, Promise<void>>> = {}
 
 async function load(locale: Locale): Promise<void> {
   if (loaded[locale]) return
-  loaded[locale] = await LOADERS[locale]()
+  const pending =
+    loading[locale] ??
+    (loading[locale] = LOADERS[locale]().then((messages) => {
+      loaded[locale] = messages
+    }))
+  try {
+    await pending
+  } finally {
+    // A failed chunk may be retried from the language menu later.
+    if (loading[locale] === pending) delete loading[locale]
+  }
 }
 
 /** Follow one dotted key through a message tree. */
@@ -78,7 +90,25 @@ export function useT() {
  */
 export function useLocaleChoice() {
   const { locale } = useT()
-  const stored = useLocalStorage<Locale | ''>('hanji:locale', '')
+  const stored = useLocalStorage<Locale | ''>(LOCALE_KEY, '')
+  const ready = ref(false)
+
+  const preferred = (): Locale | undefined =>
+    (LOCALES as readonly string[]).includes(stored.value)
+      ? (stored.value as Locale)
+      : matchLocale(navigator.languages ?? [navigator.language])
+
+  // Start fetching a non-default translation during root setup. The active
+  // locale stays untouched until mounted, so hydration still agrees with the
+  // SSG markup, but the page spends less time behind the restoration screen.
+  const initial = import.meta.client ? preferred() : undefined
+  const prepared =
+    initial && initial !== locale.value
+      ? load(initial).then(
+          () => true,
+          () => false,
+        )
+      : undefined
 
   async function apply(next: Locale): Promise<void> {
     await load(next)
@@ -91,11 +121,14 @@ export function useLocaleChoice() {
   }
 
   onMounted(async () => {
-    const wanted = (LOCALES as readonly string[]).includes(stored.value)
-      ? (stored.value as Locale)
-      : matchLocale(navigator.languages ?? [navigator.language])
-    if (wanted && wanted !== locale.value) await apply(wanted)
+    if (initial && initial !== locale.value) {
+      const available = prepared ? await prepared : false
+      if (available) locale.value = initial
+    }
+    // Even a failed locale request must not leave the static fallback hidden;
+    // the default Chinese page is still useful on a flaky or offline visit.
+    ready.value = true
   })
 
-  return { locale, choose, locales: LOCALES }
+  return { locale, choose, locales: LOCALES, ready: readonly(ready) }
 }
