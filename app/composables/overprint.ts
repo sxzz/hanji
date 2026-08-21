@@ -154,6 +154,8 @@ export function useOverprintCycle(
 
   function drag(event: PointerEvent) {
     if (!scrubbing.value) return
+    // No button held: the release happened where the page never saw it.
+    if (!event.buttons) return release(event)
     const travel = event.clientX - origin
     if (Math.abs(travel) > DRAG_SLOP) dragged.value = true
     // The drag names the distance across the whole deck; each gap takes an
@@ -205,6 +207,8 @@ export function useOverprintCycle(
       pointerdown: down,
       pointermove: drag,
       pointerup: release,
+      // Losing the pointer ends the scrub, whatever took it away.
+      lostpointercapture: release,
       pointercancel: (event) => {
         release(event)
         rest()
