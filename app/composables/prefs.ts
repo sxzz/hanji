@@ -5,9 +5,13 @@ import {
   type Column,
   type Region,
 } from '~~/shared/types.ts'
+import {
+  FLAGS_KEY,
+  HIDDEN_KEY,
+  OUTLINE_KEY,
+  VISIBILITY_VERSION_KEY,
+} from '~/utils/preference-restore.ts'
 
-export const HIDDEN_KEY = 'hanji:hidden'
-const VISIBILITY_VERSION_KEY = 'hanji:columns-v2'
 const isColumn = (value: string): value is Column =>
   (COLUMNS as readonly string[]).includes(value)
 
@@ -111,13 +115,13 @@ export function useColumnVisibility() {
 export function usePrefs() {
   // Keep the original storage key so existing readers retain their choice
   // after the visual labels move from platform emoji to local SVG artwork.
-  const flagLabels = useLocalStorage('hanji:emoji-flags', false)
+  const flagLabels = useLocalStorage(FLAGS_KEY, false)
   /**
    * Draw the stacked forms as outlines instead of solid ink. Filled strokes
    * that agree pile into a single mass; hollow ones stay legible through each
    * other, so where the forms part company reads at a glance.
    */
-  const outline = useLocalStorage('hanji:outline', false)
+  const outline = useLocalStorage(OUTLINE_KEY, false)
 
   // Read on the client only: the prerendered HTML has to match what hydration
   // produces, and localStorage is not available while prerendering.

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useStyle } from '~/composables/style.ts'
+import { revealRestoredPreferences } from '~/utils/preference-restore.ts'
 
 const { t, meta } = useT()
 const route = useRoute()
@@ -9,8 +10,20 @@ const isHome = computed(() => route.name === 'index')
 const showFooter = computed(() => route.name !== 'about')
 
 // Picks the reader's language once the client is running; the prerendered
-// HTML is always the default locale
-useLocaleChoice()
+// HTML is always the default locale. If the head script hid a mismatching
+// default frame, reveal only after the translated and projected DOM is ready.
+const { ready: localeReady } = useLocaleChoice()
+if (import.meta.client) {
+  watch(
+    localeReady,
+    async (ready) => {
+      if (!ready) return
+      await nextTick()
+      revealRestoredPreferences(meta.value.htmlLang)
+    },
+    { flush: 'post' },
+  )
+}
 
 /**
  * Serif ships its own ~140KB of @font-face rules. Latch it once a reader asks

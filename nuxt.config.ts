@@ -1,5 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { RESTORE_SCRIPT } from './app/utils/theme.ts'
+import { PREFERENCE_RESTORE_SCRIPT } from './scripts/preference-restore.ts'
 import type { CharsData } from './shared/types.ts'
 import type { NuxtConfig } from 'nuxt/schema'
 
@@ -58,9 +59,12 @@ export default {
     head: {
       htmlAttrs: { lang: 'zh-CN', 'data-style': 'sans' },
       // app.vue does not render into Nitro's client-only fallback documents.
-      // Keep preference restoration static so 200.html and 404.html also set
-      // the selected face and color scheme before their first paint.
-      script: [{ innerHTML: RESTORE_SCRIPT, tagPosition: 'head' }],
+      // Keep both bootstraps static so 200.html and 404.html also restore the
+      // theme and suppress a mismatching preference frame before first paint.
+      script: [
+        { innerHTML: RESTORE_SCRIPT, tagPosition: 'head' },
+        { innerHTML: PREFERENCE_RESTORE_SCRIPT, tagPosition: 'head' },
+      ],
       // Chunked Han subsets. Keeping the @font-face rules in their own
       // cacheable files keeps them out of the JS/CSS bundle; serif is linked
       // on demand from app.vue.
