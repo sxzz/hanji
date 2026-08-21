@@ -12,4 +12,4 @@ jobs:
   unit-test:
     uses: sxzz/workflows/.github/workflows/unit-test.yml@main
     with:
-      build: pnpm build:data
+      skip-test: true

@@ -46,6 +46,11 @@ jobs:
         if: steps.fonts-cache.outputs.cache-hit != 'true'
         run: pnpm build:fonts
 
+      - name: Unit Test
+        id: unit_test
+        run: pnpm test
+        continue-on-error: ${{ github.event_name == 'pull_request' }}
+
       - name: Generate site
         run: pnpm generate
 
@@ -60,3 +65,7 @@ jobs:
             pages deploy .output/public
             --project-name=${{ secrets.CLOUDFLARE_PROJECT_NAME }}
             --branch=${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'main' }}
+
+      - name: Fail Workflow on Unit Test Failure
+        if: ${{ always() && github.event_name == 'pull_request' && steps.unit_test.outcome == 'failure' }}
+        run: exit 1
