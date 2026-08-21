@@ -36,6 +36,7 @@ useSeoMeta({
 
     <h2>{{ t('about.limitTitle') }}</h2>
     <ul>
+      <li>{{ t('about.limitPrint') }}</li>
       <li>{{ t('about.limit1') }}</li>
       <li>{{ t('about.limit2') }}</li>
       <li>{{ t('about.limit3') }}</li>
