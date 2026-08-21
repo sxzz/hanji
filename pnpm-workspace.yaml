@@ -27,4 +27,5 @@ catalog:
 allowBuilds:
   esbuild: true
   workerd: true
+enableGlobalVirtualStore: true
 minimumReleaseAge: 0
