@@ -21,8 +21,21 @@ export type Style = (typeof STYLES)[number]
 export const COLUMNS = ['cn', 'jp', 'old', 'hk', 'tw', 'kr'] as const
 export type Column = (typeof COLUMNS)[number]
 
-/** Korea is available as an opt-in comparison; all other columns start on. */
+/** Korea starts hidden outside the Korean interface; all other columns start on. */
 export const DEFAULT_HIDDEN_COLUMNS: readonly Column[] = ['kr']
+
+/**
+ * Apply the interface-language default for Korea without disturbing any other
+ * hidden columns. Callers only use this until the reader customizes the set.
+ */
+export function applyKoreanColumnDefault(
+  hidden: readonly string[],
+  koreanLocale: boolean,
+): Column[] {
+  return COLUMNS.filter((column) =>
+    column === 'kr' ? !koreanLocale : hidden.includes(column),
+  )
+}
 
 /** A tuple in REGIONS order. */
 export type RegionalTuple<T> = [T, T, T, T, T]

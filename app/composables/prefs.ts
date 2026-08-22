@@ -1,4 +1,5 @@
 import {
+  applyKoreanColumnDefault,
   COLUMNS,
   DEFAULT_HIDDEN_COLUMNS,
   REGIONS,
@@ -6,12 +7,14 @@ import {
   type Region,
 } from '~~/shared/types.ts'
 import {
+  COLUMN_MODE_KEY,
   FLAGS_KEY,
   HIDDEN_KEY,
   OUTLINE_KEY,
   VISIBILITY_VERSION_KEY,
 } from '~/utils/preference-restore.ts'
 
+type PreferenceMode = '' | 'default' | 'custom'
 const isColumn = (value: string): value is Column =>
   (COLUMNS as readonly string[]).includes(value)
 
@@ -24,31 +27,51 @@ const isColumn = (value: string): value is Column =>
  * remaining forms are partitioned again among themselves, and two regions that
  * only ever parted company through the hidden one now read as one form.
  *
- * Stored as what is hidden rather than what is shown. Korea is the one
- * opt-in comparison: the original four regions and Japan's old form remain
- * visible by default.
+ * Stored as what is hidden rather than what is shown. Korea starts hidden in
+ * every interface except Korean, where it starts visible. That locale-aware
+ * default follows language changes only until the reader customizes any
+ * column; from then on their stored selection is authoritative.
  */
 export function useColumnVisibility() {
+  const { locale } = useT()
   const hidden = useLocalStorage<string[]>(HIDDEN_KEY, [
     ...DEFAULT_HIDDEN_COLUMNS,
   ])
   const visibilityInitialized = useLocalStorage(VISIBILITY_VERSION_KEY, false)
+  // An empty value identifies installations from before preference provenance
+  // was recorded. Do not write that default: its absence is what lets the
+  // migration preserve every existing v2 selection as custom.
+  const preferenceMode = useLocalStorage<PreferenceMode>(COLUMN_MODE_KEY, '', {
+    writeDefaults: false,
+  })
+
+  const applyLocaleDefault = () => {
+    hidden.value = applyKoreanColumnDefault(
+      hidden.value,
+      locale.value === 'ko-KR',
+    )
+  }
 
   // Read on the client only: the prerendered HTML has to match what hydration
   // produces, and localStorage is not available while prerendering.
   const mounted = ref(false)
   onMounted(() => {
-    // Existing installations already have an empty `hanji:hidden` value from
-    // the four-region build. Mark Korea hidden once during the upgrade while
-    // preserving every earlier column choice. Afterwards the reader's Korea
-    // toggle is authoritative.
+    // The v2 migration predates the locale-aware default. A missing v2 marker
+    // means either a new reader or the older four-region build, whose choices
+    // could not include Korea; preserve its other columns and choose Korea by
+    // locale. Existing v2 readers may already have toggled Korea, so their
+    // exact stored value becomes custom rather than being guessed at.
     if (!visibilityInitialized.value) {
-      hidden.value = COLUMNS.filter(
-        (column) => column === 'kr' || hidden.value.includes(column),
-      )
+      applyLocaleDefault()
+      preferenceMode.value = 'default'
       visibilityInitialized.value = true
-    }
+    } else if (!preferenceMode.value) preferenceMode.value = 'custom'
     mounted.value = true
+  })
+
+  watch(locale, () => {
+    if (mounted.value && preferenceMode.value === 'default')
+      applyLocaleDefault()
   })
 
   const off = computed<Set<Column>>(() => {
@@ -90,6 +113,7 @@ export function useColumnVisibility() {
 
   function toggle(column: Column): void {
     if (locked(column)) return
+    preferenceMode.value = 'custom'
     const chosen = new Set(off.value)
     if (chosen.has(column)) chosen.delete(column)
     else chosen.add(column)

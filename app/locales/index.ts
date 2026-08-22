@@ -1,5 +1,9 @@
+import {
+  REGIONS,
+  type FrequencyRegion,
+  type Region,
+} from '../../shared/types.ts'
 import { zhCN } from './zh-cn.ts'
-import type { FrequencyRegion } from '../../shared/types.ts'
 
 /**
  * The language never enters the URL: one prerendered build, locale decided on
@@ -24,6 +28,26 @@ export const LOCALE_FREQUENCY_REGION: Record<Locale, FrequencyRegion> = {
   'zh-HK': 'hk',
   'ja-JP': 'jp',
   'ko-KR': 'cn',
+}
+
+/** The regional dictionaries native to each interface language. */
+export const LOCALE_DICTIONARY_REGION: Record<Locale, Region> = {
+  'zh-CN': 'cn',
+  'zh-TW': 'tw',
+  'zh-HK': 'hk',
+  'ja-JP': 'jp',
+  'ko-KR': 'kr',
+}
+
+/** Dictionaries follow either the comparison or the active interface locale. */
+export function dictionaryRegionsFor(
+  locale: Locale,
+  visible: readonly Region[],
+): Region[] {
+  const local = LOCALE_DICTIONARY_REGION[locale]
+  return REGIONS.filter(
+    (region) => region === local || visible.includes(region),
+  )
 }
 
 export type Messages = typeof zhCN

@@ -214,10 +214,10 @@ describe('per-region stroke counts', () => {
 
 describe('outside references', () => {
   it('lists every character in the group, each with the full set', () => {
-    // 國 is written 国 and 國; both get all eight references
+    // 國 is written 国 and 國; both get all nine references
     const groups = dictGroups(row('國'))
     expect(groups.map((g) => g.form.char)).toEqual(['国', '國'])
-    expect(groups.every((g) => g.links.length === 8)).toBe(true)
+    expect(groups.every((g) => g.links.length === 9)).toBe(true)
   })
 
   it('counts a name the group merged with as a character of its own', () => {
@@ -239,6 +239,42 @@ describe('outside references', () => {
     )
     expect(links.get('unihan')).toContain('codepoint=570B')
   })
+
+  it('adds NAVER when Korean references are requested', () => {
+    expect(dictLinks('島', ['cn']).some((link) => link.id === 'naver')).toBe(
+      false,
+    )
+
+    const naver = dictLinks('島', ['kr']).find((link) => link.id === 'naver')
+    expect(naver).toEqual({
+      id: 'naver',
+      name: 'NAVER 한자사전',
+      region: 'kr',
+      url: 'https://hanja.dict.naver.com/#/search?range=letter&query=%E5%B3%B6',
+    })
+    expect(
+      dictGroups(row('的'), {
+        formRegions: ['cn'],
+        dictionaryRegions: ['kr'],
+      })[0]?.links,
+    ).toContainEqual(expect.objectContaining({ id: 'naver' }))
+  })
+
+  it.each([
+    ['cn', ['zdic']],
+    ['hk', ['humanum']],
+    ['tw', ['moedict']],
+    ['jp', ['jitenon', 'jisho']],
+    ['kr', ['naver']],
+  ] as const)(
+    'includes only %s regional dictionaries when that region is active',
+    (region, ids) => {
+      const regional = dictLinks('國', [region])
+        .filter((link) => link.region)
+        .map((link) => link.id)
+      expect(regional).toEqual(ids)
+    },
+  )
 
   it('looks 漢字辞典オンライン up by codepoint', () => {
     // The plain-text form only ever reached the search page

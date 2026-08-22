@@ -14,6 +14,7 @@ import {
   rowsNaming,
   useMorphingKey,
 } from '~/composables/chars.ts'
+import { dictionaryRegionsFor } from '~/locales/index.ts'
 import { listPlace } from '~/utils/list-place.ts'
 
 // char-alias sends the regional forms -- /char/国, /char/著 -- to the row they
@@ -21,7 +22,7 @@ import { listPlace } from '~/utils/list-place.ts'
 definePageMeta({ middleware: 'char-alias' })
 
 const route = useRoute()
-const { t, list } = useT()
+const { t, list, locale } = useT()
 const { flagsOn, visibleColumns, visibleRegions } = usePrefs()
 
 const key = computed(() => decodeURIComponent(String(route.params.key)))
@@ -306,7 +307,15 @@ const alsoSee = computed(() => {
 })
 
 /** One row of references per character the group is written with. */
-const references = computed(() => dictGroups(row.value!, visibleRegions.value))
+const dictionaryRegions = computed(() =>
+  dictionaryRegionsFor(locale.value, visibleRegions.value),
+)
+const references = computed(() =>
+  dictGroups(row.value!, {
+    formRegions: visibleRegions.value,
+    dictionaryRegions: dictionaryRegions.value,
+  }),
+)
 
 /**
  * Receives the morph from the list. The name goes on whatever the thumbnail

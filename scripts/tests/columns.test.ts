@@ -10,6 +10,7 @@ import {
   varietyOf,
 } from '../../shared/row.ts'
 import {
+  applyKoreanColumnDefault,
   COLUMNS,
   DEFAULT_HIDDEN_COLUMNS,
   REGIONS,
@@ -49,6 +50,14 @@ describe('column ordering', () => {
         COLUMNS.map(signatureIndexOf),
       ),
     ).toBe('001111')
+  })
+})
+
+describe('locale-aware column defaults', () => {
+  it('shows Korea for Korean while preserving every other hidden column', () => {
+    expect(applyKoreanColumnDefault(DEFAULT_HIDDEN_COLUMNS, true)).toEqual([])
+    expect(applyKoreanColumnDefault(['cn', 'kr'], true)).toEqual(['cn'])
+    expect(applyKoreanColumnDefault(['cn'], false)).toEqual(['cn', 'kr'])
   })
 })
 
