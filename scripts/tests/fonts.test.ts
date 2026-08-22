@@ -11,8 +11,19 @@ import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import * as fontkit from 'fontkit'
 import { describe, expect, it } from 'vitest'
-import { fontIndexOf } from '../../shared/row.ts'
-import { REGIONS, type CharsData } from '../../shared/types.ts'
+import { frequencyRankOf } from '../../shared/frequency.ts'
+import {
+  fontIndexOf,
+  fontRegionOf,
+  projectSignature,
+  varietyOf,
+} from '../../shared/row.ts'
+import {
+  FREQUENCY_REGIONS,
+  REGIONS,
+  type CharsData,
+  type FrequencyRegion,
+} from '../../shared/types.ts'
 import { partitionSignature } from '../cmap.ts'
 import { DATA_DIR, FONT_DIR } from '../sources.ts'
 
@@ -27,16 +38,30 @@ const fontsOf = (region: string) =>
     .filter(
       (f) => f.startsWith(`hanji-sans-${region}-`) && f.endsWith('.woff2'),
     )
-    .map((f) => fontkit.create(readFileSync(join(FONT_DIR, f))) as fontkit.Font)
+    .toSorted()
+    .map((name) => ({
+      name,
+      font: fontkit.create(readFileSync(join(FONT_DIR, name))) as fontkit.Font,
+    }))
 
 const fonts = Object.fromEntries(REGIONS.map((r) => [r, fontsOf(r)]))
 
 /** Glyph IDs are not comparable across subsets, so compare outlines. */
 function outline(region: string, char: string): string {
-  for (const font of fonts[region]) {
+  for (const { font } of fonts[region]) {
     const [glyph] = font.layout(char).glyphs
     // A missing character falls back to .notdef, which is glyph 0
     if (glyph && glyph.id !== 0) return glyph.path.toSVG()
+  }
+  throw new Error(`no chunk of hanji-sans-${region} carries ${char}`)
+}
+
+/** Which generated chunk carries this region's character. */
+function shardOf(region: string, char: string): number {
+  const codePoint = char.codePointAt(0)!
+  for (const { name, font } of fonts[region]) {
+    if (font.glyphForCodePoint(codePoint).id === 0) continue
+    return Number(/-(\d+)\.woff2$/.exec(name)![1]!)
   }
   throw new Error(`no chunk of hanji-sans-${region} carries ${char}`)
 }
@@ -91,6 +116,49 @@ describe('subset coverage', () => {
     for (const row of withOld)
       expect(() => outline('jp', row.old!.char)).not.toThrow()
   })
+})
+
+describe('subset loading', () => {
+  // Stored-region indices in the default presentation order. Korea and the
+  // optional old-form cell start hidden.
+  const visible = [0, 3, 1, 2] as const
+  const pageSize = 100
+
+  function firstFrequencyPage(region: FrequencyRegion) {
+    return data.rows
+      .filter((row) => varietyOf(projectSignature(row.glyph, visible)) > 1)
+      .toSorted((a, b) => {
+        const left = frequencyRankOf(a, region)
+        const right = frequencyRankOf(b, region)
+        if (left !== right && (left === null || right === null))
+          return left === null ? 1 : -1
+        return (
+          (left ?? Number.MAX_SAFE_INTEGER) -
+            (right ?? Number.MAX_SAFE_INTEGER) ||
+          a.key.codePointAt(0)! - b.key.codePointAt(0)!
+        )
+      })
+      .slice(0, pageSize)
+  }
+
+  it.each(FREQUENCY_REGIONS)(
+    'keeps the first %s frequency page in one shard per visible font',
+    (frequencyRegion) => {
+      const shards = new Set<string>()
+      for (const row of firstFrequencyPage(frequencyRegion)) {
+        for (const index of visible) {
+          const region = fontRegionOf(row, index)
+          shards.add(`${region}-${shardOf(region, row.chars[index]!)}`)
+        }
+      }
+
+      // The hero is visible above the list and follows the same four faces.
+      for (const region of ['cn', 'jp', 'hk', 'tw'] as const)
+        shards.add(`${region}-${shardOf(region, '返')}`)
+
+      expect([...shards].toSorted()).toEqual(['cn-0', 'hk-0', 'jp-0', 'tw-0'])
+    },
+  )
 })
 
 describe('interface subset coverage', () => {

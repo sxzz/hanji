@@ -77,7 +77,7 @@ for (const name of await readdir(FONT_DIR))
 await mkdir(NOTICES_DIR, { recursive: true })
 await writeFile(join(NOTICES_DIR, 'noto-ofl.txt'), await raw('font/OFL.txt'))
 
-/** Collect the characters each region needs, in row order (commonness order). */
+/** Collect the characters each region needs, in display-priority order. */
 const needed: Record<string, string[]> = Object.fromEntries(
   REGIONS.map((r) => [r, [] as string[]]),
 )
@@ -101,9 +101,26 @@ const collect = (row: (typeof data.rows)[number]) => {
   for (const form of formsOf(row)) need(form.font, form.char)
 }
 
+/**
+ * The table can sort by any of the four regional frequency corpora. Raw row
+ * order cannot stand in for that priority: merged rows such as 箇 and 幷 have
+ * very common mainland forms but deliberately live much later in the dataset.
+ * Putting a row at its best observed rank keeps every region's first frequency
+ * page together at the front of each font instead of pulling distant chunks.
+ * Stable sorting preserves dataset order for equal and unranked rows.
+ */
+const bestFrequencyRank = (row: (typeof data.rows)[number]): number =>
+  Math.min(
+    ...(row.freq?.filter((rank): rank is number => rank !== null) ?? []),
+    Number.MAX_SAFE_INTEGER,
+  )
+
 const hero = data.rows.find((row) => row.key === HERO_KEY)
 if (hero) collect(hero)
-for (const row of data.rows) collect(row)
+for (const row of data.rows.toSorted(
+  (a, b) => bestFrequencyRank(a) - bestFrequencyRank(b),
+))
+  collect(row)
 
 /** Sort codepoints and merge consecutive runs to keep unicode-range short. */
 function unicodeRange(chars: string[]): string {
