@@ -19,6 +19,10 @@ Hanji is a Nuxt 4/Vue 3 static site. Route components live in `app/pages/`, reus
 
 Use TypeScript and Vue Composition API with `<script setup lang="ts">`. Follow the existing two-space, single-quote, no-semicolon style and let Prettier resolve formatting. Name Vue components in PascalCase (`CharTable.vue`), composables with a `use` prefix (`useQueryState`), and utility files in kebab-case. Prefer shared types over duplicated shapes, UnoCSS utilities for component styling, and locale entries in `app/locales/` for user-facing text.
 
+## README Localizations
+
+`README.md` is the Simplified Chinese source and `README.ja-JP.md` is its Japanese translation. Whenever either file changes, update the other in the same change. Keep their structure, facts, commands, links, and data-source tables synchronized.
+
 ## Testing Guidelines
 
 Vitest discovers `scripts/tests/*.test.ts`. Add focused regression cases near the pipeline or utility being changed; use table-driven `it.each` cases for data variants. Dataset and font tests validate generated artifacts, so run `pnpm build:data` when inputs or generators change. No coverage threshold is configured; meaningful behavioral assertions are expected.

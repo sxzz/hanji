@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import config from '../../nuxt.config.ts'
 import type { CharsData } from '../../shared/types.ts'
@@ -24,15 +24,7 @@ describe('character page prerendering', () => {
     expect(config.nitro.prerender.autoSubfolderIndex).toBe(false)
   })
 
-  it('does not shadow generated pages with a Cloudflare fallback rule', () => {
-    const redirects = new URL('../../public/_redirects', import.meta.url)
-    const contents = existsSync(redirects)
-      ? readFileSync(redirects, 'utf8')
-      : ''
-
-    // Cloudflare always applies matching _redirects rules, even when a static
-    // asset exists. This rule would replace every generated detail page with
-    // Nuxt's client-only fallback document.
-    expect(contents).not.toMatch(/^\s*\/char\/\*\s+/m)
+  it('opts out of a network favicon request', () => {
+    expect(config.app.head.link).toContainEqual({ rel: 'icon', href: 'data:,' })
   })
 })

@@ -11,7 +11,7 @@ permissions:
   deployments: write
 
 concurrency:
-  group: pages-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'production' }}
+  group: workers-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'production' }}
   cancel-in-progress: true
 
 jobs:
@@ -54,17 +54,25 @@ jobs:
       - name: Generate site
         run: pnpm generate
 
-      - name: Deploy to Cloudflare Pages
-        id: deploy
+      - name: Upload Cloudflare Workers preview
+        if: github.event_name == 'pull_request'
+        id: deploy_preview
         uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          command: >-
-            pages deploy .output/public
-            --project-name=${{ secrets.CLOUDFLARE_PROJECT_NAME }}
-            --branch=${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'main' }}
+          command: versions upload --preview-alias=pr-${{ github.event.pull_request.number }}
+
+      - name: Deploy to Cloudflare Workers
+        if: github.event_name == 'push'
+        id: deploy_production
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+          command: deploy
 
       - name: Fail Workflow on Unit Test Failure
         if: ${{ always() && github.event_name == 'pull_request' && steps.unit_test.outcome == 'failure' }}

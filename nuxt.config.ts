@@ -6,7 +6,7 @@ import type { NuxtConfig } from 'nuxt/schema'
 
 /**
  * Every canonical row has a real static detail page. Aliases deliberately use
- * the SPA fallback and redirect in char-alias middleware instead: emitting a
+ * the static 404 fallback and redirect after hydration instead: emitting a
  * tiny file for each alias would consume thousands of the host's file quota.
  */
 const chars: CharsData = JSON.parse(
@@ -73,6 +73,8 @@ export default {
       // cacheable files keeps them out of the JS/CSS bundle; serif is linked
       // on demand from app.vue.
       link: [
+        // Explicitly opt out instead of letting browsers probe /favicon.ico.
+        { rel: 'icon', href: 'data:,' },
         { rel: 'stylesheet', href: '/fonts/fonts-ui.css' },
         { rel: 'stylesheet', href: '/fonts/fonts-sans.css' },
       ],
