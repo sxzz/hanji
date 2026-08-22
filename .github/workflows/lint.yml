@@ -1,0 +1,34 @@
+name: Lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions: {}
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup JS
+        uses: sxzz/workflows/setup-js@main
+
+      - name: Restore source downloads
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: data/raw
+          # Keep this aligned with deploy.yml so both workflows share downloads.
+          key: sources-v1-${{ runner.os }}-${{ hashFiles('data/sources.lock.json') }}
+          restore-keys: sources-v1-${{ runner.os }}-
+
+      - name: Build dataset
+        run: pnpm build:dataset
+
+      - name: Type Check
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
