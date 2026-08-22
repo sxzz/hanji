@@ -8,6 +8,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { dictGroups, dictLinks, formsOf } from '../../shared/links.ts'
+import { strokeDataRef } from '../../shared/strokes.ts'
 import { REGIONS, type CharRow, type CharsData } from '../../shared/types.ts'
 import {
   DATA_DIR,
@@ -189,27 +190,24 @@ describe('taking either typeface as agreement', () => {
 })
 
 describe('per-region stroke counts', () => {
-  it.each([
-    // kAlternateTotalStrokes names Japan outright and outranks everything else
-    ['卿', 12, 'kAlternateTotalStrokes 12:JK'],
-    ['祁', 8, 'kAlternateTotalStrokes 8:J, over Adobe’s 7'],
-    // Japan draws these with a stroke fewer, and kRSAdobe_Japan1_6 says so
-    ['突', 8, '穴 over 大, not 犬'],
-    ['海', 9, '毎, not 每'],
-    ['器', 15, '大 in the middle, not 犬'],
-    ['類', 18, '大, not 犬'],
-    // Same shape everywhere, but Japan counts 阝 as three strokes
-    ['那', 7, 'convention, not shape'],
-    ['都', 11, 'convention, not shape'],
-  ])('gives %s %i strokes in Japan (%s)', (key, strokes) => {
-    expect(row(key).strokes[3]).toBe(strokes)
+  it('uses stroke-order geometry as the single value everywhere', () => {
+    expect(row('以').strokes).toEqual([4, 5, 5, 5, 5])
+    expect(row('那').strokes).toEqual([6, 7, 7, 7, 6])
+    for (const region of REGIONS)
+      expect(strokeDataRef(row('以'), region)).toBeDefined()
   })
 
-  it('uses regional fallback counts in all five columns', () => {
-    // zh-Hans first, zh-Hant second; HK, TW and KR share the second
-    expect(row('那').strokes).toEqual([6, 6, 6, 7, 6])
-    expect(row('國').strokes).toEqual([8, 11, 11, 8, 11])
-  })
+  it.each([
+    ['摒', 'jp', 14, 'kAlternateTotalStrokes'],
+    ['屢', 'jp', 14, 'kRSAdobe_Japan1_6'],
+    ['那', 'kr', 6, 'kTotalStrokes'],
+  ] as const)(
+    'falls back for %s in %s to %i from %s',
+    (key, region, strokes) => {
+      expect(strokeDataRef(row(key), region)).toBeUndefined()
+      expect(row(key).strokes[REGIONS.indexOf(region)]).toBe(strokes)
+    },
+  )
 
   it('never leaves a column without a count', () => {
     expect(data.rows.every((r) => r.strokes.every((n) => n > 0))).toBe(true)
@@ -314,8 +312,7 @@ describe('the pre-reform form as a sixth column', () => {
       if (r.old) expect(r.old.glyph).toBeLessThanOrEqual(new Set(r.glyph).size)
   })
 
-  it('counts its strokes by the Japanese rule', () => {
-    // 國 is 11 strokes, and Japan writes 国 in 8
+  it('uses the unified source priority for new and old Japanese forms', () => {
     expect(row('國').strokes[3]).toBe(8)
     expect(row('國').old?.strokes).toBe(11)
   })

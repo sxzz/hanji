@@ -45,7 +45,7 @@
 - 本アプリが比較するのは、一般的なゴシック体と明朝体における印刷字形だけです。手書きの慣習は対象外で、教科書体の例示字形も基準にしません。日本語の教科書体は主に日本語教育向けに設計され、中国大陸・香港・台湾・韓国と同じグリフプールを共有する正式な地域版がありません。見た目の近い別々のフォントを組み合わせると、地域差とフォント固有のデザイン差を分離できません。条件を揃えるため、5地域版を同時に提供する同系統のフォントファミリーだけを使います。
 - 判定対象はSource Hanの地域別字形デザインであり、各地域の標準そのものではありません。ただし高品質な代理です。Adobeの地域別字形は、中国大陸の『印刷通用漢字字形表』、台湾教育部の『國字標準字體』、香港教育局の『常用字字形表』、日本のJIS X 0208/0213、韓国のKS X 1001/1002をそれぞれ根拠としています。
 - Source Hanの香港字形は網羅的ではないため、「香港だけが異なる」パターンは少なく報告される可能性があります。
-- 画数は地域ごとに取得します。まずUnihanの `kAlternateTotalStrokes` を参照し、日本については次に `kRSAdobe_Japan1_6` を使います。これはAdobe-Japan1-6に収録された日本字形を分析するため、たとえば「突」は9画ではなく8画になります。どちらもない場合のみ `kTotalStrokes` を使います。最後の値は簡体・繁体の2区分しかなく、香港・台湾・日本・韓国は通常、繁体字側の値を共有します。たとえば「那」の5列の画数は6/6/6/7/6です。
+- 漢字表の絞り込み・並べ替えと詳細ページは、同じ地域別画数を使います。まず筆順データの実際の画数を採用し、香港は筆順機能と同じ同形フォールバックで台湾、中国大陸、日本、韓国の順に参照します。筆順データがない場合は `kAlternateTotalStrokes` → 日本の `kRSAdobe_Japan1_6` → `kTotalStrokes` の順に補います。たとえば「以」の5地域の画数は4/5/5/5/5です。
 - 韓国語の読みにはUnihan推奨の `kHangul` を使い、現代ハングルの一音節読みをすべて保持します。語の文脈に応じた読みの選択や、頭音法則の追加導出は行いません。
 - 未収録セルに表示するのは伝承字形の参考形であり、その地域で実際に採用または規範収録されていることを意味しません。「関係未確認」も、既存の公開情報だけでは関係を確定できないことを示します。
 
@@ -96,7 +96,7 @@ Cloudflareの **Settings → Domains & Routes** でproductionドメインを接�
 
 サードパーティ資産の具体的なcommit、公式添付ファイル識別子、SHA-256は `data/sources.lock.json` に記録しています。更新時には `pnpm update:sources` を実行します。バージョンのある上流データについてはバージョン番号を解決し、バージョンのない公式直リンクについては改めて検証します。内容が変わっていればlockfileを更新してデータを再生成し、まったく変わっていなければ生成をスキップします。ビルド時の `pnpm build:data` はlockfileに従い、約 **261 MiB** の元データをダウンロードして検証します。このうち195 MiBは10個のNoto CJKフォントです。明示的な更新を行っていない直リンクの内容が変わった場合は、チェックサム不一致として失敗し、黙ってデータに取り込むことはありません。Actionsでは元データのダウンロードと生成フォントを別々にキャッシュします。前者はlockfileだけで決まり、後者はlockfile、実際の生成スクリプト、関連依存関係、locale、字表から決まります。フォント入力が完全に同じ場合は、データ生成を省略します。
 
-筆順シャードは `pnpm build:dataset` が `app/assets/strokes/` に生成し、リポジトリにはコミットしません。デプロイ処理はテストと静的生成の前に毎回再生成し、Viteが内容ハッシュ付きのファイル名で出力します。付属ライセンスは `public/notices/` の安定URLに置き、再検証を必須にします。同じ字グループ内で筆画順に並べた輪郭が完全に一致する場合は、最初のバリアントとその中心線だけを保存し、画面上でも対応する地域を1つの選択肢にまとめます。ページ読み込み時に所属シャードを一度だけ取得し、その後の地域切替ではメモリ上の字グループデータを再利用します。
+筆順シャードは `pnpm build:dataset` が `app/assets/strokes/` に生成し、リポジトリにはコミットしません。デプロイ処理はテストと静的生成の前に毎回再生成し、Viteが内容ハッシュ付きのファイル名で出力します。付属ライセンスは `public/notices/` の安定URLに置き、再検証を必須にします。同じ字グループ内で筆画順に並べた輪郭が完全に一致する場合は、最初のバリアントとその中心線だけを保存し、画面上でも対応する地域を1つの選択肢にまとめます。ページ読み込み時に所属シャードを一度だけ取得し、その後の地域切替ではメモリ上の字グループデータを再利用します。サイト全体で、ここから解析した輪郭数を第一候補の画数として使います。
 
 ローカルでも、ビルド後に直接アップロードできます。
 
@@ -115,9 +115,9 @@ pnpm deploy
 | 5地域の字形差異の判定                            | [Adobe Source Han Sans / Serif（CMapリソース）](https://github.com/adobe-fonts/source-han-sans)                 | [SIL OFL 1.1](https://openfontlicense.org/)                                                                                             |
 | ページ表示用フォント                             | [Noto Sans / Noto Serif（CJKを含む）](https://github.com/notofonts/noto-cjk)                                    | [SIL OFL 1.1](https://openfontlicense.org/)                                                                                             |
 | 簡体・繁体、香港・台湾異体字、日本新旧字体の対応 | [OpenCC（中国語文字変換）](https://github.com/BYVoid/OpenCC)                                                    | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)                                                                               |
-| 中国・台湾・日本・韓国の筆順アニメーション       | [AnimCJK](https://github.com/parsimonhi/animCJK)                                                                | [Arphic Public License](https://github.com/parsimonhi/animCJK/blob/master/licenses/APL/english/ARPHICPL.TXT)                            |
+| 中国・台湾・日本・韓国の筆順と画数               | [AnimCJK](https://github.com/parsimonhi/animCJK)                                                                | [Arphic Public License](https://github.com/parsimonhi/animCJK/blob/master/licenses/APL/english/ARPHICPL.TXT)                            |
 | 5地域の標準字表                                  | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars)                                                   | [リポジトリに記載なし](https://github.com/zispace/hanzi-chars)                                                                          |
-| 画数・読み                                       | [Unicode Han Database（Unihan）](https://www.unicode.org/reports/tr38/)                                         | [Unicode License v3](https://www.unicode.org/license.txt)                                                                               |
+| 画数の補完・読み                                 | [Unicode Han Database（Unihan）](https://www.unicode.org/reports/tr38/)                                         | [Unicode License v3](https://www.unicode.org/license.txt)                                                                               |
 | 韓国式異体字の対応                               | [Unicode IRG N2200（韓国教育用漢字提案）](https://www.unicode.org/L2/L2017/17173-irgn2200-unihan-db.pdf)        | [Unicode License v3](https://www.unicode.org/license.txt)                                                                               |
 | 中国大陸の文字頻度順位                           | [hanziDB.csv（Jun Da『現代中国語単字頻度一覧』）](https://github.com/ruddfawcett/hanziDB.csv)                   | [MIT](https://opensource.org/licenses/MIT)                                                                                              |
 | 香港の文字頻度順位                               | [粵典「コーパス単字使用頻度」](https://words.hk/faiman/analysis/charcount/)                                     | [Public Domain](https://words.hk/faiman/analysis/)                                                                                      |

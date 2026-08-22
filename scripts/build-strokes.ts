@@ -186,6 +186,23 @@ export async function buildStrokeData(rows: readonly CharRow[]): Promise<void> {
       break
     }
 
+    // The Unihan chain initializes row.strokes. A resolved stroke-order
+    // drawing takes priority everywhere, including the detail page.
+    for (const [index, region] of REGIONS.entries()) {
+      const variant = strokeVariantIndex(strokeMap, region)
+      const count =
+        variant === undefined
+          ? undefined
+          : group.variants[variant]?.outlines.length
+      if (count) row.strokes[index] = count
+    }
+    const oldVariant = strokeVariantIndex(strokeMap, 'old')
+    const oldCount =
+      oldVariant === undefined
+        ? undefined
+        : group.variants[oldVariant]?.outlines.length
+    if (row.old && oldCount) row.old.strokes = oldCount
+
     if (group.variants.length > 0) {
       row.strokeMap = strokeMap
       shards[Number.parseInt(strokeShardId(row.key), 16)]!.set(row.key, group)

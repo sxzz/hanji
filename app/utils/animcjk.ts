@@ -109,6 +109,7 @@ export function unpackAnimCJK(
       d: animCJKMedianPath(points),
       outline: packed.outlines[index]!,
       order: index + 1,
+      start: [points[0]!, points[1]!],
     })),
   }
 }

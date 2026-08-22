@@ -103,7 +103,7 @@ export interface CharRow {
    * either face is taken as agreement.
    */
   glyph: string
-  /** Stroke count per region. */
+  /** Stroke count per region, shared by the list and detail page. */
   strokes: RegionalTuple<number>
   /**
    * Three bits per COLUMNS entry. Zero means unavailable; every other value is

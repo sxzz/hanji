@@ -109,6 +109,8 @@ export interface StrokeAnimationPath {
   /** AnimCJK reveals this filled brush outline with the median path above. */
   outline: string
   order: number
+  /** Start of the median path, used to mark the brush's first contact. */
+  start: readonly [number, number]
 }
 
 export interface StrokeAnimationData {

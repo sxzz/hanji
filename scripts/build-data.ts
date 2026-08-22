@@ -316,7 +316,7 @@ function tierOf(chars: RegionalTuple<string>): RegionalTuple<number> {
 const IRG_SOURCE: RegionalTuple<string> = ['G', 'H', 'T', 'J', 'K']
 
 /**
- * Stroke counts, taken per region wherever Unihan supports it.
+ * Unihan fallback for regions without a resolved stroke-order drawing.
  *
  * 1. kAlternateTotalStrokes names the IRG sources whose count differs from
  *    kTotalStrokes, so a region listed there is answered outright. It is the
@@ -330,7 +330,7 @@ const IRG_SOURCE: RegionalTuple<string> = ['G', 'H', 'T', 'J', 'K']
  *    preferred for zh-Hans and the second for zh-Hant, with no finer split,
  *    so HK/TW/JP/KR fall back to the second.
  */
-function strokesFor(char: string, region: number): number {
+function unihanStrokeFallback(char: string, region: number): number {
   const entry = unihan.get(char.codePointAt(0)!)
   const alternate = entry?.altStrokes?.[IRG_SOURCE[region]!]
   if (alternate) return alternate
@@ -340,8 +340,8 @@ function strokesFor(char: string, region: number): number {
   return region === 0 ? values[0]! : (values[1] ?? values[0])!
 }
 
-function strokesOf(chars: RegionalTuple<string>): RegionalTuple<number> {
-  return chars.map(strokesFor) as RegionalTuple<number>
+function initialStrokesOf(chars: RegionalTuple<string>): RegionalTuple<number> {
+  return chars.map(unihanStrokeFallback) as RegionalTuple<number>
 }
 
 /** Keep only the named keys, dropping the ones that are absent. */
@@ -496,7 +496,7 @@ function buildRow(
           old: {
             char: oldChar,
             glyph: Number(signature[REGION_IDS.length]),
-            strokes: strokesFor(oldChar, JP_INDEX),
+            strokes: unihanStrokeFallback(oldChar, JP_INDEX),
             ...(jpFrequency.has(oldChar)
               ? { freq: jpFrequency.get(oldChar) }
               : {}),
@@ -505,7 +505,7 @@ function buildRow(
       : {}),
     cp,
     glyph,
-    strokes: strokesOf(chars),
+    strokes: initialStrokesOf(chars),
     ...(freq.some((rank) => rank !== null) ? { freq } : {}),
     tier,
     listing,

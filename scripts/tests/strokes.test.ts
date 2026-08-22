@@ -17,7 +17,12 @@ import {
   type AnimCJKRegion,
   type PackedStrokeShard,
 } from '../../shared/strokes.ts'
-import { COLUMNS, type CharRow, type CharsData } from '../../shared/types.ts'
+import {
+  COLUMNS,
+  REGIONS,
+  type CharRow,
+  type CharsData,
+} from '../../shared/types.ts'
 import { parseAnimCJKGraphics } from '../build-strokes.ts'
 import { DATA_DIR, NOTICES_DIR, STROKE_DIR } from '../sources.ts'
 
@@ -78,6 +83,7 @@ describe('stroke source parsing', () => {
           d: 'M0 512L1024 512',
           order: 1,
           outline: 'M0 500L1024 500',
+          start: [0, 512],
         },
       ],
     })
@@ -248,6 +254,46 @@ describe('generated stroke shards', () => {
     expect(tw.variant).toBe(jp.variant)
     expect(hk.variant).toBe(tw.variant)
     expect(cn.variant).not.toBe(tw.variant)
+  })
+
+  it('stores resolved stroke-order counts in the unified regional values', () => {
+    let strokeOrderValues = 0
+    let fallbackValues = 0
+
+    for (const row of charsData.rows) {
+      const group =
+        shards[Number.parseInt(strokeShardId(row.key), 16)]!.groups[row.key]
+
+      for (const [index, region] of REGIONS.entries()) {
+        const ref = strokeDataRef(row, region)
+        if (!ref) {
+          fallbackValues++
+          expect(row.strokes[index]).toBeGreaterThan(0)
+          continue
+        }
+
+        strokeOrderValues++
+        const count = group!.variants[ref.variant]!.outlines.length
+        expect(row.strokes[index]).toBe(count)
+      }
+
+      if (row.old) {
+        const ref = strokeDataRef(row, 'old')
+        if (ref) {
+          strokeOrderValues++
+          expect(row.old.strokes).toBe(
+            group!.variants[ref.variant]!.outlines.length,
+          )
+        } else {
+          fallbackValues++
+          expect(row.old.strokes).toBeGreaterThan(0)
+        }
+      }
+    }
+
+    expect(strokeOrderValues).toBeGreaterThan(0)
+    expect(fallbackValues).toBeGreaterThan(0)
+    expect(charsData.rows.some((row) => 'comparisonStrokes' in row)).toBe(false)
   })
 
   it('merges median differences but preserves differences in stroke order', () => {

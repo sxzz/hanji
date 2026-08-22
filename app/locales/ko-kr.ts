@@ -74,6 +74,8 @@ export const koKR: typeof zhCN = {
     search: '검색',
     searchPlaceholder: '한자 / 독음 / U+9AA8',
     strokes: '획수',
+    strokeMin: '최소 획수',
+    strokeMax: '최대 획수',
     common: '상용 지역',
     pattern: '차이 패턴',
     tier: '수록 등급',
@@ -93,7 +95,6 @@ export const koKR: typeof zhCN = {
   },
   table: {
     scroll: '한자표, 좌우로 스크롤 가능',
-    strokes: '획수',
     old: '구',
     empty:
       '조건에 맞는 한자가 없습니다. 획수 범위를 넓히거나 다른 차이 패턴을 선택해 보세요.',
@@ -135,6 +136,7 @@ export const koKR: typeof zhCN = {
     strokeSpeed: '속도',
     strokeProgress: '{total}획 중 {current}획',
     strokeDiagram: '‘{char}’의 필순 애니메이션, 총 {total}획',
+    strokeSteps: '‘{char}’의 필순 단계 그림, 총 {total}획',
     strokeLoading: '필순을 불러오는 중…',
     strokeError: '필순을 불러오지 못했습니다.',
     strokeRetry: '다시 시도',
@@ -182,9 +184,9 @@ export const koKR: typeof zhCN = {
     limit2:
       'Source Han의 홍콩용 자형은 지원 범위가 완전하지 않아 ‘홍콩만 다름’ 패턴이 실제보다 적게 집계될 수 있습니다.',
     limit3:
-      '획수는 지역별로 가져옵니다. 먼저 Unihan의 kAlternateTotalStrokes를 사용합니다. IRG 출처별 값이 있어 가장 정확하지만 100여 개 코드 포인트만 다룹니다. 일본은 그다음 kRSAdobe_Japan1_6을 사용합니다. Adobe-Japan1-6에 수록된 일본 자형을 분석한 값이므로 ‘突’은 9획이 아닌 8획입니다. 둘 다 없으면 kTotalStrokes를 사용하지만, 이 값은 많아야 zh-Hans와 zh-Hant 두 종류만 구분하며 홍콩, 대만, 한국은 후자를 공유합니다.',
+      '사이트 전체의 지역별 획수는 먼저 필순 데이터의 실제 획수를 사용합니다. 홍콩은 필순 기능과 같은 동일 자형 관계에 따라 대만, 중국 대륙, 일본, 한국 순으로 데이터를 재사용합니다. 필순 데이터가 없으면 Unihan의 kAlternateTotalStrokes, 일본의 kRSAdobe_Japan1_6, kTotalStrokes 순으로 대체합니다.',
     limit4:
-      '따라서 일본 열의 획수는 나머지 네 지역과 다른 경우가 많습니다. 그중 약 5분의 1은 자형 자체는 같고 획수를 세는 방식만 다릅니다. 일본에서는 ‘阝’를 3획, ‘ネ’를 5획으로 세기 때문에 ‘那’의 다섯 지역 획수는 6/6/6/7/6이 됩니다.',
+      '한자표 필터·정렬과 상세 페이지는 같은 결과를 사용합니다. 예를 들어 ‘以’는 중국 대륙에서 4획, 홍콩·대만·일본·한국에서 5획입니다.',
     limit5:
       'OpenCC와 각 지역의 규범 한자표가 충돌하면 규범 한자표를 우선합니다. OpenCC의 이체자 표에는 ‘같은 글자의 다른 자형’과 ‘한 글자가 다른 글자를 대신하는 관계’가 섞여 있습니다. 어느 지역의 한자표가 두 글자를 별도로 수록하면 합치지 않습니다. 근거를 제공하는 지역이 하나뿐이고 후보가 다른 글자 그룹에도 속한다면 보수적으로 분리하고, 상세 페이지에서 양방향 ‘관계 미확인’ 링크로 알립니다.',
     limit6:

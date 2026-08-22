@@ -45,7 +45,7 @@
 - 本应用只比较通用黑体与宋体中的印刷字形，不涵盖手写习惯，也不以教科书体的示范字形为准。日语教科书体主要为日语教学设计，并没有与中、港、台、韩共享同一字形池的正式地区版本；若拼接风格相近但来源不同的字体，地区差异与字体自身的设计差异就无法分开。为了控制变量，本应用只能选用同时提供五地版本的同源字体系列。
 - 判定的对象是 Source Han 的地区字形设计，不是各地标准本身。它是个高质量的代理——Adobe 的地区字形分别依据大陆《印刷通用汉字字形表》、台湾教育部《國字標準字體》、香港教育局《常用字字形表》、日本 JIS X 0208/0213、韩国 KS X 1001/1002。
 - Source Han 的香港字形覆盖并不完整，「只有香港不同」这一类可能少报。
-- 笔画数逐地区取：先看 Unihan 的 `kAlternateTotalStrokes`，日本再退到 `kRSAdobe_Japan1_6`（它分析的是 Adobe-Japan1-6 收的日本字形，所以 突 是 8 画而不是 9 画），都没有才用 `kTotalStrokes`。后者只区分简繁两档，港台日韩通常共用繁体值；例如 那 的五列笔画数是 6/6/6/7/6。
+- 字表筛选、排序与详情页共用同一套地区笔画数：先取笔顺数据的实际笔画数；香港沿用笔顺功能的同形回退，依次尝试台湾、大陆、日本、韩国。没有笔顺数据时，再按 `kAlternateTotalStrokes` → 日本的 `kRSAdobe_Japan1_6` → `kTotalStrokes` 顺延。例如 以 的五地笔画数是 4/5/5/5/5。
 - 韩语读音取 Unihan 推荐的 `kHangul`，保留全部现代韩文单字音；它不根据词语语境替用户选择读音，也不另行推导头音法则。
 - 未收录格显示的是传承参考形，不表示该地区实际采用或规范收录该形；“关系未确认”同样表示现有公开来源不足以裁决。
 
@@ -96,7 +96,7 @@ Cloudflare Worker 名称须为 `hanji`，与 `wrangler.json` 中的 `name` 一�
 
 第三方资产的具体 commit、官方附件标识与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析有版本上游的版本号，并重新校验没有版本号的官方直链；内容有变化时更新 lockfile 并直接重新生成数据，完全未变则跳过生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **261 MiB** 原始数据（其中 195 MiB 是十份 Noto CJK 字体）；任何未显式更新的直链内容变化都会因校验和不符而失败，不会静默进入数据。Actions 分开缓存原始下载与生成字体：前者只由 lockfile 决定，后者由 lockfile、实际生成脚本、相关依赖、locale 与字表决定；字体输入完全不变时跳过数据生成。
 
-笔顺分片由 `pnpm build:dataset` 生成到 `app/assets/strokes/`，不提交到仓库；部署流程会在测试和静态生成前重建，再由 Vite 输出带内容哈希的文件名。随附授权保留在 `public/notices/` 的稳定 URL 下并要求重新验证。同一字组内，按笔画顺序排列的轮廓完全一致时只保存第一份变体及其中线，界面也把对应地区合并为一个选择项；页面加载时只获取一次所属分片，之后切换地区直接复用内存中的字组数据。
+笔顺分片由 `pnpm build:dataset` 生成到 `app/assets/strokes/`，不提交到仓库；部署流程会在测试和静态生成前重建，再由 Vite 输出带内容哈希的文件名。随附授权保留在 `public/notices/` 的稳定 URL 下并要求重新验证。同一字组内，按笔画顺序排列的轮廓完全一致时只保存第一份变体及其中线，界面也把对应地区合并为一个选择项；页面加载时只获取一次所属分片，之后切换地区直接复用内存中的字组数据。整站使用这里解析出的轮廓数量作为首选笔画数。
 
 本地也可构建后直传：
 
@@ -115,9 +115,9 @@ pnpm deploy
 | 判定五地字形差异                 | [Adobe Source Han Sans / Serif（CMap 资源）](https://github.com/adobe-fonts/source-han-sans)                    | [SIL OFL 1.1](https://openfontlicense.org/)                                                                                 |
 | 页面展示用字体                   | [Noto Sans / Noto Serif（含 CJK）](https://github.com/notofonts/noto-cjk)                                       | [SIL OFL 1.1](https://openfontlicense.org/)                                                                                 |
 | 简繁、港台异体、日本新旧字体对应 | [OpenCC 开放中文转换](https://github.com/BYVoid/OpenCC)                                                         | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)                                                                   |
-| 中、台、日、韩笔顺动画           | [AnimCJK](https://github.com/parsimonhi/animCJK)                                                                | [Arphic Public License](https://github.com/parsimonhi/animCJK/blob/master/licenses/APL/english/ARPHICPL.TXT)                |
+| 中、台、日、韩笔顺动画与笔画数   | [AnimCJK](https://github.com/parsimonhi/animCJK)                                                                | [Arphic Public License](https://github.com/parsimonhi/animCJK/blob/master/licenses/APL/english/ARPHICPL.TXT)                |
 | 五地标准字表                     | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars)                                                   | [仓库未声明](https://github.com/zispace/hanzi-chars)                                                                        |
-| 笔画数、读音                     | [Unicode Han Database (Unihan)](https://www.unicode.org/reports/tr38/)                                          | [Unicode License v3](https://www.unicode.org/license.txt)                                                                   |
+| 笔画数回退、读音                 | [Unicode Han Database (Unihan)](https://www.unicode.org/reports/tr38/)                                          | [Unicode License v3](https://www.unicode.org/license.txt)                                                                   |
 | 韩式异体对应                     | [Unicode IRG N2200（韩国教育用汉字提案）](https://www.unicode.org/L2/L2017/17173-irgn2200-unihan-db.pdf)        | [Unicode License v3](https://www.unicode.org/license.txt)                                                                   |
 | 大陆字频排名                     | [hanziDB.csv（Jun Da《现代汉语单字频率列表》）](https://github.com/ruddfawcett/hanziDB.csv)                     | [MIT](https://opensource.org/licenses/MIT)                                                                                  |
 | 香港字频排名                     | [粵典「語料庫單字使用頻率」](https://words.hk/faiman/analysis/charcount/)                                       | [Public Domain](https://words.hk/faiman/analysis/)                                                                          |

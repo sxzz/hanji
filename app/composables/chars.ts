@@ -19,7 +19,10 @@ import {
   type Region,
 } from '~~/shared/types.ts'
 import charsRaw from '~/assets/data/chars.json?raw'
-import { LOCALE_FREQUENCY_REGION } from '~/locales/index.ts'
+import {
+  LOCALE_DICTIONARY_REGION,
+  LOCALE_FREQUENCY_REGION,
+} from '~/locales/index.ts'
 import { isUnicodeScalarValue } from '~/utils/unicode.ts'
 import { useColumnVisibility } from './prefs.ts'
 import {
@@ -51,8 +54,8 @@ export const PAGE_SIZE = 100
 export const SHOW_ALL_LIMIT = 2000
 
 const STROKE_BOUNDS: [number, number] = [
-  Math.min(...data.rows.map((r) => Math.min(...r.strokes.filter(Boolean)))),
-  Math.max(...data.rows.map((r) => Math.max(...r.strokes))),
+  Math.min(...data.rows.map((row) => Math.min(...row.strokes.filter(Boolean)))),
+  Math.max(...data.rows.map((row) => Math.max(...row.strokes))),
 ]
 
 /** Every character that names a row: its columns, key, kyujitai and aliases. */
@@ -117,6 +120,10 @@ function byVariety(
 const CODEPOINT = /^u\+?([\da-f]{4,6})$/i
 
 export const rowsByKey = new Map(data.rows.map((row) => [row.key, row]))
+
+/** One region's unified stroke count. */
+const strokeCount = (row: CharRow, region: Region): number =>
+  row.strokes[REGIONS.indexOf(region)]!
 
 /** The /char path for a row key, encoded once so callers cannot forget to. */
 export const charPath = (key: string) => `/char/${encodeURIComponent(key)}`
@@ -220,6 +227,9 @@ export function useChars() {
   const defaultFrequencyRegion = computed(
     () => LOCALE_FREQUENCY_REGION[locale.value],
   )
+  const defaultStrokeRegion = computed(
+    () => LOCALE_DICTIONARY_REGION[locale.value],
+  )
 
   const asDimension = asOneOf(DIMENSIONS)
   const dimension = useQueryState(
@@ -245,6 +255,12 @@ export function useChars() {
     defaultFrequencyRegion,
     asOneOf(FREQUENCY_REGIONS).parse,
     asOneOf(FREQUENCY_REGIONS).serialize,
+  )
+  const strokeRegion = useQueryState(
+    'sr',
+    defaultStrokeRegion,
+    asOneOf(REGIONS).parse,
+    asOneOf(REGIONS).serialize,
   )
   const order = useQueryState(
     'o',
@@ -342,11 +358,8 @@ export function useChars() {
 
     return data.rows.filter((row, index) => {
       if (hits && !hits.has(index)) return false
-      if (
-        !wide &&
-        shown.every((i) => !(row.strokes[i]! >= lo) || !(row.strokes[i]! <= hi))
-      )
-        return false
+      const count = strokeCount(row, strokeRegion.value)
+      if (!wide && (count < lo || count > hi)) return false
       for (const i of required) if (!row.tier[i]) return false
       return matchesListings(row)
     })
@@ -374,13 +387,12 @@ export function useChars() {
   })
 
   const FREQ_LAST = Number.MAX_SAFE_INTEGER
-  /** The stroke count the row leads with, which is the first column on show. */
-  const leadStrokes = (row: CharRow) => row.strokes[regionIndices.value[0] ?? 0]
   const comparators: Record<SortKey, (a: CharRow, b: CharRow) => number> = {
     freq: (a, b) =>
       (frequencyRankOf(a, freqRegion.value) ?? FREQ_LAST) -
       (frequencyRankOf(b, freqRegion.value) ?? FREQ_LAST),
-    strokes: (a, b) => (leadStrokes(a) || 99) - (leadStrokes(b) || 99),
+    strokes: (a, b) =>
+      strokeCount(a, strokeRegion.value) - strokeCount(b, strokeRegion.value),
     cp: (a, b) => a.key.codePointAt(0)! - b.key.codePointAt(0)!,
   }
 
@@ -457,6 +469,7 @@ export function useChars() {
       patterns.value,
       sortKey.value,
       freqRegion.value,
+      strokeRegion.value,
       order.value,
       query.value,
       strokes.value,
@@ -518,6 +531,7 @@ export function useChars() {
     patterns,
     sortKey,
     freqRegion,
+    strokeRegion,
     order,
     query,
     strokes,
