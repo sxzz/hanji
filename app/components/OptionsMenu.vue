@@ -2,7 +2,6 @@
 const { t } = useT()
 const {
   flagLabels,
-  flagsOn,
   outline,
   COLUMNS,
   columnShown,
@@ -63,18 +62,9 @@ onKeyStroke('Escape', () => (open.value = false))
           </span>
         </label>
 
-        <!--
-          Which columns are compared at all. Same chip as the filter bar, but
-          not the same state: down there the exceptional thing is a filter being
-          on, so selection is a filled slab. Here an enabled column is the
-          normal state, so a chip that is off simply fades. That also keeps a
-          solid ink field from landing behind a flag, where the artwork's own
-          colors fight it.
-
-          One track per region, so the five sit as a single row of equal cells
-          rather than wrapping and leaving the last one stranded. The kyujitai
-          is not a place, and takes the full-width row underneath.
-        -->
+        <!-- One track per region keeps the five as a single row. Every region
+             control shares RegionOption's edge-and-key selected state; the
+             kyujitai is not a place and takes the full-width row underneath. -->
         <div class="mt-3 border-t border-rule pt-3">
           <span class="text-sm text-ink font-medium">{{
             t('options.columns')
@@ -83,32 +73,31 @@ onKeyStroke('Escape', () => (open.value = false))
             t('options.columnsHint')
           }}</span>
           <div class="grid grid-cols-5 mt-2 gap-1.5">
-            <button
+            <RegionOption
               v-for="column in COLUMNS"
               :key="column"
-              type="button"
-              class="focus-ring chip justify-center gap-1.5 text-xs disabled:cursor-not-allowed"
-              :class="[
-                columnShown(column)
-                  ? 'border-ink/35 bg-paper text-ink'
-                  : 'border-rule bg-sunk text-mute opacity-55 hover:opacity-85',
-                column === 'old' ? 'order-1 col-span-5' : '',
-              ]"
+              class="w-full"
+              :class="column === 'old' ? 'order-1 col-span-5' : ''"
+              :active="columnShown(column)"
               :disabled="columnLocked(column)"
+              :label="
+                column === 'old'
+                  ? t('region.old.full')
+                  : t(`region.${column}.full`)
+              "
+              :parts="[
+                {
+                  region: column === 'old' ? 'jp' : column,
+                  suffix: column === 'old' ? t('region.old.short') : undefined,
+                },
+              ]"
               :title="
                 columnLocked(column)
                   ? t('options.columnsLast')
                   : t(`region.${column}.full`)
               "
-              :aria-pressed="columnShown(column)"
-              @click="toggleColumn(column)"
-            >
-              <RegionLabel
-                :flag="flagsOn"
-                :region="column === 'old' ? 'jp' : column"
-              />
-              <span v-if="column === 'old'">{{ t('region.old.short') }}</span>
-            </button>
+              @select="toggleColumn(column)"
+            />
           </div>
         </div>
       </div>

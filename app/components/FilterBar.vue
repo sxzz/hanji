@@ -11,7 +11,7 @@ import {
 
 const chars = injectChars()
 const { t, locale } = useT()
-const { flagsOn, visibleColumns, visibleRegions } = usePrefs()
+const { visibleColumns, visibleRegions } = usePrefs()
 
 // Every label has to be computed, not built once: t() reads the active locale
 // and the reader can change it after the component is set up
@@ -140,19 +140,24 @@ const strokeHigh = computed({
 
 /** Tier labels live under char.tierCn and friends; old forms use region.old. */
 const listingOptions = computed(() =>
-  listingOptionsFor(visibleColumns.value).map((entry) => ({
-    ...entry,
-    label:
+  listingOptionsFor(visibleColumns.value).map((entry) => {
+    const label =
       entry.kind === 'old'
         ? t('region.old.short')
         : t(
             `char.tier${entry.region[0]!.toUpperCase()}${entry.region[1]}.${entry.tier}`,
-          ),
-    title:
+          )
+    const title =
       entry.kind === 'old'
         ? t('region.old.full')
-        : t(`region.${entry.region}.full`),
-  })),
+        : t(`region.${entry.region}.full`)
+    return {
+      ...entry,
+      label,
+      title,
+      ariaLabel: `${title} ${label}`,
+    }
+  }),
 )
 
 function toggleTier(id: string) {
@@ -215,22 +220,14 @@ function toggleRegion(region: string) {
       <div class="filter-field">
         <span class="filter-label eyebrow">{{ t('filter.common') }}</span>
         <div class="filter-control flex gap-1">
-          <button
+          <RegionOption
             v-for="region in visibleRegions"
             :key="region"
-            type="button"
-            class="focus-ring size-7 border rounded-md text-xs transition duration-150"
-            :class="
-              chars.common.value.includes(region)
-                ? 'chip-on'
-                : 'border-rule bg-paper text-mute hover:border-ink/30'
-            "
-            :title="t(`region.${region}.full`)"
-            :aria-pressed="chars.common.value.includes(region)"
-            @click="toggleRegion(region)"
-          >
-            <RegionLabel :flag="flagsOn" :region="region" />
-          </button>
+            :active="chars.common.value.includes(region)"
+            :label="t(`region.${region}.full`)"
+            :parts="[{ region }]"
+            @select="toggleRegion(region)"
+          />
         </div>
       </div>
 
@@ -270,25 +267,15 @@ function toggleRegion(region: string) {
         t('filter.tier')
       }}</span>
       <div class="filter-control flex flex-wrap items-center gap-x-3 gap-y-2">
-        <button
+        <RegionOption
           v-for="option in listingOptions"
           :key="option.id"
-          type="button"
-          class="focus-ring chip gap-1.5 text-xs"
-          :class="
-            chars.tiers.value.includes(option.id) ? 'chip-on' : 'chip-off'
-          "
+          :active="chars.tiers.value.includes(option.id)"
+          :label="option.ariaLabel"
+          :parts="[{ region: option.region, suffix: option.label }]"
           :title="option.title"
-          :aria-pressed="chars.tiers.value.includes(option.id)"
-          @click="toggleTier(option.id)"
-        >
-          <RegionLabel
-            :flag="flagsOn"
-            :region="option.region"
-            class="opacity-60"
-          />
-          {{ option.label }}
-        </button>
+          @select="toggleTier(option.id)"
+        />
       </div>
     </div>
 
