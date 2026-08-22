@@ -166,11 +166,11 @@ export async function buildStrokeData(rows: readonly CharRow[]): Promise<void> {
       const data = graphics[region].get(character)
       if (!data) continue
 
-      const serialized = JSON.stringify(data)
-      let variant = variants.get(serialized)
+      const outlineKey = JSON.stringify(data.outlines)
+      let variant = variants.get(outlineKey)
       if (variant === undefined) {
         variant = group.variants.length
-        variants.set(serialized, variant)
+        variants.set(outlineKey, variant)
         group.variants.push(data)
       }
       strokeMap = setStrokeVariant(strokeMap, column, variant)
@@ -211,7 +211,7 @@ export async function buildStrokeData(rows: readonly CharRow[]): Promise<void> {
             license: 'Arphic Public License',
             licenseUrl: ANIMCJK_LICENSE_PATH,
             modification:
-              'Selected only CN, TW, JP, and KR characters referenced by Hanji rows; retained the original stroke outlines and median paths; flattened median point pairs; deduplicated identical regional geometry within each row; regrouped records into 32 row-key hash shards. Hong Kong points at a matching regional variant in TW, CN, JP, KR priority order.',
+              'Selected only CN, TW, JP, and KR characters referenced by Hanji rows; retained the original stroke outlines and median paths; flattened median point pairs; deduplicated variants with identical ordered stroke outlines within each row, retaining the first matching median set; regrouped records into 32 row-key hash shards. Hong Kong points at a matching regional variant in TW, CN, JP, KR priority order.',
             source: ANIMCJK_HOME,
           },
         },

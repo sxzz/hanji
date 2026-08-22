@@ -146,6 +146,6 @@ export interface PackedStrokeShard {
 }
 
 export interface PackedStrokeGroup {
-  /** Each distinct outline/median payload is stored once per Hanji row. */
+  /** Each distinct ordered outline sequence is stored once per Hanji row. */
   variants: PackedAnimCJK[]
 }

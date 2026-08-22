@@ -216,7 +216,7 @@ describe('generated stroke shards', () => {
     expect(missing).toEqual([])
   })
 
-  it('deduplicates row geometry and maps every available column to it', () => {
+  it('deduplicates ordered outlines and maps every available column to them', () => {
     let packedGroups = 0
     for (const shard of shards)
       for (const [groupKey, group] of Object.entries(shard.groups)) {
@@ -224,7 +224,8 @@ describe('generated stroke shards', () => {
         const row = rows.get(groupKey)
         expect(row).toBeDefined()
         expect(
-          new Set(group.variants.map((data) => JSON.stringify(data))).size,
+          new Set(group.variants.map((data) => JSON.stringify(data.outlines)))
+            .size,
         ).toBe(group.variants.length)
         const refs = COLUMNS.flatMap((column) => {
           const ref = strokeDataRef(row!, column)
@@ -251,6 +252,29 @@ describe('generated stroke shards', () => {
     expect(tw.variant).toBe(jp.variant)
     expect(hk.variant).toBe(tw.variant)
     expect(cn.variant).not.toBe(tw.variant)
+  })
+
+  it('merges median differences but preserves differences in stroke order', () => {
+    const group = (key: string) =>
+      shards[Number.parseInt(strokeShardId(key), 16)]!.groups[key]!
+
+    const wantRow = rows.get('要')!
+    const wantVariants = COLUMNS.flatMap((column) => {
+      const ref = strokeDataRef(wantRow, column)
+      return ref ? [ref.variant] : []
+    })
+    expect(group('要').variants).toHaveLength(1)
+    expect(new Set(wantVariants)).toEqual(new Set([0]))
+
+    const haveRow = rows.get('有')!
+    const haveCn = strokeDataRef(haveRow, 'cn')!
+    const haveJp = strokeDataRef(haveRow, 'jp')!
+    const haveCnOutlines = group('有').variants[haveCn.variant]!.outlines
+    const haveJpOutlines = group('有').variants[haveJp.variant]!.outlines
+    expect(group('有').variants).toHaveLength(2)
+    expect(haveCn.variant).not.toBe(haveJp.variant)
+    expect(haveCnOutlines).not.toEqual(haveJpOutlines)
+    expect(haveCnOutlines.toSorted()).toEqual(haveJpOutlines.toSorted())
   })
 
   it('records direct availability and hides regions without data', () => {
