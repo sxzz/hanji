@@ -210,6 +210,14 @@ async function open(event: MouseEvent) {
   event.preventDefault()
   await morphTo(shown.value.key, 'hero')
 }
+
+async function openFromField(event: KeyboardEvent) {
+  // The Enter that confirms an IME candidate belongs to the composition. The
+  // next one, once composition has ended, is the reader asking to leave.
+  if (composing.value || event.isComposing) return
+  event.preventDefault()
+  await morphTo(shown.value.key, 'hero')
+}
 </script>
 
 <template>
@@ -294,6 +302,7 @@ async function open(event: MouseEvent) {
           @blur="focused = false"
           @compositionstart="composing = true"
           @compositionend="composing = false"
+          @keydown.enter="openFromField"
         />
 
         <!-- Drawn rather than left to the browser: a caret set at the size of
