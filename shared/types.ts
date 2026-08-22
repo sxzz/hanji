@@ -106,6 +106,12 @@ export interface CharRow {
   /** Stroke count per region. */
   strokes: RegionalTuple<number>
   /**
+   * Three bits per COLUMNS entry. Zero means unavailable; every other value is
+   * one plus the index of that column's row-local, deduplicated stroke variant.
+   * HK points at the matching TW/CN/JP/KR variant it borrows.
+   */
+  strokeMap?: number
+  /**
    * Character-frequency rank per region, lower is more common. Values are in
    * REGIONS order; null means the regional corpus does not rank this form.
    * Korea has no frequency corpus and is therefore always null.

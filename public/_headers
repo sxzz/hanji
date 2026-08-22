@@ -6,3 +6,8 @@
 
 /data/*.json
   Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Stroke shards are public generated datasets, without a custom cache policy.
+/strokes/*
+  Access-Control-Allow-Origin: *

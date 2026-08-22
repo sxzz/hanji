@@ -1,5 +1,5 @@
 /**
- * Generates public/data/chars.json.
+ * Generates the public character/source datasets and stroke assets.
  *
  * A row is a character group: one abstract character, with each of the five
  * columns holding the codepoint that region actually uses. The row key is the
@@ -13,6 +13,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { format, resolveConfig } from 'prettier'
+import { buildStrokeData } from './build-strokes.ts'
 import { parseCMap, partitionSignature } from './cmap.ts'
 import {
   DATA_DIR,
@@ -1032,6 +1033,8 @@ const stats: Stats = {
   byGlyph,
   byCp,
 }
+
+await buildStrokeData(rows)
 
 await mkdir(DATA_DIR, { recursive: true })
 await writeFile(

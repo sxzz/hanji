@@ -63,7 +63,7 @@
 
 ```bash
 pnpm install
-pnpm build:data   # 生成字表与字体子集，首次会下载约 215MB 原始数据，之后走缓存
+pnpm build:data   # 生成字表与字体子集，首次会下载约 261 MiB 原始数据，之后走缓存
 pnpm update:sources # 检查并锁定新版第三方数据；有变化时下载并重新生成
 pnpm dev
 pnpm test
@@ -72,7 +72,7 @@ pnpm generate     # 静态站点
 
 每一行的地址是它的行名（`/char/着`）。五地展示形、`aka` 和 `alternatives` 也可作为地址，由客户端跳到所属的行——例如 `/char/国`、`/char/郞`、`/char/缐`，页面用 `rel=canonical` 指回行名地址；未确认关系不是地址别名。
 
-字表 `public/data/chars.json` 提交在仓库里，也是站点的开放数据地址 `/data/chars.json`；所有 `/data/*.json` 响应均允许任意来源跨域读取。字体子集约 12MB，**不提交**，由 `pnpm build:data` 生成——所以构建前必须先跑一次。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`），已 gitignore。
+字表 `public/data/chars.json` 和来源清单 `public/data/sources.json` 都由 `pnpm build:dataset` 生成，**不提交**；构建后仍分别作为 `/data/chars.json` 与 `/data/sources.json` 开放下载。所有 `/data/*.json` 响应均允许任意来源跨域读取，并要求缓存重新验证，避免稳定 URL 留下旧数据。字体子集约 12MB，同样不提交，由 `pnpm build:data` 生成——所以构建前必须先跑一次。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`、`strokes/`），已 gitignore；构建会清理从旧缓存恢复、但已不在当前来源清单中的文件。
 
 ## 部署
 
@@ -94,7 +94,9 @@ Cloudflare Worker 名称须为 `hanji`，与 `wrangler.json` 中的 `name` 一�
 
 每个字组详情页都会生成独立 HTML；页面数据在本地 bundle 中，因此关闭了每路由额外生成 `_payload.json` 的 payload extraction。地区异体别名不另外生成跳转页：它先由 Static Assets 返回 `404.html` 和 HTTP 404，再由 Nuxt 客户端中间件跳到所属行；搜索引擎不会把 alias 当作成功页面重复收录。真正未知的地址保持 HTTP 404；`public/_headers` 给带内容哈希的 `_nuxt/*` 设了长缓存。
 
-第三方资产的具体 commit、官方附件标识与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析有版本上游的版本号，并重新校验没有版本号的官方直链；内容有变化时更新 lockfile 并直接重新生成数据，完全未变则跳过生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **215 MB** 原始数据（其中 195 MB 是十份 Noto CJK 字体）；任何未显式更新的直链内容变化都会因校验和不符而失败，不会静默进入数据。Actions 分开缓存原始下载与生成字体：前者只由 lockfile 决定，后者由 lockfile、实际生成脚本、相关依赖、locale 与字表决定；字体输入完全不变时跳过数据生成。
+第三方资产的具体 commit、官方附件标识与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析有版本上游的版本号，并重新校验没有版本号的官方直链；内容有变化时更新 lockfile 并直接重新生成数据，完全未变则跳过生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **261 MiB** 原始数据（其中 195 MiB 是十份 Noto CJK 字体）；任何未显式更新的直链内容变化都会因校验和不符而失败，不会静默进入数据。Actions 分开缓存原始下载与生成字体：前者只由 lockfile 决定，后者由 lockfile、实际生成脚本、相关依赖、locale 与字表决定；字体输入完全不变时跳过数据生成。
+
+笔顺分片和随附授权由 `pnpm build:dataset` 生成到 `public/strokes/`，不提交到仓库；部署流程会在测试和静态生成前重建它们。同一字组内轮廓与中线完全一致的地区只保存一份笔画变体，界面也把这些地区合并为一个选择项。分片请求带数据格式版本，并设置长期缓存，格式升级时会自动改用新 URL。
 
 本地也可构建后直传：
 
@@ -113,7 +115,7 @@ pnpm deploy
 | 判定五地字形差异                 | [Adobe Source Han Sans / Serif（CMap 资源）](https://github.com/adobe-fonts/source-han-sans)                    | [SIL OFL 1.1](https://openfontlicense.org/)                                                                                 |
 | 页面展示用字体                   | [Noto Sans / Noto Serif（含 CJK）](https://github.com/notofonts/noto-cjk)                                       | [SIL OFL 1.1](https://openfontlicense.org/)                                                                                 |
 | 简繁、港台异体、日本新旧字体对应 | [OpenCC 开放中文转换](https://github.com/BYVoid/OpenCC)                                                         | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)                                                                   |
-| 日本字形笔顺动画                 | [KanjiVG](https://kanjivg.tagaini.net/)                                                                         | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)                                                             |
+| 中、台、日、韩笔顺动画           | [AnimCJK](https://github.com/parsimonhi/animCJK)                                                                | [Arphic Public License](https://github.com/parsimonhi/animCJK/blob/master/licenses/APL/english/ARPHICPL.TXT)                |
 | 五地标准字表                     | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars)                                                   | [仓库未声明](https://github.com/zispace/hanzi-chars)                                                                        |
 | 笔画数、读音                     | [Unicode Han Database (Unihan)](https://www.unicode.org/reports/tr38/)                                          | [Unicode License v3](https://www.unicode.org/license.txt)                                                                   |
 | 韩式异体对应                     | [Unicode IRG N2200（韩国教育用汉字提案）](https://www.unicode.org/L2/L2017/17173-irgn2200-unihan-db.pdf)        | [Unicode License v3](https://www.unicode.org/license.txt)                                                                   |

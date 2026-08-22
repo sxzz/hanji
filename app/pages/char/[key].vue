@@ -6,6 +6,7 @@ import {
   projectSignature,
   signatureIndexOf,
 } from '~~/shared/row.ts'
+import { strokeDataRef } from '~~/shared/strokes.ts'
 import { REGIONS, type Column, type Region } from '~~/shared/types.ts'
 import {
   charPath,
@@ -15,6 +16,10 @@ import {
   useMorphingKey,
 } from '~/composables/chars.ts'
 import { dictionaryRegionsFor } from '~/locales/index.ts'
+import {
+  mergeStrokeOrderChoices,
+  type StrokeOrderChoice,
+} from '~/utils/animcjk.ts'
 import { listPlace } from '~/utils/list-place.ts'
 
 // char-alias sends the regional forms -- /char/国, /char/著 -- to the row they
@@ -214,13 +219,20 @@ const columnsOf = (run: { from: number; span: number }) =>
  */
 const columnRegion = (column: Column): Region =>
   column === 'old' ? 'jp' : column
+const strokeChoices = computed<StrokeOrderChoice[]>(() => {
+  const here = row.value!
+  return mergeStrokeOrderChoices(
+    here.key,
+    cells.value.flatMap((cell) => {
+      const data = strokeDataRef(here, cell.column)
+      return data ? [{ column: cell.column, char: cell.char, data }] : []
+    }),
+  )
+})
 const codePointRuns = computed(() => runs((cell) => cell.codePoint))
 const strokeRuns = computed(() => runs((cell) => cell.strokes))
 const frequencyRuns = computed(() => runs((cell) => String(cell.freq ?? '')))
 const tierRuns = computed(() => runs(tierLabel))
-/** KanjiVG records Japanese glyphs, independently of the visible columns. */
-const strokeChar = computed(() => row.value!.chars[REGIONS.indexOf('jp')]!)
-
 const readingRows = computed(() => {
   const readings = row.value?.readings
   if (!readings) return []
@@ -572,7 +584,7 @@ useSeoMeta({
           </table>
         </section>
 
-        <StrokeOrder :char="strokeChar" />
+        <StrokeOrder :choices="strokeChoices" />
 
         <section class="flex flex-col gap-6">
           <span class="eyebrow">{{ t('char.dict') }}</span>

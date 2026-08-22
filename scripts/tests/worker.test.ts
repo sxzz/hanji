@@ -20,6 +20,10 @@ interface WranglerConfig {
 const wrangler: WranglerConfig = JSON.parse(
   readFileSync(new URL('../../wrangler.json', import.meta.url), 'utf8'),
 )
+const headers = readFileSync(
+  new URL('../../public/_headers', import.meta.url),
+  'utf8',
+)
 
 describe('Workers Static Assets configuration', () => {
   it('deploys a purely static project without Worker invocations', () => {
@@ -42,5 +46,15 @@ describe('Workers Static Assets configuration', () => {
     expect(wrangler).not.toHaveProperty('routes')
     expect(wrangler.workers_dev).toBe(false)
     expect(wrangler.preview_urls).toBe(true)
+  })
+
+  it('revalidates stable datasets without a custom stroke cache policy', () => {
+    expect(headers).toMatch(
+      /\/data\/\*\.json[\s\S]*Cache-Control: public, max-age=0, must-revalidate/,
+    )
+    expect(headers).toMatch(
+      /\/strokes\/\*\n {2}Access-Control-Allow-Origin: \*/,
+    )
+    expect(headers).not.toMatch(/\/strokes\/\*[\s\S]*Cache-Control:/)
   })
 })

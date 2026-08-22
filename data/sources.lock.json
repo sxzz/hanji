@@ -2,13 +2,14 @@
   "version": 1,
   "revisions": {
     "github:zispace/hanzi-chars@main": "105544909cab18db1fedfd41a42c87408fbaac59",
-    "github:BYVoid/OpenCC@master": "3acca9851846cee58b0be32f2618d8f675935a19",
+    "github:BYVoid/OpenCC@master": "4f90418b9ed73a91023897095c762e5fdaadc016",
+    "github:parsimonhi/animCJK@master": "ec5e17cca76c87587790bcbce5ea0b4d4fb753d6",
     "github:adobe-fonts/source-han-sans@master": "0b993716f6910f0c8e00f957c767ab3cf5cb7602",
     "github:adobe-fonts/source-han-serif@master": "4356704ff7c68e9a84bf2bd489c9ebe186a9e2ef",
     "github:ruddfawcett/hanziDB.csv@master": "3e9f908d25f70674862343b201f6b641a36cd226",
     "github:scriptin/kanji-frequency@master": "62df93626e51a61c3dec58b51bfa20bef79491d7",
     "github:notofonts/noto-cjk@main": "f8d157532fbfaeda587e826d4cd5b21a49186f7c",
-    "github:notofonts/notofonts.github.io@main": "bbb09a4d552a4180570754be89cb4eafc9cef34b",
+    "github:notofonts/notofonts.github.io@main": "3c16704cb6f6e7c02268f7bc0cf86aaee598d16f",
     "unicode:ucd": "17.0.0"
   },
   "assets": {
@@ -58,29 +59,59 @@
       "size": 7466
     },
     "opencc/STCharacters.txt": {
-      "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/3acca9851846cee58b0be32f2618d8f675935a19/data/dictionary/STCharacters.txt",
+      "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/4f90418b9ed73a91023897095c762e5fdaadc016/data/dictionary/STCharacters.txt",
       "sha256": "a0ca1601c70648cf48b33c3c6210ccbecc5c7eead4b4c3daf76587ba2c03582b",
       "size": 36026
     },
     "opencc/TSCharacters.txt": {
-      "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/3acca9851846cee58b0be32f2618d8f675935a19/data/dictionary/TSCharacters.txt",
+      "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/4f90418b9ed73a91023897095c762e5fdaadc016/data/dictionary/TSCharacters.txt",
       "sha256": "737c21c66f55a419dd6956cb3089476cdefc5a36877452631617696df1e5d925",
       "size": 104516
     },
     "opencc/TWVariants.txt": {
-      "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/3acca9851846cee58b0be32f2618d8f675935a19/data/dictionary/TWVariants.txt",
+      "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/4f90418b9ed73a91023897095c762e5fdaadc016/data/dictionary/TWVariants.txt",
       "sha256": "e187278e119c427ca561180ac5da5b20e9f8681190458f35c327ce499e95a6a5",
       "size": 986
     },
     "opencc/HKVariants.txt": {
-      "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/3acca9851846cee58b0be32f2618d8f675935a19/data/dictionary/HKVariants.txt",
+      "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/4f90418b9ed73a91023897095c762e5fdaadc016/data/dictionary/HKVariants.txt",
       "sha256": "e5cd4345303224587102f2c9e4d2b67d2b7e349c6ce9152e4a118f4656cf7302",
       "size": 1001
     },
     "opencc/JPShinjitaiCharacters.txt": {
-      "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/3acca9851846cee58b0be32f2618d8f675935a19/data/dictionary/JPShinjitaiCharacters.txt",
+      "url": "https://raw.githubusercontent.com/BYVoid/OpenCC/4f90418b9ed73a91023897095c762e5fdaadc016/data/dictionary/JPShinjitaiCharacters.txt",
       "sha256": "12cec7250b873ef52b36d8f92218d4f92c0aaf5d8cd7c58fe42d9785bdcdc43a",
       "size": 12442
+    },
+    "strokes/animcjk-ja.txt": {
+      "url": "https://raw.githubusercontent.com/parsimonhi/animCJK/ec5e17cca76c87587790bcbce5ea0b4d4fb753d6/graphicsJa.txt",
+      "sha256": "2bcd1c6d186e5376c5f9202b4eae2eaeff13c2566675a55f1c9dd548a2ef31c8",
+      "size": 21862957
+    },
+    "strokes/animcjk-zh-hans.txt": {
+      "url": "https://raw.githubusercontent.com/parsimonhi/animCJK/ec5e17cca76c87587790bcbce5ea0b4d4fb753d6/graphicsZhHans.txt",
+      "sha256": "5a5c157fddd0fd9bfaf5580b25c20a1ba2b0cabc0b7142e09f6149cbd5547798",
+      "size": 22561924
+    },
+    "strokes/animcjk-zh-hant.txt": {
+      "url": "https://raw.githubusercontent.com/parsimonhi/animCJK/ec5e17cca76c87587790bcbce5ea0b4d4fb753d6/graphicsZhHant.txt",
+      "sha256": "731fe26345833745dc7d37c8213f3ca91585aa0ee18179c0ccda91be41ff6aec",
+      "size": 2988095
+    },
+    "strokes/animcjk-ko.txt": {
+      "url": "https://raw.githubusercontent.com/parsimonhi/animCJK/ec5e17cca76c87587790bcbce5ea0b4d4fb753d6/graphicsKo.txt",
+      "sha256": "7e703f34df54080281252a5c87a7106b85034b81fdbf93d37c07009a1448202e",
+      "size": 1387824
+    },
+    "strokes/animcjk-APL.txt": {
+      "url": "https://raw.githubusercontent.com/parsimonhi/animCJK/ec5e17cca76c87587790bcbce5ea0b4d4fb753d6/licenses/APL/english/ARPHICPL.TXT",
+      "sha256": "3a5e90c0957524a89e48203febcd4492ca4393678abaa7e5b4d70f3ff32b386d",
+      "size": 6901
+    },
+    "strokes/animcjk-COPYING.txt": {
+      "url": "https://raw.githubusercontent.com/parsimonhi/animCJK/ec5e17cca76c87587790bcbce5ea0b4d4fb753d6/licenses/COPYING.txt",
+      "sha256": "4d284bbcd461e3fbaa6e2b61740ad68b281fce92ab8be817a0be5267d632a71f",
+      "size": 1476
     },
     "cmap/sans-CN.txt": {
       "url": "https://raw.githubusercontent.com/adobe-fonts/source-han-sans/0b993716f6910f0c8e00f957c767ab3cf5cb7602/UniSourceHanSansCN-UTF32-H",
@@ -208,12 +239,12 @@
       "size": 24539640
     },
     "font/NotoSans-VF.ttf": {
-      "url": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/bbb09a4d552a4180570754be89cb4eafc9cef34b/fonts/NotoSans/unhinted/variable-ttf/NotoSans%5Bwdth,wght%5D.ttf",
+      "url": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/3c16704cb6f6e7c02268f7bc0cf86aaee598d16f/fonts/NotoSans/unhinted/variable-ttf/NotoSans%5Bwdth,wght%5D.ttf",
       "sha256": "511cc04b442ffcc3b24d65c2cc780bdffaf482b20ba0aebdc8f27b37017ff0f5",
       "size": 1581884
     },
     "font/NotoSerif-VF.ttf": {
-      "url": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/bbb09a4d552a4180570754be89cb4eafc9cef34b/fonts/NotoSerif/unhinted/variable-ttf/NotoSerif%5Bwdth,wght%5D.ttf",
+      "url": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/3c16704cb6f6e7c02268f7bc0cf86aaee598d16f/fonts/NotoSerif/unhinted/variable-ttf/NotoSerif%5Bwdth,wght%5D.ttf",
       "sha256": "8918809882ffe61eb32baf3f4b3420fda6c022f2219b1b0272755d70ecabc7de",
       "size": 1887176
     },

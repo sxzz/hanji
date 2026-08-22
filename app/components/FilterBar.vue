@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { listingOptionsFor } from '~~/shared/listings.ts'
 import { varietyChoice } from '~~/shared/patterns.ts'
-import { FREQUENCY_REGIONS, type FrequencyRegion } from '~~/shared/types.ts'
+import { FREQUENCY_REGIONS } from '~~/shared/types.ts'
 import {
   injectChars,
   SORT_KEYS,
@@ -51,14 +51,11 @@ function reverseSort() {
 
 const frequencyRegions = computed(() =>
   FREQUENCY_REGIONS.map((region) => ({
-    region,
+    value: region,
+    parts: [{ region }],
     title: t(`region.${region}.full`),
   })),
 )
-
-function chooseFrequencyRegion(region: FrequencyRegion) {
-  chars.freqRegion.value = region
-}
 
 /** Read a partition as “Mainland+Taiwan | Hong Kong+Japan”. */
 function patternLabel(signature: string): string {
@@ -249,30 +246,12 @@ function toggleRegion(region: string) {
           <!-- Frequency is the only sort with a regional point of view. Keep
                that choice visually subordinate: a compact index tab beside
                the main sort, not another full-sized filter field. -->
-          <span
+          <RegionChoice
             v-if="chars.sortKey.value === 'freq'"
-            role="group"
-            :aria-label="t('sort.freqRegion')"
-            class="h-7 inline-flex shrink-0 items-center gap-px border border-rule rounded-md bg-sunk p-[2px]"
-          >
-            <button
-              v-for="option in frequencyRegions"
-              :key="option.region"
-              type="button"
-              class="focus-ring size-[22px] flex-center rounded text-[0.6875rem] transition-colors duration-150"
-              :class="
-                chars.freqRegion.value === option.region
-                  ? 'bg-paper text-ink shadow-[0_1px_2px_rgb(0_0_0/0.06)]'
-                  : 'text-mute hover:text-soft'
-              "
-              :title="option.title"
-              :aria-label="option.title"
-              :aria-pressed="chars.freqRegion.value === option.region"
-              @click="chooseFrequencyRegion(option.region)"
-            >
-              <RegionLabel :flag="flagsOn" :region="option.region" />
-            </button>
-          </span>
+            v-model="chars.freqRegion.value"
+            :group-label="t('sort.freqRegion')"
+            :options="frequencyRegions"
+          />
         </span>
       </div>
 
