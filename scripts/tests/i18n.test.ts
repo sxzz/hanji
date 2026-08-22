@@ -3,11 +3,14 @@ import {
   dictionaryRegionsFor,
   LOCALE_DICTIONARY_REGION,
   LOCALE_FREQUENCY_REGION,
+  LOCALE_OLD_FORM_WIKIPEDIA,
   matchLocale,
 } from '../../app/locales/index.ts'
 import { jaJP } from '../../app/locales/ja-jp.ts'
 import { koKR } from '../../app/locales/ko-kr.ts'
 import { zhCN } from '../../app/locales/zh-cn.ts'
+import { zhHK } from '../../app/locales/zh-hk.ts'
+import { zhTW } from '../../app/locales/zh-tw.ts'
 import { hanNumber } from '../../app/utils/han-number.ts'
 
 function leaves(value: unknown, prefix = ''): Record<string, string> {
@@ -76,6 +79,28 @@ describe('locale-aware dictionaries', () => {
       'hk',
       'jp',
     ])
+  })
+})
+
+describe('locale-aware old-form references', () => {
+  it('uses the short label as the single-character old-form marker', () => {
+    expect([
+      zhCN.region.old.short,
+      zhHK.region.old.short,
+      zhTW.region.old.short,
+      jaJP.region.old.short,
+      koKR.region.old.short,
+    ]).toEqual(['旧', '舊', '舊', '旧', '구'])
+  })
+
+  it('links each interface locale to its matching Wikipedia', () => {
+    expect(LOCALE_OLD_FORM_WIKIPEDIA).toEqual({
+      'zh-CN': 'https://zh.wikipedia.org/zh-cn/%E8%88%8A%E5%AD%97%E9%AB%94',
+      'zh-TW': 'https://zh.wikipedia.org/zh-tw/%E8%88%8A%E5%AD%97%E9%AB%94',
+      'zh-HK': 'https://zh.wikipedia.org/zh-hk/%E8%88%8A%E5%AD%97%E9%AB%94',
+      'ja-JP': 'https://ja.wikipedia.org/wiki/%E6%97%A7%E5%AD%97%E4%BD%93',
+      'ko-KR': 'https://ko.wikipedia.org/wiki/%EA%B5%AC%EC%9E%90%EC%B2%B4',
+    })
   })
 })
 

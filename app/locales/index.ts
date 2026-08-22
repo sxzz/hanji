@@ -36,6 +36,15 @@ export const LOCALE_FREQUENCY_REGION = {
   'ko-KR': 'cn',
 } as const satisfies Record<Locale, FrequencyRegion>
 
+/** The old-form explainer follows the reader to the matching Wikipedia. */
+export const LOCALE_OLD_FORM_WIKIPEDIA = {
+  'zh-CN': 'https://zh.wikipedia.org/zh-cn/%E8%88%8A%E5%AD%97%E9%AB%94',
+  'zh-TW': 'https://zh.wikipedia.org/zh-tw/%E8%88%8A%E5%AD%97%E9%AB%94',
+  'zh-HK': 'https://zh.wikipedia.org/zh-hk/%E8%88%8A%E5%AD%97%E9%AB%94',
+  'ja-JP': 'https://ja.wikipedia.org/wiki/%E6%97%A7%E5%AD%97%E4%BD%93',
+  'ko-KR': 'https://ko.wikipedia.org/wiki/%EA%B5%AC%EC%9E%90%EC%B2%B4',
+} as const satisfies Record<Locale, string>
+
 /** Dictionaries follow either the comparison or the active interface locale. */
 export function dictionaryRegionsFor(
   locale: Locale,

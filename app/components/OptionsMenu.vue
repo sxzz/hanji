@@ -1,5 +1,7 @@
 <script setup lang="ts">
-const { t } = useT()
+import { LOCALE_OLD_FORM_WIKIPEDIA } from '~/locales/index.ts'
+
+const { t, locale } = useT()
 const {
   flagLabels,
   outline,
@@ -8,6 +10,10 @@ const {
   columnLocked,
   toggleColumn,
 } = usePrefs()
+
+const regionColumns = COLUMNS.filter((column) => column !== 'old')
+const oldDescriptionId = useId()
+const oldFormWikipedia = computed(() => LOCALE_OLD_FORM_WIKIPEDIA[locale.value])
 
 /** Reader preferences, each labeled by `options.<key>` and `<key>Hint`. */
 const options = [
@@ -74,23 +80,13 @@ onKeyStroke('Escape', () => (open.value = false))
           }}</span>
           <div class="grid grid-cols-5 mt-2 gap-1.5">
             <RegionOption
-              v-for="column in COLUMNS"
+              v-for="column in regionColumns"
               :key="column"
               class="w-full"
-              :class="column === 'old' ? 'order-1 col-span-5' : ''"
               :active="columnShown(column)"
               :disabled="columnLocked(column)"
-              :label="
-                column === 'old'
-                  ? t('region.old.full')
-                  : t(`region.${column}.full`)
-              "
-              :parts="[
-                {
-                  region: column === 'old' ? 'jp' : column,
-                  suffix: column === 'old' ? t('region.old.short') : undefined,
-                },
-              ]"
+              :label="t(`region.${column}.full`)"
+              :parts="[{ region: column }]"
               :title="
                 columnLocked(column)
                   ? t('options.columnsLast')
@@ -98,6 +94,35 @@ onKeyStroke('Escape', () => (open.value = false))
               "
               @select="toggleColumn(column)"
             />
+
+            <div class="old-column">
+              <RegionOption
+                class="w-full"
+                :active="columnShown('old')"
+                :aria-describedby="oldDescriptionId"
+                :label="t('region.old.full')"
+                :native-title="false"
+                :parts="[{ suffix: t('region.old.short') }]"
+                @select="toggleColumn('old')"
+              />
+              <div class="old-tooltip">
+                <p :id="oldDescriptionId">
+                  {{ t('region.old.description') }}
+                </p>
+                <a
+                  :href="oldFormWikipedia"
+                  class="old-tooltip-link focus-ring"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span>{{ t('region.old.wikipedia') }}</span>
+                  <span
+                    class="i-ri-external-link-line block shrink-0"
+                    aria-hidden="true"
+                  />
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -116,5 +141,90 @@ onKeyStroke('Escape', () => (open.value = false))
 .pop-leave-to {
   opacity: 0;
   transform: translateY(-4px);
+}
+
+.old-column {
+  position: relative;
+  grid-column: 1 / -1;
+}
+
+.old-tooltip {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.375rem);
+  left: 0;
+  z-index: 1;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--c-rule);
+  border-radius: 6px;
+  visibility: hidden;
+  background: var(--c-paper);
+  color: var(--c-ink-soft);
+  font-size: 0.75rem;
+  line-height: 1.5;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(0.25rem);
+  transition:
+    opacity 120ms ease,
+    transform 120ms ease,
+    visibility 0s linear 120ms;
+}
+
+/* Keep the hover path continuous across the small visual gap. */
+.old-tooltip::after {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 0.5rem;
+  content: '';
+}
+
+.old-column:hover .old-tooltip,
+.old-column:focus-within .old-tooltip {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+  transition-delay: 0s;
+}
+
+.old-tooltip-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.25rem;
+  color: var(--c-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--c-rule);
+  text-underline-offset: 0.18em;
+}
+
+.old-tooltip-link:hover {
+  text-decoration-color: currentColor;
+}
+
+@media (min-width: 768px) {
+  .old-tooltip {
+    right: calc(100% + 0.5rem);
+    bottom: 0;
+    left: auto;
+    width: 14.375rem;
+    transform: translateX(0.25rem);
+  }
+
+  .old-tooltip::after {
+    top: 0;
+    right: -0.5rem;
+    left: auto;
+    width: 0.5rem;
+    height: 100%;
+  }
+
+  .old-column:hover .old-tooltip,
+  .old-column:focus-within .old-tooltip {
+    transform: translateX(0);
+  }
 }
 </style>

@@ -93,12 +93,9 @@ const visibleChoice = computed(() => {
 const choiceOptions = computed(() =>
   props.choices.map((choice) => ({
     value: choice.column,
-    parts: choice.columns.map((column, index) =>
+    parts: choice.columns.map((column) =>
       column === 'old'
         ? {
-            ...(choice.columns[index - 1] === 'jp'
-              ? {}
-              : { region: 'jp' as const }),
             suffix: t('region.old.short'),
           }
         : { region: column },

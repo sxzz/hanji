@@ -11,7 +11,13 @@ export const zhCN = {
     tw: { short: '台', full: '台湾' },
     jp: { short: '日', full: '日本' },
     kr: { short: '韩', full: '韩国' },
-    old: { short: '旧字体', full: '日本旧字体' },
+    old: {
+      short: '旧',
+      full: '日本旧字体',
+      description:
+        '“旧”表示日本旧字体，即日本在制定新字体前使用的传统汉字字体。',
+      wikipedia: '在Wikipedia上了解旧字体',
+    },
   },
   hero: {
     title: '一个汉字{n}种字形',

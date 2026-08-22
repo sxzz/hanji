@@ -13,7 +13,13 @@ export const zhTW: typeof zhCN = {
     tw: { short: '臺', full: '臺灣' },
     jp: { short: '日', full: '日本' },
     kr: { short: '韓', full: '韓國' },
-    old: { short: '舊字體', full: '日本舊字體' },
+    old: {
+      short: '舊',
+      full: '日本舊字體',
+      description:
+        '「舊」表示日本舊字體，也就是日本制定新字體前使用的傳統漢字字體。',
+      wikipedia: '在Wikipedia瞭解舊字體',
+    },
   },
   hero: {
     title: '一個漢字{n}種字形',

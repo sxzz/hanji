@@ -21,7 +21,7 @@ const { flagsOn } = usePrefs()
 const marks = computed(() =>
   props.columns.map((column) => ({
     column,
-    region: column === 'old' ? ('jp' as const) : column,
+    region: column === 'old' ? undefined : column,
     old: column === 'old' ? t('region.old.short') : undefined,
   })),
 )
@@ -30,7 +30,7 @@ const marks = computed(() =>
 <template>
   <span class="lit-regions eyebrow" :style="{ color: groupColor(group) }">
     <span v-for="mark in marks" :key="mark.column" class="lit-region">
-      <RegionLabel :flag="flagsOn" :region="mark.region" />
+      <RegionLabel v-if="mark.region" :flag="flagsOn" :region="mark.region" />
       <template v-if="mark.old">{{ mark.old }}</template>
     </span>
   </span>

@@ -155,7 +155,11 @@ const listingOptions = computed(() =>
       ...entry,
       label,
       title,
-      ariaLabel: `${title} ${label}`,
+      ariaLabel: entry.kind === 'old' ? title : `${title} ${label}`,
+      parts:
+        entry.kind === 'old'
+          ? [{ suffix: label }]
+          : [{ region: entry.region, suffix: label }],
     }
   }),
 )
@@ -272,7 +276,7 @@ function toggleRegion(region: string) {
           :key="option.id"
           :active="chars.tiers.value.includes(option.id)"
           :label="option.ariaLabel"
-          :parts="[{ region: option.region, suffix: option.label }]"
+          :parts="option.parts"
           :title="option.title"
           @select="toggleTier(option.id)"
         />
