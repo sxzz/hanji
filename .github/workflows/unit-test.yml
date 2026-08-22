@@ -12,4 +12,6 @@ jobs:
   unit-test:
     uses: sxzz/workflows/.github/workflows/unit-test.yml@main
     with:
+      build: pnpm build:dataset
+      build-for-lint: true
       skip-test: true
