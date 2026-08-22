@@ -1,4 +1,3 @@
-import charsRaw from '~~/public/data/chars.json?raw'
 import { frequencyRankOf } from '~~/shared/frequency.ts'
 import { createListingMatcher, listingOptionsFor } from '~~/shared/listings.ts'
 import {
@@ -19,6 +18,7 @@ import {
   type CharsData,
   type Region,
 } from '~~/shared/types.ts'
+import charsRaw from '~/assets/data/chars.json?raw'
 import { LOCALE_FREQUENCY_REGION } from '~/locales/index.ts'
 import { isUnicodeScalarValue } from '~/utils/unicode.ts'
 import { useColumnVisibility } from './prefs.ts'

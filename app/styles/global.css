@@ -79,9 +79,9 @@ body {
  * binding would be rendered as sans at prerender time and hydration does not
  * rewrite it.
  *
- * scripts/build-fonts.ts generates the @font-face rules into
- * /fonts/fonts-sans.css and /fonts/fonts-serif.css, chunked by unicode-range
- * so the browser fetches only the chunks holding characters on screen.
+ * scripts/build-fonts.ts generates the @font-face rules into Vite-built sans
+ * and serif stylesheets, chunked by unicode-range, so the browser fetches only
+ * the chunks holding characters on screen.
  */
 .hanji-cn {
   font-family: 'Hanji Sans CN', sans-serif;

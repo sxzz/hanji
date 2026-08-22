@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ISSUES_URL } from '~~/shared/links.ts'
+import charsDataUrl from '~/assets/data/chars.json?url&no-inline'
+import sourcesDataUrl from '~/assets/data/sources.json?url&no-inline'
 import { stats } from '~/composables/chars.ts'
 
 const { t } = useT()
@@ -61,9 +63,15 @@ useSeoMeta({
       <h2>{{ t('about.dataTitle') }}</h2>
       <p>{{ t('about.data1') }}</p>
       <ul>
-        <li><a href="/data/chars.json">/data/chars.json</a></li>
-        <li><a href="/data/sources.json">/data/sources.json</a></li>
-        <li><a href="/data/NOTICE.md">/data/NOTICE.md</a></li>
+        <li>
+          <a href="/data/chars.json" :data-versioned-url="charsDataUrl"
+            >/data/chars.json</a
+          >
+        </li>
+        <li><a :href="sourcesDataUrl">sources.json</a></li>
+        <li>
+          <a href="/notices/data-sources.md">data-sources.md</a>
+        </li>
       </ul>
 
       <h2>{{ t('about.sourcesTitle') }}</h2>

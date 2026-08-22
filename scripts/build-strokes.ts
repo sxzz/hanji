@@ -16,11 +16,11 @@ import {
   type PackedStrokeShard,
 } from '../shared/strokes.ts'
 import { COLUMNS, REGIONS, type CharRow, type Column } from '../shared/types.ts'
-import { raw, rawText, STROKE_DIR } from './sources.ts'
+import { NOTICES_DIR, raw, rawText, STROKE_DIR } from './sources.ts'
 
 const MODIFIED_AT = '2026-08-23'
 const ANIMCJK_HOME = 'https://github.com/parsimonhi/animCJK'
-const ANIMCJK_LICENSE_PATH = '/strokes/licenses/animcjk-APL.txt'
+const ANIMCJK_LICENSE_PATH = '/notices/animcjk-APL.txt'
 
 const GRAPHICS_SOURCE: Record<AnimCJKRegion, string> = {
   cn: 'strokes/animcjk-zh-hans.txt',
@@ -226,15 +226,14 @@ export async function buildStrokeData(rows: readonly CharRow[]): Promise<void> {
     )
   }
 
-  const licenseDir = join(STROKE_DIR, 'licenses')
-  await mkdir(licenseDir, { recursive: true })
+  await mkdir(NOTICES_DIR, { recursive: true })
   await Promise.all([
     writeFile(
-      join(licenseDir, 'animcjk-APL.txt'),
+      join(NOTICES_DIR, 'animcjk-APL.txt'),
       await raw('strokes/animcjk-APL.txt'),
     ),
     writeFile(
-      join(licenseDir, 'animcjk-COPYING.txt'),
+      join(NOTICES_DIR, 'animcjk-COPYING.txt'),
       await raw('strokes/animcjk-COPYING.txt'),
     ),
   ])

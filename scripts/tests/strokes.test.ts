@@ -19,7 +19,7 @@ import {
 } from '../../shared/strokes.ts'
 import { COLUMNS, type CharRow, type CharsData } from '../../shared/types.ts'
 import { parseAnimCJKGraphics } from '../build-strokes.ts'
-import { DATA_DIR, STROKE_DIR } from '../sources.ts'
+import { DATA_DIR, NOTICES_DIR, STROKE_DIR } from '../sources.ts'
 
 describe('stroke source parsing', () => {
   it('keeps selected AnimCJK outlines and flattens their medians', () => {
@@ -167,12 +167,8 @@ describe('generated stroke shards', () => {
       for (const groupKey of Object.keys(shard.groups))
         expect(Number.parseInt(strokeShardId(groupKey), 16)).toBe(index)
     }
-    expect(existsSync(join(STROKE_DIR, 'licenses', 'animcjk-APL.txt'))).toBe(
-      true,
-    )
-    expect(
-      existsSync(join(STROKE_DIR, 'licenses', 'animcjk-COPYING.txt')),
-    ).toBe(true)
+    expect(existsSync(join(NOTICES_DIR, 'animcjk-APL.txt'))).toBe(true)
+    expect(existsSync(join(NOTICES_DIR, 'animcjk-COPYING.txt'))).toBe(true)
   })
 
   it('keeps every transformed AnimCJK median inside its source viewBox', () => {

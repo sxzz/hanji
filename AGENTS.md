@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-Hanji is a Nuxt 4/Vue 3 static site. Route components live in `app/pages/`, reusable UI in `app/components/`, stateful helpers in `app/composables/`, and global styling in `app/styles/`. Keep framework-independent data models and lookup logic in `shared/` so both the app and build scripts can import them. Data and font pipelines live in `scripts/`; their Vitest suites are in `scripts/tests/`. `public/data/` contains committed generated datasets, while generated font files and downloaded inputs under `data/raw/` are ignored. Do not hand-edit generated outputs; change the relevant script or source lock instead.
+Hanji is a Nuxt 4/Vue 3 static site. Route components live in `app/pages/`, reusable UI in `app/components/`, stateful helpers in `app/composables/`, and global styling in `app/styles/`. Keep framework-independent data models and lookup logic in `shared/` so both the app and build scripts can import them. Data and font pipelines live in `scripts/`; their Vitest suites are in `scripts/tests/`. Generated datasets, stroke shards, and font subsets under `app/assets/` are ignored and fingerprinted by Vite; stable legal texts live under `public/notices/`. Downloaded inputs under `data/raw/` are also ignored. Do not hand-edit generated outputs; change the relevant script or source lock instead.
 
 ## Build, Test, and Development Commands
 

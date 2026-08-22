@@ -72,7 +72,7 @@ pnpm generate     # 静的サイト
 
 各行のURLには行名を使います（`/char/着`）。5地域の表示字形、`aka`、`alternatives` もURLとして利用でき、クライアント側で対応する行へ移動します。たとえば `/char/国`、`/char/郞`、`/char/缐` です。ページの `rel=canonical` は行名のURLを指します。未確認関係はURL別名にはなりません。
 
-字表 `public/data/chars.json` と出典一覧 `public/data/sources.json` は、どちらも `pnpm build:dataset` で生成し、リポジトリには**コミットしません**。ビルド後も、それぞれ `/data/chars.json` と `/data/sources.json` から公開データとして取得できます。すべての `/data/*.json` レスポンスは任意のオリジンからのクロスオリジン読み取りを許可し、安定したURLで古いデータが残らないよう、キャッシュの再検証を必須にします。フォントサブセットは約12MBで、同様にコミットせず、`pnpm build:data` で生成します。そのため、ビルド前に一度実行する必要があります。元データのダウンロードは `data/raw/` 以下に種類別（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`、`strokes/`）でキャッシュされ、gitignoreされています。ビルド時には、古いキャッシュから復元されたものの、現在の出典一覧には存在しないファイルを削除します。
+字表 `app/assets/data/chars.json` と出典一覧 `app/assets/data/sources.json` は、どちらも `pnpm build:dataset` で生成し、リポジトリには**コミットしません**。アプリは両方を直接インポートし、Viteも両方に内容ハッシュ付きのダウンロードURLを出力します。静的生成の完了後、字表は外部サイトから参照できる固定URL `/data/chars.json` にもコピーされ、「このサイトについて」ページもこのURLへリンクします。キャッシュは1時間有効で、期限切れ後もバックグラウンドで再検証している間は古い版を1日利用できます。約12MBのフォントサブセットは `app/assets/fonts/` に生成し、同様にコミットしません。字表、出典一覧、筆順、フォント、旗はすべてViteのアセットグラフに入り、`/_nuxt/*` の長期immutableキャッシュで安全に再利用できます。変更され得る一方で安定URLが必要なNOTICEとライセンス文は `public/notices/` に分離し、利用のたびに再検証します。ビルド前には `pnpm build:data` を実行してください。元データのダウンロードは `data/raw/` 以下に種類別（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`、`strokes/`）でキャッシュされ、gitignoreされています。ビルド時には、古いキャッシュから復元されたものの、現在の出典一覧には存在しないファイルを削除します。
 
 ## デプロイ
 
@@ -92,11 +92,11 @@ Cloudflareの **Settings → Domains & Routes** でproductionドメインを接�
 
 ページビューとWeb Vitalsが必要な場合は、実際のドメインを所有するアカウントの **Web Analytics → Add a site** でCloudflareによりプロキシされているhostnameを選び、automatic setupを使用してください。Cloudflareがエッジでbeaconを自動挿入します。
 
-各字群の詳細ページはそれぞれ独立したHTMLとして生成されます。ページデータはローカルbundleに含まれるため、ルートごとの追加 `_payload.json` を生成するpayload extractionは無効にしています。地域異体字の別名については、リダイレクト専用ページを生成しません。Static Assetsがまず `404.html` とHTTP 404を返し、その後Nuxtのクライアントミドルウェアが対応する行へ移動します。これにより、検索エンジンが別名を成功ページとして重複登録することを避けます。実際に存在しないURLはHTTP 404のままです。`public/_headers` では、内容ハッシュ付きの `_nuxt/*` に長期キャッシュを設定します。
+各字群の詳細ページはそれぞれ独立したHTMLとして生成されます。ページデータはローカルbundleに含まれるため、ルートごとの追加 `_payload.json` を生成するpayload extractionは無効にしています。地域異体字の別名については、リダイレクト専用ページを生成しません。Static Assetsがまず `404.html` とHTTP 404を返し、その後Nuxtのクライアントミドルウェアが対応する行へ移動します。これにより、検索エンジンが別名を成功ページとして重複登録することを避けます。実際に存在しないURLはHTTP 404のままです。`public/_headers` では、内容ハッシュ付きの `_nuxt/*` に長期immutableキャッシュを設定し、安定した `/notices/*` URLには `no-cache`、`/data/chars.json` には1時間の `max-age` と1日の `stale-while-revalidate` を指定します。
 
 サードパーティ資産の具体的なcommit、公式添付ファイル識別子、SHA-256は `data/sources.lock.json` に記録しています。更新時には `pnpm update:sources` を実行します。バージョンのある上流データについてはバージョン番号を解決し、バージョンのない公式直リンクについては改めて検証します。内容が変わっていればlockfileを更新してデータを再生成し、まったく変わっていなければ生成をスキップします。ビルド時の `pnpm build:data` はlockfileに従い、約 **261 MiB** の元データをダウンロードして検証します。このうち195 MiBは10個のNoto CJKフォントです。明示的な更新を行っていない直リンクの内容が変わった場合は、チェックサム不一致として失敗し、黙ってデータに取り込むことはありません。Actionsでは元データのダウンロードと生成フォントを別々にキャッシュします。前者はlockfileだけで決まり、後者はlockfile、実際の生成スクリプト、関連依存関係、locale、字表から決まります。フォント入力が完全に同じ場合は、データ生成を省略します。
 
-筆順シャードと付属ライセンスは `pnpm build:dataset` が `public/strokes/` に生成し、リポジトリにはコミットしません。デプロイ処理はテストと静的生成の前に毎回これらを再生成します。同じ字グループ内で筆画順に並べた輪郭が完全に一致する場合は、最初のバリアントとその中心線だけを保存し、画面上でも対応する地域を1つの選択肢にまとめます。筆順シャードは安定したパスを使用し、専用のキャッシュポリシーは設定しません。
+筆順シャードは `pnpm build:dataset` が `app/assets/strokes/` に生成し、リポジトリにはコミットしません。デプロイ処理はテストと静的生成の前に毎回再生成し、Viteが内容ハッシュ付きのファイル名で出力します。付属ライセンスは `public/notices/` の安定URLに置き、再検証を必須にします。同じ字グループ内で筆画順に並べた輪郭が完全に一致する場合は、最初のバリアントとその中心線だけを保存し、画面上でも対応する地域を1つの選択肢にまとめます。ページ読み込み時に所属シャードを一度だけ取得し、その後の地域切替ではメモリ上の字グループデータを再利用します。
 
 ローカルでも、ビルド後に直接アップロードできます。
 
@@ -130,7 +130,7 @@ pnpm deploy
 
 1字ずつ比較できるツール [tofu.tools](https://tofu.tools/) は本プロジェクトの先行例で、同じくNotoファミリーを使って地域字形を区別しています。
 
-フォントはNoto Sans CJKとNoto Serif CJK（SIL OFL 1.1）を本サイトで使う文字にサブセット化したものです。ライセンス文は `/fonts/OFL.txt` に同梱しています。生成データファイルは上記の出典から派生しているため、それぞれのライセンスに従ってください。項目ごとの変換方法と帰属表示は、公開されている [`/data/NOTICE.md`](public/data/NOTICE.md) にも記載しています。
+フォントはNoto Sans CJKとNoto Serif CJK（SIL OFL 1.1）を本サイトで使う文字にサブセット化したものです。ライセンス文は [`/notices/noto-ofl.txt`](public/notices/noto-ofl.txt) に同梱しています。生成データファイルは上記の出典から派生しているため、それぞれのライセンスに従ってください。項目ごとの変換方法と帰属表示は、公開されている [`/notices/data-sources.md`](public/notices/data-sources.md) にも記載しています。
 
 ## License
 

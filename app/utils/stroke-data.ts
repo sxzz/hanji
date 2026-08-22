@@ -5,8 +5,21 @@ import {
   type PackedStrokeShard,
 } from '#shared/strokes.ts'
 
-export const strokeDataUrl = (groupKey: string): string =>
-  `/strokes/${strokeShardId(groupKey)}.json`
+const strokeAssetUrls = import.meta.glob<string>('../assets/strokes/*.json', {
+  eager: true,
+  import: 'default',
+  query: '?url&no-inline',
+})
+
+const shardRequests = new Map<string, Promise<PackedStrokeShard>>()
+
+export function strokeDataUrl(groupKey: string): string {
+  const shard = strokeShardId(groupKey)
+  const url = strokeAssetUrls[`../assets/strokes/${shard}.json`]
+  if (!url)
+    throw new Error(`missing stroke shard ${shard}; run pnpm build:data first`)
+  return url
+}
 
 function isShard(value: unknown): value is PackedStrokeShard {
   if (!value || typeof value !== 'object') return false
@@ -23,21 +36,33 @@ function isShard(value: unknown): value is PackedStrokeShard {
 /** Every regional form in a row resolves through the same local shard URL. */
 export async function loadStrokeShard(
   groupKey: string,
-  signal?: AbortSignal,
 ): Promise<PackedStrokeShard> {
   const url = strokeDataUrl(groupKey)
-  const response = signal ? await fetch(url, { signal }) : await fetch(url)
-  if (!response.ok) throw new Error(`stroke shard returned ${response.status}`)
-  const shard: unknown = await response.json()
-  if (!isShard(shard)) throw new Error('invalid stroke shard')
-  return shard
+  const existing = shardRequests.get(url)
+  if (existing) return existing
+
+  const request = (async () => {
+    const response = await fetch(url)
+    if (!response.ok)
+      throw new Error(`stroke shard returned ${response.status}`)
+    const shard: unknown = await response.json()
+    if (!isShard(shard)) throw new Error('invalid stroke shard')
+    return shard
+  })()
+  shardRequests.set(url, request)
+
+  try {
+    return await request
+  } catch (error) {
+    shardRequests.delete(url)
+    throw error
+  }
 }
 
 export async function loadStrokeGroup(
   groupKey: string,
-  signal?: AbortSignal,
 ): Promise<PackedStrokeGroup | undefined> {
-  const shard = await loadStrokeShard(groupKey, signal)
+  const shard = await loadStrokeShard(groupKey)
   return shard.groups[groupKey]
 }
 

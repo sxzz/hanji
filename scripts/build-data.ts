@@ -1,5 +1,5 @@
 /**
- * Generates the public character/source datasets and stroke assets.
+ * Generates the character/source datasets and stroke assets consumed by Vite.
  *
  * A row is a character group: one abstract character, with each of the five
  * columns holding the codepoint that region actually uses. The row key is the
@@ -18,6 +18,7 @@ import { parseCMap, partitionSignature } from './cmap.ts'
 import {
   DATA_DIR,
   loadUnihan,
+  NOTICES_DIR,
   parseCharList,
   parseCountFrequencyCsv,
   parseDict,
@@ -1036,7 +1037,10 @@ const stats: Stats = {
 
 await buildStrokeData(rows)
 
-await mkdir(DATA_DIR, { recursive: true })
+await Promise.all([
+  mkdir(DATA_DIR, { recursive: true }),
+  mkdir(NOTICES_DIR, { recursive: true }),
+])
 await writeFile(
   join(DATA_DIR, 'chars.json'),
   `${JSON.stringify({ stats, rows })}\n`,
@@ -1046,7 +1050,7 @@ await writeFile(
   `${JSON.stringify(SOURCES, null, 2)}\n`,
 )
 await writeFile(
-  join(DATA_DIR, 'NOTICE.md'),
+  join(NOTICES_DIR, 'data-sources.md'),
   String(
     [
       '# Data source notice / 数据来源声明',

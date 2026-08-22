@@ -1,13 +1,17 @@
 # Everything under _nuxt carries a content hash in its name, so it can never
-# go stale. The fonts and the character table keep stable names across builds
-# and are deliberately left on the default policy.
+# go stale. This includes Vite-built datasets, stroke shards, fonts and flags.
 /_nuxt/*
+  Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=31536000, immutable
 
-/data/*.json
+# Notices and license texts deliberately keep stable URLs. They may change
+# independently of the Vite asset graph, so every reuse must be revalidated.
+/notices/*
   Access-Control-Allow-Origin: *
-  Cache-Control: public, max-age=0, must-revalidate
+  Cache-Control: public, no-cache
 
-# Stroke shards are public generated datasets, without a custom cache policy.
-/strokes/*
+# External consumers need one stable character-data URL. Keep it fresh for an
+# hour, then allow one day of non-blocking stale responses while revalidating.
+/data/chars.json
   Access-Control-Allow-Origin: *
+  Cache-Control: public, max-age=3600, stale-while-revalidate=86400

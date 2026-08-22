@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import sources from '~~/public/data/sources.json'
+import sources from '~/assets/data/sources.json'
 import type { Source } from '~~/scripts/sources.ts'
 
 withDefaults(defineProps<{ detailed?: boolean }>(), { detailed: false })
