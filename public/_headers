@@ -3,3 +3,6 @@
 # and are deliberately left on the default policy.
 /_nuxt/*
   Cache-Control: public, max-age=31536000, immutable
+
+/data/*.json
+  Access-Control-Allow-Origin: *

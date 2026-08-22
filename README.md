@@ -72,7 +72,7 @@ pnpm generate     # 静态站点
 
 每一行的地址是它的行名（`/char/着`）。五地展示形、`aka` 和 `alternatives` 也可作为地址，由客户端跳到所属的行——例如 `/char/国`、`/char/郞`、`/char/缐`，页面用 `rel=canonical` 指回行名地址；未确认关系不是地址别名。
 
-字表 `public/data/chars.json` 提交在仓库里，也是站点的开放数据地址 `/data/chars.json`。字体子集约 12MB，**不提交**，由 `pnpm build:data` 生成——所以构建前必须先跑一次。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`），已 gitignore。
+字表 `public/data/chars.json` 提交在仓库里，也是站点的开放数据地址 `/data/chars.json`；所有 `/data/*.json` 响应均允许任意来源跨域读取。字体子集约 12MB，**不提交**，由 `pnpm build:data` 生成——所以构建前必须先跑一次。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`），已 gitignore。
 
 ## 部署
 
@@ -86,7 +86,11 @@ pnpm generate     # 静态站点
 - `CLOUDFLARE_API_TOKEN`：具有 Workers 脚本编辑权限的 API token；
 - `CLOUDFLARE_ACCOUNT_ID`：Worker 所在的 Cloudflare account ID。
 
-仓库不绑定 production 域名；请在 Cloudflare 的 **Settings → Domains & Routes** 中自行连接。`wrangler.json` 只描述 Static Assets 的托管行为，并关闭 production `workers.dev` 地址；PR preview URL 仍保持开启。配置没有 Worker 脚本、Assets binding 或 `run_worker_first`，所以请求不会产生 Worker invocation。
+Cloudflare Worker 名称须为 `hanji`，与 `wrangler.json` 中的 `name` 一致。
+
+请在 Cloudflare 的 **Settings → Domains & Routes** 中连接 production 域名。PR preview URL 保持开启。
+
+需要页面访问量和 Web Vitals 时，请在实际域名所属账户的 **Web Analytics → Add a site** 中选择已由 Cloudflare 代理的 hostname，并使用 automatic setup。Cloudflare 会在边缘自动注入 beacon。
 
 每个字组详情页都会生成独立 HTML；页面数据在本地 bundle 中，因此关闭了每路由额外生成 `_payload.json` 的 payload extraction。地区异体别名不另外生成跳转页：它先由 Static Assets 返回 `404.html` 和 HTTP 404，再由 Nuxt 客户端中间件跳到所属行；搜索引擎不会把 alias 当作成功页面重复收录。真正未知的地址保持 HTTP 404；`public/_headers` 给带内容哈希的 `_nuxt/*` 设了长缓存。
 

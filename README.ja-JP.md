@@ -72,7 +72,7 @@ pnpm generate     # 静的サイト
 
 各行のURLには行名を使います（`/char/着`）。5地域の表示字形、`aka`、`alternatives` もURLとして利用でき、クライアント側で対応する行へ移動します。たとえば `/char/国`、`/char/郞`、`/char/缐` です。ページの `rel=canonical` は行名のURLを指します。未確認関係はURL別名にはなりません。
 
-字表 `public/data/chars.json` はリポジトリにコミットされ、サイト上でも `/data/chars.json` から公開データとして取得できます。フォントサブセットは約12MBで、リポジトリには**コミットしません**。`pnpm build:data` で生成するため、ビルド前に一度実行する必要があります。元データのダウンロードは `data/raw/` 以下に種類別（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`）でキャッシュされ、gitignoreされています。
+字表 `public/data/chars.json` はリポジトリにコミットされ、サイト上でも `/data/chars.json` から公開データとして取得できます。すべての `/data/*.json` レスポンスは任意のオリジンからのクロスオリジン読み取りを許可します。フォントサブセットは約12MBで、リポジトリには**コミットしません**。`pnpm build:data` で生成するため、ビルド前に一度実行する必要があります。元データのダウンロードは `data/raw/` 以下に種類別（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`）でキャッシュされ、gitignoreされています。
 
 ## デプロイ
 
@@ -86,7 +86,11 @@ pnpm generate     # 静的サイト
 - `CLOUDFLARE_API_TOKEN`：Workersスクリプトの編集権限を持つAPI token。
 - `CLOUDFLARE_ACCOUNT_ID`：Workerが所属するCloudflare account ID。
 
-リポジトリはproductionドメインを固定しません。Cloudflareの **Settings → Domains & Routes** から任意のドメインを接続してください。`wrangler.json` はStatic Assetsのホスティング動作だけを記述し、productionの `workers.dev` URLは無効にします。PRのpreview URLは有効のままです。Workerスクリプト、Assets binding、`run_worker_first` は設定していないため、リクエストによるWorker invocationは発生しません。
+Cloudflare Workerの名前は、`wrangler.json` の `name` と同じ `hanji` にする必要があります。
+
+Cloudflareの **Settings → Domains & Routes** でproductionドメインを接続してください。PRのpreview URLは有効のままです。
+
+ページビューとWeb Vitalsが必要な場合は、実際のドメインを所有するアカウントの **Web Analytics → Add a site** でCloudflareによりプロキシされているhostnameを選び、automatic setupを使用してください。Cloudflareがエッジでbeaconを自動挿入します。
 
 各字群の詳細ページはそれぞれ独立したHTMLとして生成されます。ページデータはローカルbundleに含まれるため、ルートごとの追加 `_payload.json` を生成するpayload extractionは無効にしています。地域異体字の別名については、リダイレクト専用ページを生成しません。Static Assetsがまず `404.html` とHTTP 404を返し、その後Nuxtのクライアントミドルウェアが対応する行へ移動します。これにより、検索エンジンが別名を成功ページとして重複登録することを避けます。実際に存在しないURLはHTTP 404のままです。`public/_headers` では、内容ハッシュ付きの `_nuxt/*` に長期キャッシュを設定します。
 
