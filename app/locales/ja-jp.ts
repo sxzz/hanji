@@ -44,6 +44,17 @@ export const jaJP: typeof zhCN = {
     back: '漢字表に戻る',
     options: '表示設定',
   },
+  error: {
+    notFoundTitle: 'このページは漢字表にありません',
+    notFoundDescription:
+      'リンクが変更されたか、アドレスが正しくない可能性があります。漢字表に戻って、漢字の検索と比較を続けられます。',
+    genericTitle: 'このページは一時的に開けません',
+    genericDescription:
+      'ページで問題が発生しました。再読み込みするか、漢字表に戻ってください。',
+    home: '漢字表に戻る',
+    back: '前のページへ',
+    reload: '再読み込み',
+  },
   options: {
     title: '表示設定',
     language: '表示言語',

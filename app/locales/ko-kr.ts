@@ -44,6 +44,17 @@ export const koKR: typeof zhCN = {
     back: '한자표로 돌아가기',
     options: '표시 설정',
   },
+  error: {
+    notFoundTitle: '이 페이지는 한자표에 없습니다',
+    notFoundDescription:
+      '링크가 바뀌었거나 주소가 잘못되었을 수 있습니다. 한자표로 돌아가 한자 검색과 비교를 계속할 수 있습니다.',
+    genericTitle: '이 페이지를 지금 열 수 없습니다',
+    genericDescription:
+      '페이지에 문제가 발생했습니다. 다시 불러오거나 한자표로 돌아가 주세요.',
+    home: '한자표로 돌아가기',
+    back: '이전 페이지로',
+    reload: '다시 불러오기',
+  },
   options: {
     title: '표시 설정',
     language: '인터페이스 언어',

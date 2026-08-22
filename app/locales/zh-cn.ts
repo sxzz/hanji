@@ -43,6 +43,16 @@ export const zhCN = {
     back: '返回字表',
     options: '显示选项',
   },
+  error: {
+    notFoundTitle: '这一页不在字表里',
+    notFoundDescription:
+      '链接可能已经更改，或地址有误。你可以返回字表，继续查找和对照汉字。',
+    genericTitle: '这一页暂时打不开',
+    genericDescription: '页面遇到了问题。请重新载入，或返回字表继续浏览。',
+    home: '返回字表',
+    back: '返回上一页',
+    reload: '重新载入',
+  },
   options: {
     title: '显示选项',
     language: '界面语言',
