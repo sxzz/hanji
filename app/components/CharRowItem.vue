@@ -16,17 +16,6 @@ const props = defineProps<{
 const morphing = useMorphingKey()
 const morphTo = useMorphTo()
 const route = useRoute()
-const { regionIndices } = useColumnVisibility()
-
-/**
- * The stroke counts the row leads with: the first column on show, and the
- * second only where it disagrees. Reading them off fixed regions would keep
- * quoting a column the reader has taken off the page.
- */
-const strokes = computed(() => {
-  const [first, second] = regionIndices.value.map((i) => props.row.strokes[i])
-  return { first, second: second !== first ? second : undefined }
-})
 
 /**
  * Opening a row records where the reader was standing in the list, which is
@@ -65,12 +54,5 @@ async function open(event: MouseEvent) {
     </div>
 
     <CharCells :row="row" :dimension="dimension" />
-
-    <div class="tabular text-right text-xs text-soft font-mono">
-      <span v-if="strokes.first">{{ strokes.first }}</span>
-      <span v-if="strokes.second" class="text-mute">
-        /{{ strokes.second }}
-      </span>
-    </div>
   </NuxtLink>
 </template>

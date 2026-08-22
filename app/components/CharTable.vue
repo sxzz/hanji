@@ -11,11 +11,11 @@ const headerViewport = ref<HTMLElement>()
 
 /**
  * Narrow screens scroll instead of crushing the regional forms together. The
- * fixed allowance covers the overprint thumbnail, stroke count, gaps and row
- * padding; every visible region then keeps a comfortable character column.
+ * fixed allowance covers the overprint thumbnail, gaps and row padding; every
+ * visible region then keeps a comfortable character column.
  */
 const tableMinWidth = computed(
-  () => `${visibleRegions.value.length * 4.5 + 10.75}rem`,
+  () => `${visibleRegions.value.length * 4.5 + 8}rem`,
 )
 
 /** Keep the sticky header aligned with the horizontally moving data rows. */
@@ -53,7 +53,6 @@ function turnTo(page: number) {
             ><RegionLabel :flag="flagsOn" :region="region"
           /></span>
         </div>
-        <span class="text-right eyebrow">{{ t('table.strokes') }}</span>
       </div>
     </div>
 

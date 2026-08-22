@@ -15,10 +15,11 @@ import type {
   StrokeAnimationData,
   StrokeAnimationPath,
 } from '~~/shared/strokes.ts'
-import type { Column } from '~~/shared/types.ts'
+import type { Column, Region } from '~~/shared/types.ts'
 
 const props = defineProps<{ choices: readonly StrokeOrderChoice[] }>()
 const { t, locale } = useT()
+const { flagsOn } = usePrefs()
 
 type Status = 'loading' | 'ready' | 'error'
 type Phase = 'idle' | 'playing' | 'paused' | 'done'
@@ -90,7 +91,13 @@ const visibleChoice = computed(() => {
     ? current
     : displayed
 })
-const choiceOptions = computed(() =>
+const choiceOptions = computed<
+  {
+    value: Column
+    parts: { region?: Region; suffix?: string }[]
+    title: string
+  }[]
+>(() =>
   props.choices.map((choice) => ({
     value: choice.column,
     parts: choice.columns.map((column) =>
@@ -106,6 +113,9 @@ const choiceOptions = computed(() =>
       )
       .join(' + '),
   })),
+)
+const singleChoiceOption = computed(() =>
+  choiceOptions.value.length === 1 ? choiceOptions.value[0] : undefined,
 )
 const loadKey = computed(() => {
   const choice = currentChoice.value
@@ -136,6 +146,9 @@ const current = computed(() =>
 )
 const progressLabel = computed(() =>
   t('char.strokeProgress', { current: current.value, total: total.value }),
+)
+const stepMarkerRadius = computed(
+  () => Math.min(viewBoxRect.value[2], viewBoxRect.value[3]) * 0.034,
 )
 const playLabel = computed(() => {
   if (phase.value === 'playing') return t('char.strokePause')
@@ -370,6 +383,26 @@ onBeforeUnmount(() => {
           :group-label="t('char.strokeOrder')"
           :options="choiceOptions"
         />
+        <span
+          v-else-if="singleChoiceOption"
+          class="max-w-full inline-flex flex-wrap items-center gap-x-1.5 gap-y-1 eyebrow text-mute"
+          :title="singleChoiceOption.title"
+        >
+          <span class="sr-only">{{ singleChoiceOption.title }}</span>
+          <span
+            v-for="(part, index) in singleChoiceOption.parts"
+            :key="`${part.region ?? ''}:${part.suffix ?? ''}:${index}`"
+            class="inline-flex items-center gap-1 whitespace-nowrap"
+            aria-hidden="true"
+          >
+            <RegionLabel
+              v-if="part.region"
+              :flag="flagsOn"
+              :region="part.region"
+            />
+            <span v-if="part.suffix">{{ part.suffix }}</span>
+          </span>
+        </span>
       </div>
       <p v-if="status === 'ready'" class="text-xs text-mute">
         {{ t('char.strokeSource') }}：
@@ -400,13 +433,19 @@ onBeforeUnmount(() => {
     <div
       v-if="status === 'loading'"
       role="status"
-      class="grid gap-5 sm:grid-cols-[minmax(13rem,16rem)_1fr] sm:items-center sm:gap-8"
+      class="grid gap-5 sm:grid-cols-[minmax(13rem,16rem)_1fr] sm:items-start sm:gap-8"
       :class="showSkeleton ? 'animate-pulse' : 'invisible'"
       :aria-label="t('char.strokeLoading')"
     >
       <div class="stroke-board mx-auto aspect-square max-w-64 w-full" />
       <div class="min-w-0 flex flex-col justify-center gap-5">
-        <span class="block size-16 self-center bg-sunk" />
+        <div class="stroke-steps" aria-hidden="true">
+          <span
+            v-for="index in 8"
+            :key="index"
+            class="stroke-step block aspect-square"
+          />
+        </div>
 
         <div class="flex flex-col gap-2">
           <span class="h-3 w-16 self-end bg-sunk" />
@@ -448,7 +487,7 @@ onBeforeUnmount(() => {
 
     <div
       v-else
-      class="grid gap-5 sm:grid-cols-[minmax(13rem,16rem)_1fr] sm:items-center sm:gap-8"
+      class="grid gap-5 sm:grid-cols-[minmax(13rem,16rem)_1fr] sm:items-start sm:gap-8"
     >
       <div class="stroke-board mx-auto aspect-square max-w-64 w-full">
         <svg
@@ -512,20 +551,52 @@ onBeforeUnmount(() => {
       </div>
 
       <div class="min-w-0 flex flex-col justify-center gap-5">
-        <svg
+        <div
           v-if="visibleChoice"
-          :viewBox="viewBox"
-          class="block size-16 self-center"
-          aria-hidden="true"
+          class="stroke-steps"
+          role="list"
+          :aria-label="
+            t('char.strokeSteps', {
+              char: visibleChoice.char,
+              total,
+            })
+          "
         >
-          <g :transform="strokeTransform" class="stroke-sample">
-            <path
-              v-for="stroke in strokes"
-              :key="stroke.order"
-              :d="stroke.outline"
-            />
-          </g>
-        </svg>
+          <div
+            v-for="(stroke, index) in strokes"
+            :key="stroke.order"
+            class="stroke-step aspect-square"
+            role="listitem"
+            :aria-label="
+              t('char.strokeProgress', {
+                current: stroke.order,
+                total,
+              })
+            "
+          >
+            <svg :viewBox="viewBox" class="block size-full" aria-hidden="true">
+              <g class="stroke-step-guides">
+                <path :d="crossGuide" />
+              </g>
+              <g :transform="strokeTransform">
+                <g class="stroke-step-previous">
+                  <path
+                    v-for="previous in strokes.slice(0, index)"
+                    :key="previous.order"
+                    :d="previous.outline"
+                  />
+                </g>
+                <path class="stroke-step-current" :d="stroke.outline" />
+                <circle
+                  class="stroke-step-start"
+                  :cx="stroke.start[0]"
+                  :cy="stroke.start[1]"
+                  :r="stepMarkerRadius"
+                />
+              </g>
+            </svg>
+          </div>
+        </div>
 
         <div class="flex flex-col gap-2">
           <span class="tabular self-end eyebrow" aria-live="polite">
@@ -552,37 +623,39 @@ onBeforeUnmount(() => {
         </div>
 
         <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-          <div class="flex shrink-0 items-center gap-2">
-            <button
-              type="button"
-              class="focus-ring size-9 flex-center border border-rule rounded-md text-soft transition-colors disabled:cursor-not-allowed hover:border-ink/30 hover:text-ink disabled:opacity-30"
-              :disabled="current === 0"
-              :aria-label="t('char.strokePrevious')"
-              :title="t('char.strokePrevious')"
-              @click="step(-1)"
-            >
-              <span class="i-ri-skip-back-mini-fill block" />
-            </button>
-            <button
-              type="button"
-              class="focus-ring h-9 min-w-24 inline-flex items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm text-paper transition-opacity hover:opacity-80"
-              @click="play"
-            >
-              <span :class="playIcon" class="block" />
-              {{ playLabel }}
-            </button>
-            <button
-              type="button"
-              class="focus-ring size-9 flex-center border border-rule rounded-md text-soft transition-colors disabled:cursor-not-allowed hover:border-ink/30 hover:text-ink disabled:opacity-30"
-              :disabled="current >= total"
-              :aria-label="t('char.strokeNext')"
-              :title="t('char.strokeNext')"
-              @click="step(1)"
-            >
-              <span class="i-ri-skip-forward-mini-fill block" />
-            </button>
+          <div class="max-w-full min-w-0 flex flex-wrap items-center gap-2">
+            <div class="flex shrink-0 items-center gap-2">
+              <button
+                type="button"
+                class="focus-ring size-9 flex-center border border-rule rounded-md text-soft transition-colors disabled:cursor-not-allowed hover:border-ink/30 hover:text-ink disabled:opacity-30"
+                :disabled="current === 0"
+                :aria-label="t('char.strokePrevious')"
+                :title="t('char.strokePrevious')"
+                @click="step(-1)"
+              >
+                <span class="i-ri-skip-back-mini-fill block" />
+              </button>
+              <button
+                type="button"
+                class="focus-ring h-9 min-w-24 inline-flex items-center justify-center gap-2 rounded-md bg-ink px-4 text-sm text-paper transition-opacity hover:opacity-80"
+                @click="play"
+              >
+                <span :class="playIcon" class="block" />
+                {{ playLabel }}
+              </button>
+              <button
+                type="button"
+                class="focus-ring size-9 flex-center border border-rule rounded-md text-soft transition-colors disabled:cursor-not-allowed hover:border-ink/30 hover:text-ink disabled:opacity-30"
+                :disabled="current >= total"
+                :aria-label="t('char.strokeNext')"
+                :title="t('char.strokeNext')"
+                @click="step(1)"
+              >
+                <span class="i-ri-skip-forward-mini-fill block" />
+              </button>
+            </div>
             <label
-              class="ml-1 h-9 inline-flex shrink-0 items-center gap-1.5 border border-rule rounded-md bg-sunk px-2 text-xs text-mute"
+              class="h-9 inline-flex shrink-0 items-center gap-1.5 border border-rule rounded-md bg-sunk px-2 text-xs text-mute"
             >
               <span>{{ t('char.strokeSpeed') }}</span>
               <select
@@ -622,10 +695,45 @@ onBeforeUnmount(() => {
   stroke-dasharray: 2.25 2.25;
 }
 
+.stroke-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(4.5rem, 100%), 1fr));
+}
+
+.stroke-step {
+  min-width: 0;
+  background: var(--c-paper-sunk);
+  box-shadow: inset 0 0 0 0.5px var(--c-rule);
+}
+
+.stroke-step-guides {
+  fill: none;
+  stroke: var(--c-rule);
+  stroke-dasharray: 2.25 2.25;
+  stroke-width: 0.65;
+}
+
+.stroke-step-previous,
+.stroke-step-current {
+  shape-rendering: geometricPrecision;
+}
+
+.stroke-step-previous {
+  fill: var(--c-ink-mute);
+  opacity: 0.7;
+}
+
+.stroke-step-current {
+  fill: var(--c-ink);
+}
+
+.stroke-step-start {
+  fill: var(--c-g1);
+}
+
 .stroke-underlay,
 .stroke-completed,
-.stroke-reveal,
-.stroke-sample {
+.stroke-reveal {
   shape-rendering: geometricPrecision;
 }
 

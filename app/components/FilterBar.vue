@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { listingOptionsFor } from '~~/shared/listings.ts'
 import { varietyChoice } from '~~/shared/patterns.ts'
-import { FREQUENCY_REGIONS } from '~~/shared/types.ts'
+import { FREQUENCY_REGIONS, REGIONS } from '~~/shared/types.ts'
 import {
   injectChars,
   SORT_KEYS,
@@ -51,6 +51,14 @@ function reverseSort() {
 
 const frequencyRegions = computed(() =>
   FREQUENCY_REGIONS.map((region) => ({
+    value: region,
+    parts: [{ region }],
+    title: t(`region.${region}.full`),
+  })),
+)
+
+const strokeRegions = computed(() =>
+  REGIONS.map((region) => ({
     value: region,
     parts: [{ region }],
     title: t(`region.${region}.full`),
@@ -198,26 +206,35 @@ function toggleRegion(region: string) {
         />
       </label>
 
-      <label class="filter-field">
+      <div class="filter-field">
         <span class="filter-label eyebrow">{{ t('filter.strokes') }}</span>
-        <span class="filter-control flex items-center gap-2">
-          <input
-            v-model.number="strokeLow"
-            type="number"
-            :min="lo"
-            :max="hi"
-            class="tabular focus-ring h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono"
+        <div class="filter-control flex flex-wrap items-center gap-1.5">
+          <RegionChoice
+            v-model="chars.strokeRegion.value"
+            :group-label="t('filter.strokes')"
+            :options="strokeRegions"
           />
-          <span class="text-mute">–</span>
-          <input
-            v-model.number="strokeHigh"
-            type="number"
-            :min="lo"
-            :max="hi"
-            class="tabular focus-ring h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono"
-          />
-        </span>
-      </label>
+          <span class="flex shrink-0 items-center gap-2">
+            <input
+              v-model.number="strokeLow"
+              type="number"
+              :min="lo"
+              :max="hi"
+              :aria-label="t('filter.strokeMin')"
+              class="tabular focus-ring h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono"
+            />
+            <span class="text-mute">–</span>
+            <input
+              v-model.number="strokeHigh"
+              type="number"
+              :min="lo"
+              :max="hi"
+              :aria-label="t('filter.strokeMax')"
+              class="tabular focus-ring h-7 w-14 border border-rule rounded-md bg-sunk px-2 text-center text-xs font-mono"
+            />
+          </span>
+        </div>
+      </div>
     </div>
 
     <div class="filter-line">
@@ -244,9 +261,8 @@ function toggleRegion(region: string) {
             :options="sorts"
             @repeat="reverseSort"
           />
-          <!-- Frequency is the only sort with a regional point of view. Keep
-               that choice visually subordinate: a compact index tab beside
-               the main sort, not another full-sized filter field. -->
+          <!-- Frequency needs its own regional corpus choice. Stroke sorting
+               reuses the always-visible region beside the stroke range. -->
           <RegionChoice
             v-if="chars.sortKey.value === 'freq'"
             v-model="chars.freqRegion.value"

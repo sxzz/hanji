@@ -122,12 +122,12 @@ html[data-style='serif'] .hanji-kr {
  */
 .row-grid {
   display: grid;
-  grid-template-columns: 2.75rem minmax(0, 1fr) 2.25rem;
+  grid-template-columns: 2.75rem minmax(0, 1fr);
 }
 
 @media (min-width: 640px) {
   .row-grid {
-    grid-template-columns: 4.5rem minmax(0, 1fr) 4.5rem;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
   }
 }
 

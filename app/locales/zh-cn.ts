@@ -70,6 +70,8 @@ export const zhCN = {
     search: '搜索',
     searchPlaceholder: '汉字 / 读音 / U+9AA8',
     strokes: '笔画',
+    strokeMin: '最少笔画',
+    strokeMax: '最多笔画',
     common: '常用于',
     pattern: '差异模式',
     tier: '收录于',
@@ -89,7 +91,6 @@ export const zhCN = {
   },
   table: {
     scroll: '字表，可左右滚动',
-    strokes: '笔画',
     old: '旧',
     empty: '没有符合条件的字。放宽笔画范围，或换一个差异模式。',
     page: '第{page}/{total}页',
@@ -130,6 +131,7 @@ export const zhCN = {
     strokeSpeed: '速度',
     strokeProgress: '第{current}/{total}笔',
     strokeDiagram: '「{char}」的笔顺动画，共{total}笔',
+    strokeSteps: '「{char}」的笔顺步骤图，共{total}笔',
     strokeLoading: '正在载入笔顺…',
     strokeError: '笔顺暂时无法载入。',
     strokeRetry: '重试',
@@ -177,9 +179,9 @@ export const zhCN = {
     limit2:
       'Source Han的香港字形覆盖并不完整，所以「只有香港不同」这一类可能少报。',
     limit3:
-      '笔画数逐地区取，先看Unihan的kAlternateTotalStrokes（它按IRG来源分别给数，最准，但只覆盖一百来个码点），日本再退到kRSAdobe_Japan1_6（它分析的是Adobe-Japan1-6收的日本字形，所以突是8画而不是9画），都没有才用kTotalStrokes——后者至多区分zh-Hans与zh-Hant两档，港台与韩国共用后一档。',
+      '全站的地区笔画数先取笔顺数据的实际笔画数；香港与笔顺功能一样，按同形关系依次借用台湾、大陆、日本、韩国数据。没有笔顺数据时，才依次回退到Unihan的kAlternateTotalStrokes、日本的kRSAdobe_Japan1_6和kTotalStrokes。',
     limit4:
-      '于是日本那一列常与其余四地不同，其中约五分之一其实只因数法不同：日本把阝数作三画、ネ数作五画。所以「那」在默认显示的中港台日四列字形相同，笔画却是6/6/6/7；韩国列为6画。',
+      '字表筛选、排序与详情页读取同一份结果。例如「以」在大陆为4画，在香港、台湾、日本、韩国均为5画。',
     limit5:
       'OpenCC与各地规范字表冲突时以规范字表为准。它的异体表里混着「同字异形」和「一字代用另一字」；某地区的字表分开收录两者时就不归并。若只有一个地区提供证据，而候选还属于另一字组，则保守拆分，并在详情页用双向「关系未确认」链接提示。',
     limit6:
