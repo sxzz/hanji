@@ -13,7 +13,13 @@ export const koKR: typeof zhCN = {
     tw: { short: '대', full: '대만' },
     jp: { short: '일', full: '일본' },
     kr: { short: '한', full: '한국' },
-    old: { short: '구자체', full: '일본 구자체' },
+    old: {
+      short: '구',
+      full: '일본 구자체',
+      description:
+        '‘구’는 일본에서 신자체가 정해지기 전에 쓰이던 전통 한자 자형인 구자체를 뜻합니다.',
+      wikipedia: '위키백과에서 구자체 알아보기',
+    },
   },
   hero: {
     title: '하나의 한자, {n} 가지 자형',

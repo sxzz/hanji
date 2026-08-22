@@ -213,10 +213,13 @@ const headerRuns = computed(() =>
 const columnsOf = (run: { from: number; span: number }) =>
   columns.value.slice(run.from, run.from + run.span)
 
-/**
- * Header label. The kyujitai belongs to Japan, so it carries Japan's mark and
- * says what it is: 日 旧字体, or the flag and the words when flags are on.
- */
+const headerControlPrefix = useId().replaceAll(':', '')
+const headerControlId = (from: number) => `${headerControlPrefix}-${from}`
+const columnLabel = (column: Column) =>
+  column === 'old' ? t('region.old.full') : t(`region.${column}.full`)
+const headerLabel = (run: { from: number; span: number }) =>
+  columnsOf(run).map(columnLabel).join(' + ')
+
 const columnRegion = (column: Column): Region =>
   column === 'old' ? 'jp' : column
 const strokeChoices = computed<StrokeOrderChoice[]>(() => {
@@ -404,34 +407,43 @@ useSeoMeta({
                     :colspan="run.span"
                     class="border-l border-rule/40 py-2 text-center font-normal first:border-l-0"
                   >
-                    <!-- A step down on narrow screens: six columns share the
-                         width, and “日 旧字体” would otherwise break mid-word -->
-                    <label
+                    <span
                       class="inline-flex items-center gap-1.5 text-xs text-soft sm:text-sm"
-                      :class="singleForm ? '' : 'cursor-pointer'"
                     >
                       <input
                         v-if="!singleForm"
+                        :id="headerControlId(run.from)"
                         type="checkbox"
                         class="focus-ring size-3.5 accent-$c-g2"
                         :checked="picked.includes(run.cell.column)"
+                        :aria-label="headerLabel(run)"
                         @change="toggle(columnsOf(run))"
                       />
-                      <span
-                        v-for="column in columnsOf(run)"
-                        :key="column"
-                        class="inline-flex items-center gap-1"
-                        :title="t(`region.${column}.full`)"
-                      >
-                        <RegionLabel
-                          :flag="flagsOn"
-                          :region="columnRegion(column)"
-                        />
-                        <span v-if="column === 'old'">{{
-                          t('region.old.short')
-                        }}</span>
-                      </span>
-                    </label>
+                      <template v-for="column in columnsOf(run)" :key="column">
+                        <OldFormHelp v-if="column === 'old'" />
+                        <label
+                          v-else-if="!singleForm"
+                          :for="headerControlId(run.from)"
+                          class="inline-flex cursor-pointer items-center"
+                          :title="t(`region.${column}.full`)"
+                        >
+                          <RegionLabel
+                            :flag="flagsOn"
+                            :region="columnRegion(column)"
+                          />
+                        </label>
+                        <span
+                          v-else
+                          class="inline-flex items-center"
+                          :title="t(`region.${column}.full`)"
+                        >
+                          <RegionLabel
+                            :flag="flagsOn"
+                            :region="columnRegion(column)"
+                          />
+                        </span>
+                      </template>
+                    </span>
                   </th>
                 </tr>
               </thead>

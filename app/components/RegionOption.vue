@@ -11,12 +11,14 @@ const props = withDefaults(
     active: boolean
     disabled?: boolean
     label: string
+    nativeTitle?: boolean
     parts: readonly RegionOptionPart[]
     size?: 'compact' | 'default'
     title?: string
   }>(),
   {
     disabled: false,
+    nativeTitle: true,
     size: 'default',
     title: undefined,
   },
@@ -45,7 +47,7 @@ const iconOnly = computed(
       iconOnly ? 'region-option-icon' : '',
     ]"
     :disabled="disabled"
-    :title="title ?? label"
+    :title="nativeTitle ? (title ?? label) : undefined"
     :aria-label="label"
     :aria-pressed="active"
     @click="$emit('select')"
