@@ -1,4 +1,6 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
+import * as path from 'node:path'
+import process from 'node:process'
 import { RESTORE_SCRIPT } from './app/utils/theme.ts'
 import { PREFERENCE_RESTORE_SCRIPT } from './scripts/preference-restore.ts'
 import type { CharsData } from './shared/types.ts'
@@ -9,12 +11,25 @@ import type { NuxtConfig } from 'nuxt/schema'
  * the static 404 fallback and redirect after hydration instead: emitting a
  * tiny file for each alias would consume thousands of the host's file quota.
  */
-const chars: CharsData = JSON.parse(
-  readFileSync(new URL('public/data/chars.json', import.meta.url), 'utf8'),
-)
+const charPath = (key: string) => `/char/${encodeURIComponent(key)}`
+const charsPath = path.resolve(import.meta.dirname, 'public/data/chars.json')
 
-const path = (key: string) => `/char/${encodeURIComponent(key)}`
-const PRERENDERED_CHARS = chars.rows.map((row) => path(row.key))
+// A clean install runs `nuxt prepare` before the ignored dataset exists. Type
+// preparation does not prerender or bundle the app, so it can safely use an
+// empty route list. Every command that builds or serves the site still fails
+// with a clear instruction until the real dataset has been generated.
+if (
+  !existsSync(charsPath) &&
+  process.env.npm_lifecycle_event !== 'postinstall'
+) {
+  throw new Error('Missing public/data/chars.json; run pnpm build:data first.')
+}
+
+const PRERENDERED_CHARS = existsSync(charsPath)
+  ? (JSON.parse(readFileSync(charsPath, 'utf8')) as CharsData).rows.map((row) =>
+      charPath(row.key),
+    )
+  : []
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default {

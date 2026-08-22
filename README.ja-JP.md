@@ -63,7 +63,7 @@
 
 ```bash
 pnpm install
-pnpm build:data   # 字表とフォントサブセットを生成。初回は約215MBをダウンロードし、以後はキャッシュを使用
+pnpm build:data   # 字表とフォントサブセットを生成。初回は約261 MiBをダウンロードし、以後はキャッシュを使用
 pnpm update:sources # サードパーティデータの更新を確認して固定。変更があればダウンロードして再生成
 pnpm dev
 pnpm test
@@ -72,7 +72,7 @@ pnpm generate     # 静的サイト
 
 各行のURLには行名を使います（`/char/着`）。5地域の表示字形、`aka`、`alternatives` もURLとして利用でき、クライアント側で対応する行へ移動します。たとえば `/char/国`、`/char/郞`、`/char/缐` です。ページの `rel=canonical` は行名のURLを指します。未確認関係はURL別名にはなりません。
 
-字表 `public/data/chars.json` はリポジトリにコミットされ、サイト上でも `/data/chars.json` から公開データとして取得できます。すべての `/data/*.json` レスポンスは任意のオリジンからのクロスオリジン読み取りを許可します。フォントサブセットは約12MBで、リポジトリには**コミットしません**。`pnpm build:data` で生成するため、ビルド前に一度実行する必要があります。元データのダウンロードは `data/raw/` 以下に種類別（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`）でキャッシュされ、gitignoreされています。
+字表 `public/data/chars.json` と出典一覧 `public/data/sources.json` は、どちらも `pnpm build:dataset` で生成し、リポジトリには**コミットしません**。ビルド後も、それぞれ `/data/chars.json` と `/data/sources.json` から公開データとして取得できます。すべての `/data/*.json` レスポンスは任意のオリジンからのクロスオリジン読み取りを許可し、安定したURLで古いデータが残らないよう、キャッシュの再検証を必須にします。フォントサブセットは約12MBで、同様にコミットせず、`pnpm build:data` で生成します。そのため、ビルド前に一度実行する必要があります。元データのダウンロードは `data/raw/` 以下に種類別（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`、`strokes/`）でキャッシュされ、gitignoreされています。ビルド時には、古いキャッシュから復元されたものの、現在の出典一覧には存在しないファイルを削除します。
 
 ## デプロイ
 
@@ -94,7 +94,9 @@ Cloudflareの **Settings → Domains & Routes** でproductionドメインを接�
 
 各字群の詳細ページはそれぞれ独立したHTMLとして生成されます。ページデータはローカルbundleに含まれるため、ルートごとの追加 `_payload.json` を生成するpayload extractionは無効にしています。地域異体字の別名については、リダイレクト専用ページを生成しません。Static Assetsがまず `404.html` とHTTP 404を返し、その後Nuxtのクライアントミドルウェアが対応する行へ移動します。これにより、検索エンジンが別名を成功ページとして重複登録することを避けます。実際に存在しないURLはHTTP 404のままです。`public/_headers` では、内容ハッシュ付きの `_nuxt/*` に長期キャッシュを設定します。
 
-サードパーティ資産の具体的なcommit、公式添付ファイル識別子、SHA-256は `data/sources.lock.json` に記録しています。更新時には `pnpm update:sources` を実行します。バージョンのある上流データについてはバージョン番号を解決し、バージョンのない公式直リンクについては改めて検証します。内容が変わっていればlockfileを更新してデータを再生成し、まったく変わっていなければ生成をスキップします。ビルド時の `pnpm build:data` はlockfileに従い、約 **215 MB** の元データをダウンロードして検証します。このうち195MBは10個のNoto CJKフォントです。明示的な更新を行っていない直リンクの内容が変わった場合は、チェックサム不一致として失敗し、黙ってデータに取り込むことはありません。Actionsでは元データのダウンロードと生成フォントを別々にキャッシュします。前者はlockfileだけで決まり、後者はlockfile、実際の生成スクリプト、関連依存関係、locale、字表から決まります。フォント入力が完全に同じ場合は、データ生成を省略します。
+サードパーティ資産の具体的なcommit、公式添付ファイル識別子、SHA-256は `data/sources.lock.json` に記録しています。更新時には `pnpm update:sources` を実行します。バージョンのある上流データについてはバージョン番号を解決し、バージョンのない公式直リンクについては改めて検証します。内容が変わっていればlockfileを更新してデータを再生成し、まったく変わっていなければ生成をスキップします。ビルド時の `pnpm build:data` はlockfileに従い、約 **261 MiB** の元データをダウンロードして検証します。このうち195 MiBは10個のNoto CJKフォントです。明示的な更新を行っていない直リンクの内容が変わった場合は、チェックサム不一致として失敗し、黙ってデータに取り込むことはありません。Actionsでは元データのダウンロードと生成フォントを別々にキャッシュします。前者はlockfileだけで決まり、後者はlockfile、実際の生成スクリプト、関連依存関係、locale、字表から決まります。フォント入力が完全に同じ場合は、データ生成を省略します。
+
+筆順シャードと付属ライセンスは `pnpm build:dataset` が `public/strokes/` に生成し、リポジトリにはコミットしません。デプロイ処理はテストと静的生成の前に毎回これらを再生成します。同じ字グループ内で筆画順に並べた輪郭が完全に一致する場合は、最初のバリアントとその中心線だけを保存し、画面上でも対応する地域を1つの選択肢にまとめます。筆順シャードは安定したパスを使用し、専用のキャッシュポリシーは設定しません。
 
 ローカルでも、ビルド後に直接アップロードできます。
 
@@ -113,7 +115,7 @@ pnpm deploy
 | 5地域の字形差異の判定                            | [Adobe Source Han Sans / Serif（CMapリソース）](https://github.com/adobe-fonts/source-han-sans)                 | [SIL OFL 1.1](https://openfontlicense.org/)                                                                                             |
 | ページ表示用フォント                             | [Noto Sans / Noto Serif（CJKを含む）](https://github.com/notofonts/noto-cjk)                                    | [SIL OFL 1.1](https://openfontlicense.org/)                                                                                             |
 | 簡体・繁体、香港・台湾異体字、日本新旧字体の対応 | [OpenCC（中国語文字変換）](https://github.com/BYVoid/OpenCC)                                                    | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)                                                                               |
-| 日本字形の筆順アニメーション                     | [KanjiVG](https://kanjivg.tagaini.net/)                                                                         | [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)                                                                         |
+| 中国・台湾・日本・韓国の筆順アニメーション       | [AnimCJK](https://github.com/parsimonhi/animCJK)                                                                | [Arphic Public License](https://github.com/parsimonhi/animCJK/blob/master/licenses/APL/english/ARPHICPL.TXT)                            |
 | 5地域の標準字表                                  | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars)                                                   | [リポジトリに記載なし](https://github.com/zispace/hanzi-chars)                                                                          |
 | 画数・読み                                       | [Unicode Han Database（Unihan）](https://www.unicode.org/reports/tr38/)                                         | [Unicode License v3](https://www.unicode.org/license.txt)                                                                               |
 | 韓国式異体字の対応                               | [Unicode IRG N2200（韓国教育用漢字提案）](https://www.unicode.org/L2/L2017/17173-irgn2200-unihan-db.pdf)        | [Unicode License v3](https://www.unicode.org/license.txt)                                                                               |

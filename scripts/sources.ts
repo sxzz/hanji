@@ -8,8 +8,15 @@
 import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
-import { dirname, join } from 'node:path'
+import {
+  lstat,
+  mkdir,
+  readdir,
+  readFile,
+  unlink,
+  writeFile,
+} from 'node:fs/promises'
+import { dirname, join, sep } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { unzipSync } from 'fflate'
@@ -18,6 +25,7 @@ import type { Locale } from '../app/locales/index.ts'
 export const ROOT = dirname(dirname(fileURLToPath(import.meta.url)))
 export const RAW_DIR = join(ROOT, 'data/raw')
 export const DATA_DIR = join(ROOT, 'public/data')
+export const STROKE_DIR = join(ROOT, 'public/strokes')
 export const FONT_DIR = join(ROOT, 'public/fonts')
 export const SOURCE_LOCK_PATH = join(ROOT, 'data/sources.lock.json')
 
@@ -123,29 +131,30 @@ export const SOURCES: Source[] = [
     licenseUrl: 'https://www.apache.org/licenses/LICENSE-2.0',
   },
   {
-    id: 'kanjivg',
+    id: 'animcjk',
     use: {
-      'zh-CN': '日本字形笔顺动画',
-      'zh-TW': '日本字形筆順動畫',
-      'zh-HK': '日本字形筆順動畫',
-      'ja-JP': '日本字形の筆順アニメーション',
-      'ko-KR': '일본 자형 필순 애니메이션',
+      'zh-CN': '中、台、日、韩笔顺动画',
+      'zh-TW': '中、臺、日、韓筆順動畫',
+      'zh-HK': '中、台、日、韓筆順動畫',
+      'ja-JP': '中国・台湾・日本・韓国の筆順アニメーション',
+      'ko-KR': '중국·대만·일본·한국 필순 애니메이션',
     },
-    name: 'KanjiVG',
-    homepage: 'https://kanjivg.tagaini.net/',
-    license: 'CC BY-SA 3.0',
-    licenseUrl: 'https://creativecommons.org/licenses/by-sa/3.0/',
+    name: 'AnimCJK',
+    homepage: 'https://github.com/parsimonhi/animCJK',
+    license: 'Arphic Public License',
+    licenseUrl:
+      'https://github.com/parsimonhi/animCJK/blob/master/licenses/APL/english/ARPHICPL.TXT',
     note: {
       'zh-CN':
-        '使用 KanjiVG 的日本字形路径；不改变笔画形状，只按原笔次序着色播放。',
+        '仅提取本站字组引用的中、台、日、韩字形，保留原始笔画轮廓与中线，并按字组主键转换成32个哈希分片；动画以官方示例的轮廓裁剪方式绘制。同一字组切换地区只需一个分片；按笔画顺序排列的轮廓完全一致时仅保留第一份变体及其中线，界面也合并成一个选项。香港按本站的Source Han字形分组复用已有数据，优先顺序为台湾、中国大陆、日本、韩国。分片与随附授权由构建脚本生成至/strokes，不提交到仓库；修改后的AnimCJK数据继续按APL提供。',
       'zh-TW':
-        '使用 KanjiVG 的日本字形路徑；不改變筆畫形狀，只按原筆次序著色播放。',
+        '只擷取本站字組引用的中、臺、日、韓字形，保留原始筆畫輪廓與中線，並依字組主鍵轉換成32個雜湊分片；動畫採官方範例的輪廓裁剪方式繪製。同一字組切換地區只需一個分片；依筆畫順序排列的輪廓完全一致時只保留第一份變體及其中心線，介面亦合併成單一選項。香港依本站的Source Han字形分組沿用既有資料，優先順序為臺灣、中國大陸、日本、韓國。分片與隨附授權由建置腳本產生至/strokes，不提交至儲存庫；修改後的AnimCJK資料繼續依APL提供。',
       'zh-HK':
-        '使用 KanjiVG 的日本字形路徑；不改變筆畫形狀，只按原筆次序着色播放。',
+        '只抽取本站字組引用嘅中、台、日、韓字形，保留原始筆畫輪廓同中線，並按字組主鍵轉換成32個雜湊分片；動畫用官方範例嘅輪廓裁剪方式繪製。同一字組切換地區只需要一個分片；按筆畫次序排列嘅輪廓完全一致時只保留第一份變體同其中線，介面亦合併成一個選項。香港按本站嘅Source Han字形分組沿用已有數據，優先次序係台灣、中國大陸、日本、韓國。分片同附帶授權由建置腳本產生到/strokes，唔會提交到儲存庫；修改後嘅AnimCJK數據繼續按APL提供。',
       'ja-JP':
-        'KanjiVGの日本字形パスを使用しています。筆画の形状は変更せず、元の順序で色を付けて再生します。',
+        '本サイトの字グループが参照する中国・台湾・日本・韓国の字形だけを抽出し、元の筆画輪郭と中心線を保持したまま、字グループキーをハッシュした32個のシャードへ変換します。アニメーションは公式サンプルと同じ輪郭クリッピング方式で描画し、同じ字グループ内の地域切替は1シャードだけで済みます。筆画順に並べた輪郭が完全に一致する場合は最初のバリアントとその中心線だけを保存し、画面上でも1つの選択肢にまとめます。香港は本サイトのSource Han字形グループに基づいて既存データを流用し、台湾、中国大陸、日本、韓国の順に優先します。シャードと付属ライセンスはビルドスクリプトが/strokesへ生成し、リポジトリにはコミットしません。変更後のAnimCJKデータもAPLで提供します。',
       'ko-KR':
-        'KanjiVG의 일본 자형 경로를 사용합니다. 획 모양은 바꾸지 않고 원래 순서대로 색을 입혀 재생합니다.',
+        '이 사이트의 글자 그룹이 참조하는 중국·대만·일본·한국 자형만 추출하고 원본 획 윤곽과 중심선을 유지한 채 글자 그룹 키를 해시한 32개 샤드로 변환합니다. 애니메이션은 공식 예제와 같은 윤곽 클리핑 방식으로 그리며 같은 글자 그룹의 지역 전환은 샤드 하나만 사용합니다. 획순대로 배열한 윤곽이 완전히 같으면 첫 번째 변형과 그 중심선만 저장하고 화면에서도 하나의 선택 항목으로 합칩니다. 홍콩은 이 사이트의 Source Han 자형 그룹에 따라 기존 데이터를 재사용하며 대만, 중국 대륙, 일본, 한국 순으로 우선합니다. 샤드와 동봉 라이선스는 빌드 스크립트가 /strokes에 생성하며 저장소에는 커밋하지 않습니다. 수정한 AnimCJK 데이터도 APL로 제공합니다.',
     },
   },
   {
@@ -356,6 +365,8 @@ const charList = (name: string) =>
 const openCC = (name: string) =>
   gh('BYVoid/OpenCC', 'master', `data/dictionary/${name}.txt`)
 
+const animCJK = (path: string) => gh('parsimonhi/animCJK', 'master', path)
+
 const cmap = (repo: 'sans' | 'serif', region: string) =>
   gh(
     `adobe-fonts/source-han-${repo}`,
@@ -401,6 +412,13 @@ export const ASSET_URLS: Record<string, string> = {
   'opencc/TWVariants.txt': openCC('TWVariants'),
   'opencc/HKVariants.txt': openCC('HKVariants'),
   'opencc/JPShinjitaiCharacters.txt': openCC('JPShinjitaiCharacters'),
+
+  'strokes/animcjk-ja.txt': animCJK('graphicsJa.txt'),
+  'strokes/animcjk-zh-hans.txt': animCJK('graphicsZhHans.txt'),
+  'strokes/animcjk-zh-hant.txt': animCJK('graphicsZhHant.txt'),
+  'strokes/animcjk-ko.txt': animCJK('graphicsKo.txt'),
+  'strokes/animcjk-APL.txt': animCJK('licenses/APL/english/ARPHICPL.TXT'),
+  'strokes/animcjk-COPYING.txt': animCJK('licenses/COPYING.txt'),
 
   'cmap/sans-CN.txt': cmap('sans', 'CN'),
   'cmap/sans-HK.txt': cmap('sans', 'HK'),
@@ -510,6 +528,21 @@ function matchesLock(data: Buffer, asset: LockedAsset): boolean {
   return data.byteLength === asset.size && sha256(data) === asset.sha256
 }
 
+let rawCachePrepared: Promise<void> | undefined
+
+/** Drop files restored from an older Actions cache after a source is retired. */
+async function prepareRawCache(): Promise<void> {
+  if (!existsSync(RAW_DIR)) return
+  for (const relativePath of await readdir(RAW_DIR, { recursive: true })) {
+    const name = relativePath.split(sep).join('/')
+    if (ASSET_URLS[name]) continue
+    const path = join(RAW_DIR, relativePath)
+    if (!(await lstat(path)).isFile()) continue
+    await unlink(path)
+    process.stderr.write(`  × ${name}\n`)
+  }
+}
+
 async function downloadLocked(
   name: string,
   path: string,
@@ -527,6 +560,8 @@ async function downloadLocked(
 
 /** Read a verified pinned source from the cache, downloading when necessary. */
 export async function raw(name: string): Promise<Buffer> {
+  rawCachePrepared ??= prepareRawCache()
+  await rawCachePrepared
   const asset = lockedAsset(name)
   const path = join(RAW_DIR, name)
   if (existsSync(path)) {

@@ -15,6 +15,8 @@ import {
 
 const GITHUB_RAW =
   /^https:\/\/raw\.githubusercontent\.com\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/
+const GITHUB_ARCHIVE =
+  /^https:\/\/codeload\.github\.com\/([^/]+)\/([^/]+)\/zip\/refs\/heads\/(.+)$/
 const UNICODE_LATEST = 'https://www.unicode.org/Public/UCD/latest/ucd/'
 const UNICODE_README = 'https://www.unicode.org/Public/UCD/latest/ReadMe.txt'
 
@@ -24,8 +26,12 @@ interface GitHubRef {
 }
 
 const githubRef = (url: string): GitHubRef | undefined => {
-  const match = GITHUB_RAW.exec(url)
-  return match ? { repo: `${match[1]}/${match[2]}`, ref: match[3]! } : undefined
+  const raw = GITHUB_RAW.exec(url)
+  if (raw) return { repo: `${raw[1]}/${raw[2]}`, ref: raw[3]! }
+  const archive = GITHUB_ARCHIVE.exec(url)
+  return archive
+    ? { repo: `${archive[1]}/${archive[2]}`, ref: archive[3]! }
+    : undefined
 }
 
 async function githubRevision(source: GitHubRef): Promise<string> {
@@ -70,6 +76,13 @@ function pinnedUrl(
     const revision = revisions.get(key)
     if (!revision) throw new Error(`unresolved GitHub source: ${key}`)
     return `https://raw.githubusercontent.com/${match[1]}/${match[2]}/${revision}/${match[4]}`
+  }
+  const archive = GITHUB_ARCHIVE.exec(url)
+  if (archive) {
+    const key = `${archive[1]}/${archive[2]}@${archive[3]}`
+    const revision = revisions.get(key)
+    if (!revision) throw new Error(`unresolved GitHub source: ${key}`)
+    return `https://codeload.github.com/${archive[1]}/${archive[2]}/zip/${revision}`
   }
   if (url.startsWith(UNICODE_LATEST))
     return url.replace(

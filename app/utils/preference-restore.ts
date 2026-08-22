@@ -1,6 +1,7 @@
 export const LOCALE_KEY = 'hanji:locale'
 export const FLAGS_KEY = 'hanji:emoji-flags'
 export const OUTLINE_KEY = 'hanji:outline'
+export const STROKE_SPEED_KEY = 'hanji:stroke-speed'
 export const HIDDEN_KEY = 'hanji:hidden'
 export const VISIBILITY_VERSION_KEY = 'hanji:columns-v2'
 export const COLUMN_MODE_KEY = 'hanji:columns-mode'

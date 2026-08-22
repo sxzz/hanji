@@ -36,6 +36,9 @@ body {
   /* Spaces between Han and Latin/digits are the renderer's job, so the copy
      itself carries none. Browsers without support simply set it tight. */
   text-autospace: normal;
+  /* Prefer a slightly earlier wrap over leaving one orphaned character on the
+     final line. Browsers without the newer algorithm fall back naturally. */
+  text-wrap: pretty;
   color: var(--c-ink);
   background: var(--c-paper);
   -webkit-font-smoothing: antialiased;

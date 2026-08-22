@@ -22,12 +22,12 @@ Hanji 的程序代码采用 MIT 许可；来源数据及其派生字段仍须遵
 - 来源：https://github.com/BYVoid/OpenCC
 - 许可：Apache-2.0 (https://www.apache.org/licenses/LICENSE-2.0)
 
-## KanjiVG
+## AnimCJK
 
-- 用途：日本字形笔顺动画
-- 来源：https://kanjivg.tagaini.net/
-- 许可：CC BY-SA 3.0 (https://creativecommons.org/licenses/by-sa/3.0/)
-- 备注：使用 KanjiVG 的日本字形路径；不改变笔画形状，只按原笔次序着色播放。
+- 用途：中、台、日、韩笔顺动画
+- 来源：https://github.com/parsimonhi/animCJK
+- 许可：Arphic Public License (https://github.com/parsimonhi/animCJK/blob/master/licenses/APL/english/ARPHICPL.TXT)
+- 备注：仅提取本站字组引用的中、台、日、韩字形，保留原始笔画轮廓与中线，并按字组主键转换成32个哈希分片；动画以官方示例的轮廓裁剪方式绘制。同一字组切换地区只需一个分片；按笔画顺序排列的轮廓完全一致时仅保留第一份变体及其中线，界面也合并成一个选项。香港按本站的Source Han字形分组复用已有数据，优先顺序为台湾、中国大陆、日本、韩国。分片与随附授权由构建脚本生成至/strokes，不提交到仓库；修改后的AnimCJK数据继续按APL提供。
 
 ## zispace/hanzi-chars
 

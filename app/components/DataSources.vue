@@ -14,7 +14,15 @@ const localize = (
 
 <template>
   <div class="text-sm">
-    <table class="sources w-full border-collapse text-left">
+    <table
+      class="sources w-full border-collapse text-left"
+      :class="{ 'sources-detailed': detailed }"
+    >
+      <colgroup v-if="detailed">
+        <col class="col-use" />
+        <col />
+        <col class="col-license" />
+      </colgroup>
       <thead>
         <tr class="border-b border-rule">
           <th class="eyebrow font-normal">{{ t('about.use') }}</th>
@@ -111,6 +119,16 @@ const localize = (
     display: table-cell;
   }
 
+  .sources-detailed {
+    table-layout: fixed;
+  }
+  .sources-detailed .col-use {
+    width: 32%;
+  }
+  .sources-detailed .col-license {
+    width: 12rem;
+  }
+
   .sources th,
   .sources td {
     padding: 0.625rem 1rem 0.625rem 0;
@@ -132,6 +150,7 @@ const localize = (
   .cell-name,
   .cell-license {
     margin-top: 0;
+    overflow-wrap: anywhere;
   }
 }
 </style>
