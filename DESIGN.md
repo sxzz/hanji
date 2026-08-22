@@ -51,6 +51,11 @@ typography:
     fontSize: 0.875rem
     fontWeight: 400
     lineHeight: 1.5
+  control-small:
+    fontFamily: "'UI Latin Sans', 'UI zh-CN Sans', 'Noto Sans', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif"
+    fontSize: 0.75rem
+    fontWeight: 400
+    lineHeight: 1
   prose:
     fontFamily: "'UI Latin Sans', 'UI zh-CN Sans', 'Noto Sans', 'Noto Sans SC', ui-sans-serif, system-ui, sans-serif"
     fontSize: 0.9375rem
@@ -113,6 +118,14 @@ components:
     textColor: '{colors.ink-soft}'
     typography: '{typography.body-small}'
     rounded: '{rounded.md}'
+    padding: '0 8px'
+    height: 28px
+  region-option-selected:
+    backgroundColor: '{colors.paper}'
+    borderColor: 'color-mix(in srgb, {colors.ink-soft} 75%, {colors.ink-mute})'
+    textColor: '{colors.ink}'
+    typography: '{typography.control-small}'
+    rounded: '{rounded.control}'
     padding: '0 8px'
     height: 28px
   navigation-control:
@@ -242,6 +255,8 @@ locale by accident.
   headings.
 - **Body** (regular, 1rem, line-height 1.5): Interface explanations and
   ordinary content.
+- **Control Small** (regular, 0.75rem, line-height 1): Compact filter and
+  region-option labels that must align inside a 1.75rem control.
 - **Prose** (regular, 0.9375rem, line-height 1.85): Long-form methodology and
   source notes, held to a readable 42rem measure.
 - **Label** (regular, 0.6875rem, letter-spacing 0.04em): Section labels,
@@ -332,8 +347,24 @@ motif; large capsules belong only to tiny run markers and scroll thumbs.
 - **Disabled or hidden:** Opacity communicates unavailability only after the
   label and control state remain programmatically explicit.
 
-**The Selected State Is a Slab Rule.** Filters use ink-on-paper inversion for
-the selected state, not a brighter border alone.
+**The Selected State Is a Slab Rule.** Non-regional content filters use
+ink-on-paper inversion for the selected state, not a brighter border alone.
+Region options are the explicit artwork-safe exception defined below.
+
+### Region Options
+
+Region selectors use one compact outlined control whether they appear as a
+single-choice index, a visibility toggle, or a listing filter. Because a flag
+is full-color artwork, it never carries selection state and never sits on an
+inverted Ink slab. Selection instead strengthens the border to a quiet blend
+between Soft Ink and Muted Ink, then returns the control to Paper; resting
+flags and the Sunk Paper surface recede so the chosen marks remain easy to
+scan. This edge-and-surface contrast stays visible with short text labels, in
+grayscale, and in both themes.
+
+**The Artwork Never Carries State Rule.** A region option must remain visibly
+selected when its flag or text label is removed. State belongs to the control
+edge and surface, while the artwork only names the region.
 
 ### Cards / Containers
 
