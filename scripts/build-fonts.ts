@@ -19,11 +19,15 @@ import { Buffer } from 'node:buffer'
  * 2. unicode-range chunking. Even so the glyphs total several MB per style,
  *    too much to ship at once. Chunks follow commonness order, so the browser
  *    fetches only the ones holding characters actually on screen.
+ *
+ * The cutting itself is queued rather than run here, and scripts/subset-worker.ts
+ * spreads the queue over the cores; see runQueue below for why.
  */
 import { mkdir, readdir, readFile, unlink, writeFile } from 'node:fs/promises'
+import { availableParallelism } from 'node:os'
 import { join } from 'node:path'
+import { Worker } from 'node:worker_threads'
 import * as fontkit from 'fontkit'
-import subsetFont from 'subset-font'
 import { messages } from '../app/locales/all.ts'
 import {
   LOCALE_META,
@@ -36,6 +40,7 @@ import { fontIndexOf } from '../shared/row.ts'
 import { SOURCES } from '../shared/sources.ts'
 import { REGIONS, STYLES, type CharsData, type Style } from '../shared/types.ts'
 import { DATA_DIR, FONT_DIR, NOTICES_DIR, raw, ROOT } from './sources.ts'
+import type { SubsetDone, SubsetJob } from './subset-worker.ts'
 
 /** Region code as Noto names it. */
 const NOTO: Record<string, string> = {
@@ -119,27 +124,83 @@ function unicodeRange(chars: string[]): string {
   return parts.join(',')
 }
 
+/**
+ * Subsets to cut, in output order. Nothing is compressed while the queue is
+ * being built, so the @font-face rules can be written alongside each entry and
+ * only the byte counts have to wait.
+ */
+const jobs: Omit<SubsetJob, 'index'>[] = []
+const queue = (job: Omit<SubsetJob, 'index'>): number => jobs.push(job) - 1
+
+/**
+ * Cut the queue across every core, and answer with each subset's size.
+ *
+ * Nearly all of the work is woff2 encoding -- Brotli at quality 11 -- which
+ * runs a few hundred milliseconds per chunk against a few milliseconds for the
+ * subsetting itself. subset-font puts every call behind a p-limit(1) over one
+ * shared wasm heap, so ordering the calls differently in this process would
+ * change nothing; the parallelism has to come from separate threads.
+ */
+async function runQueue(): Promise<number[]> {
+  // Workers read from the cache directly, so verify and fetch here first --
+  // otherwise they would all race to download the same missing source.
+  for (const font of new Set(jobs.map((job) => job.font))) await raw(font)
+
+  const sizes = Array.from({ length: jobs.length }, () => 0)
+  const count = Math.min(availableParallelism(), jobs.length)
+  console.error(`${jobs.length} subsets over ${count} workers`)
+
+  let next = 0
+  let failed = false
+  await Promise.all(
+    Array.from(
+      { length: count },
+      () =>
+        new Promise<void>((resolve, reject) => {
+          const worker = new Worker(
+            new URL('subset-worker.ts', import.meta.url),
+          )
+          const take = () => {
+            if (failed || next >= jobs.length) {
+              worker.terminate()
+              resolve()
+              return
+            }
+            const index = next++
+            worker.postMessage({ index, ...jobs[index]! })
+          }
+          const fail = (error: Error) => {
+            failed = true
+            worker.terminate()
+            reject(error)
+          }
+          worker.on('message', (done: SubsetDone) => {
+            if (done.error) return fail(new Error(done.error))
+            sizes[done.index] = done.bytes!
+            take()
+          })
+          worker.on('error', fail)
+          take()
+        }),
+    ),
+  )
+  return sizes
+}
+
 const faces: Record<string, string[]> = { sans: [], serif: [], ui: [] }
-let totalBytes = 0
+
+/** Queue positions of each style's chunks, for the size report. */
+const styleChunks: Record<string, number[]> = { sans: [], serif: [] }
 
 for (const style of STYLES) {
-  let styleBytes = 0
   for (const region of REGIONS) {
     const chars = needed[region]!
-
-    const source = await raw(otf(style, region))
-
     for (let start = 0, index = 0; start < chars.length; start += CHUNK_SIZE) {
       const chunk = chars.slice(start, start + CHUNK_SIZE)
-      const subset = await subsetFont(source, chunk.join(''), {
-        targetFormat: 'woff2',
-        // The table renders isolated single characters, so no OpenType layout
-        // is needed. Skipping the layout closure drops vertical and alternate
-        // forms that can never be reached here, roughly halving the output.
-        noLayoutClosure: true,
-      })
       const file = `hanji-${style}-${region}-${index}.woff2`
-      await writeFile(join(FONT_DIR, file), subset)
+      styleChunks[style]!.push(
+        queue({ font: otf(style, region), text: chunk.join(''), file }),
+      )
       faces[style]!.push(
         `@font-face {
   font-family: 'Hanji ${style === 'sans' ? 'Sans' : 'Serif'} ${region.toUpperCase()}';
@@ -148,12 +209,9 @@ for (const style of STYLES) {
   unicode-range: ${unicodeRange(chunk)};
 }`,
       )
-      styleBytes += subset.length
       index++
     }
   }
-  totalBytes += styleBytes
-  console.error(`${style}  ${(styleBytes / 1024 / 1024).toFixed(2)} MB`)
 }
 
 /**
@@ -219,26 +277,25 @@ const ALL_UI_TEXT = [
   LOCALES.map(localeName).join(''),
 ].join('')
 
+const uiSubsets: { index: number; file: string; chars: number }[] = []
+
 for (const locale of Object.keys(messages)) {
   const source = UI_FONT[locale]
   if (!source) continue
   const chars = [...new Set(uiText())].join('')
   for (const style of STYLES) {
-    const subset = await subsetFont(await raw(source(style)), chars, {
-      targetFormat: 'woff2',
-      noLayoutClosure: true,
-    })
     const file = `ui-${style}-${locale}.woff2`
-    await writeFile(join(FONT_DIR, file), subset)
+    uiSubsets.push({
+      index: queue({ font: source(style), text: chars, file }),
+      file,
+      chars: chars.length,
+    })
     faces.ui!.push(
       `@font-face {
   font-family: '${LOCALE_META[locale as Locale].uiFamily} ${style === 'sans' ? 'Sans' : 'Serif'}';
   src: url('./${file}') format('woff2');
   font-display: swap;
 }`,
-    )
-    console.error(
-      `${file}  ${chars.length} chars  ${(subset.length / 1024).toFixed(0)} KB`,
     )
   }
 }
@@ -269,16 +326,17 @@ const LATIN_SOURCE: Record<Style, string> = {
   serif: 'font/NotoSerif-VF.ttf',
 }
 
+const latinSubsets: { index: number; file: string }[] = []
+
 for (const style of STYLES) {
   const chars = [...new Set(ASCII + TONE_MARKS + PUNCTUATION + uiText())].join(
     '',
   )
-  const subset = await subsetFont(await raw(LATIN_SOURCE[style]), chars, {
-    targetFormat: 'woff2',
-    noLayoutClosure: true,
-  })
   const file = `ui-latin-${style}.woff2`
-  await writeFile(join(FONT_DIR, file), subset)
+  latinSubsets.push({
+    index: queue({ font: LATIN_SOURCE[style], text: chars, file }),
+    file,
+  })
   faces.ui!.push(
     `@font-face {
   font-family: 'UI Latin ${style === 'sans' ? 'Sans' : 'Serif'}';
@@ -287,8 +345,24 @@ for (const style of STYLES) {
   font-display: swap;
 }`,
   )
-  console.error(`${file}  ${(subset.length / 1024).toFixed(0)} KB`)
 }
+
+// Everything is queued, so cut it all at once and then report the sizes in
+// the order the files were declared.
+const sizes = await runQueue()
+
+let totalBytes = 0
+for (const style of STYLES) {
+  const styleBytes = styleChunks[style]!.reduce((sum, i) => sum + sizes[i]!, 0)
+  totalBytes += styleBytes
+  console.error(`${style}  ${(styleBytes / 1024 / 1024).toFixed(2)} MB`)
+}
+for (const { index, file, chars } of uiSubsets)
+  console.error(
+    `${file}  ${chars} chars  ${(sizes[index]! / 1024).toFixed(0)} KB`,
+  )
+for (const { index, file } of latinSubsets)
+  console.error(`${file}  ${(sizes[index]! / 1024).toFixed(0)} KB`)
 
 /**
  * The typeface switch labels itself with 黑 and 宋, each set in the face it
