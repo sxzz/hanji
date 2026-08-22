@@ -44,6 +44,16 @@ export const zhTW: typeof zhCN = {
     back: '返回字表',
     options: '顯示選項',
   },
+  error: {
+    notFoundTitle: '這一頁不在字表裡',
+    notFoundDescription:
+      '連結可能已經變更，或網址有誤。你可以返回字表，繼續查找和對照漢字。',
+    genericTitle: '這一頁暫時無法開啟',
+    genericDescription: '頁面遇到了問題。請重新載入，或返回字表繼續瀏覽。',
+    home: '返回字表',
+    back: '返回上一頁',
+    reload: '重新載入',
+  },
   options: {
     title: '顯示選項',
     language: '介面語言',
