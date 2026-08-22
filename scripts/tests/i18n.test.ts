@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
+  dictionaryRegionsFor,
+  LOCALE_DICTIONARY_REGION,
   LOCALE_FREQUENCY_REGION,
   matchLocale,
 } from '../../app/locales/index.ts'
@@ -49,6 +51,31 @@ describe('locale-aware frequency defaults', () => {
       'ja-JP': 'jp',
       'ko-KR': 'cn',
     })
+  })
+})
+
+describe('locale-aware dictionaries', () => {
+  it('maps every interface locale to its own regional dictionaries', () => {
+    expect(LOCALE_DICTIONARY_REGION).toEqual({
+      'zh-CN': 'cn',
+      'zh-TW': 'tw',
+      'zh-HK': 'hk',
+      'ja-JP': 'jp',
+      'ko-KR': 'kr',
+    })
+  })
+
+  it('combines the locale region with the regions being compared', () => {
+    expect(dictionaryRegionsFor('ko-KR', ['cn', 'jp'])).toEqual([
+      'cn',
+      'jp',
+      'kr',
+    ])
+    expect(dictionaryRegionsFor('zh-HK', ['cn', 'jp'])).toEqual([
+      'cn',
+      'hk',
+      'jp',
+    ])
   })
 })
 

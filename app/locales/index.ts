@@ -1,5 +1,9 @@
+import {
+  REGIONS,
+  type FrequencyRegion,
+  type Region,
+} from '../../shared/types.ts'
 import { zhCN } from './zh-cn.ts'
-import type { FrequencyRegion } from '../../shared/types.ts'
 
 /**
  * The language never enters the URL: one prerendered build, locale decided on
@@ -13,17 +17,34 @@ export type Locale = (typeof LOCALES)[number]
 /** What the prerendered HTML carries, and what anything unmatched falls back to. */
 export const DEFAULT_LOCALE: Locale = 'zh-CN'
 
+/** The regional dictionaries native to each interface language. */
+export const LOCALE_DICTIONARY_REGION = {
+  'zh-CN': 'cn',
+  'zh-TW': 'tw',
+  'zh-HK': 'hk',
+  'ja-JP': 'jp',
+  'ko-KR': 'kr',
+} as const satisfies Record<Locale, Region>
+
 /**
  * The corpus that best matches each interface language. Korea has no
  * frequency dataset, so its interface deliberately falls back to the existing
  * mainland corpus instead of implying that another region is Korean data.
  */
-export const LOCALE_FREQUENCY_REGION: Record<Locale, FrequencyRegion> = {
-  'zh-CN': 'cn',
-  'zh-TW': 'tw',
-  'zh-HK': 'hk',
-  'ja-JP': 'jp',
+export const LOCALE_FREQUENCY_REGION = {
+  ...LOCALE_DICTIONARY_REGION,
   'ko-KR': 'cn',
+} as const satisfies Record<Locale, FrequencyRegion>
+
+/** Dictionaries follow either the comparison or the active interface locale. */
+export function dictionaryRegionsFor(
+  locale: Locale,
+  visible: readonly Region[],
+): Region[] {
+  const local = LOCALE_DICTIONARY_REGION[locale]
+  return REGIONS.filter(
+    (region) => region === local || visible.includes(region),
+  )
 }
 
 export type Messages = typeof zhCN

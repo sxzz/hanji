@@ -15,6 +15,13 @@ export interface DictLink {
   url: string
 }
 
+export interface DictGroupOptions {
+  /** Regions whose forms are represented by reference rows. */
+  formRegions?: readonly Region[]
+  /** Regions whose own dictionaries are included in each row. */
+  dictionaryRegions?: readonly Region[]
+}
+
 /** A character the group is written with, and the font that draws it. */
 export interface Form {
   char: string
@@ -57,8 +64,11 @@ const enc = encodeURIComponent
 const hex = (char: string) => char.codePointAt(0)!.toString(16)
 
 /** Outside references for one character. */
-export function dictLinks(char: string): DictLink[] {
-  return [
+export function dictLinks(
+  char: string,
+  regions: readonly Region[] = REGIONS,
+): DictLink[] {
+  const links: DictLink[] = [
     {
       id: 'zdic',
       name: '汉典',
@@ -92,6 +102,12 @@ export function dictLinks(char: string): DictLink[] {
       url: `https://jisho.org/search/${enc(char)}%20%23kanji`,
     },
     {
+      id: 'naver',
+      name: 'NAVER 한자사전',
+      region: 'kr',
+      url: `https://hanja.dict.naver.com/#/search?range=letter&query=${enc(char)}`,
+    },
+    {
       id: 'zitools',
       name: '字統网',
       url: `https://zi.tools/zi/${enc(char)}`,
@@ -109,15 +125,16 @@ export function dictLinks(char: string): DictLink[] {
       url: `https://www.unicode.org/cgi-bin/GetUnihanData.pl?codepoint=${hex(char).toUpperCase()}`,
     },
   ]
+  return links.filter((link) => !link.region || regions.includes(link.region))
 }
 
 /** Every character the group is written with, each with its references. */
 export function dictGroups(
   row: CharRow,
-  regions?: readonly Region[],
+  { formRegions = REGIONS, dictionaryRegions = REGIONS }: DictGroupOptions = {},
 ): { form: Form; links: DictLink[] }[] {
-  return formsOf(row, regions).map((form) => ({
+  return formsOf(row, formRegions).map((form) => ({
     form,
-    links: dictLinks(form.char),
+    links: dictLinks(form.char, dictionaryRegions),
   }))
 }
