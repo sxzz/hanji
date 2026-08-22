@@ -94,7 +94,7 @@ const iconOnly = computed(
   min-width: 1.375rem;
   height: 1.375rem;
   padding-inline: 0.375rem;
-  border-radius: 3px;
+  border-radius: 6px;
   font-size: 0.6875rem;
 }
 
