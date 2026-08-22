@@ -61,8 +61,59 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           command: versions upload --preview-alias=pr-${{ github.event.pull_request.number }}
+
+      - name: Publish GitHub preview deployment
+        if: github.event_name == 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          VERSION_PREVIEW_URL: ${{ steps.deploy_preview.outputs.deployment-url }}
+        run: |
+          version_host="${VERSION_PREVIEW_URL#https://}"
+          preview_host="${version_host#*-}"
+          test "$preview_host" != "$version_host"
+
+          preview_url="https://pr-$PR_NUMBER-$preview_host"
+
+          environment="preview-pr-$PR_NUMBER"
+          deployment_id="$(
+            jq -n \
+              --arg ref "$PR_HEAD_SHA" \
+              --arg environment "$environment" \
+              '{
+                ref: $ref,
+                environment: $environment,
+                auto_merge: false,
+                required_contexts: [],
+                transient_environment: true,
+                production_environment: false,
+                description: "Cloudflare Workers preview"
+              }' |
+              gh api \
+                --method POST \
+                "repos/${GITHUB_REPOSITORY}/deployments" \
+                --input - \
+                --jq '.id'
+          )"
+
+          jq -n \
+            --arg environment "$environment" \
+            --arg environment_url "$preview_url" \
+            --arg log_url "$RUN_URL" \
+            '{
+              state: "success",
+              environment: $environment,
+              environment_url: $environment_url,
+              log_url: $log_url,
+              description: "Cloudflare Workers preview is ready"
+            }' |
+            gh api \
+              --method POST \
+              "repos/${GITHUB_REPOSITORY}/deployments/${deployment_id}/statuses" \
+              --input -
 
       - name: Deploy to Cloudflare Workers
         if: github.event_name == 'push'
@@ -71,7 +122,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           command: deploy
 
       - name: Fail Workflow on Unit Test Failure
