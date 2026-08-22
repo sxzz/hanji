@@ -1,5 +1,9 @@
 # 汉智 · hanji
 
+简体中文 | [日本語](README.ja-JP.md)
+
+<!-- When editing this file, update README.ja-JP.md in the same change. -->
+
 中国大陆、香港、台湾、日本、韩国五地常用汉字的字表。本站对照的是通用黑体与宋体中的印刷字形：同一个字，在各地可能呈现不同字形。这里把五地字形并排列出，默认按界面语言对应地区的字频排序，也可按笔画或码点排序，并按差异模式筛选。韩国没有字频数据，韩国列默认关闭，可在显示选项中启用。
 
 字形只是其中一个维度。收录范围是五地常用字表的并集，**字形完全相同的字同样收录**：这是一份五地汉字的资料表，不是一份差异清单。
@@ -68,24 +72,27 @@ pnpm generate     # 静态站点
 
 每一行的地址是它的行名（`/char/着`）。五地展示形、`aka` 和 `alternatives` 也可作为地址，由客户端跳到所属的行——例如 `/char/国`、`/char/郞`、`/char/缐`，页面用 `rel=canonical` 指回行名地址；未确认关系不是地址别名。
 
-字表 `public/data/chars.json` 提交在仓库里，也是站点的开放数据地址 `/data/chars.json`。字体子集约 12MB，**不提交**，由 `pnpm build:data` 生成——所以构建前必须先跑一次。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`），已 gitignore。
+字表 `public/data/chars.json` 提交在仓库里，也是站点的开放数据地址 `/data/chars.json`；所有 `/data/*.json` 响应均允许任意来源跨域读取。字体子集约 12MB，**不提交**，由 `pnpm build:data` 生成——所以构建前必须先跑一次。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`），已 gitignore。
 
 ## 部署
 
-静态站点，`.output/public` 直接丢给任意静态托管即可。线上部署由 [GitHub Actions](.github/workflows/deploy.yml) 构建后直传 Cloudflare Pages：
+静态站点，`.output/public` 直接丢给任意静态托管即可。线上部署由 [GitHub Actions](.github/workflows/deploy.yml) 构建后直传 Cloudflare Workers Static Assets：
 
 - `main` 的 push 部署到 production；
-- 指向 `main` 的 PR 部署到 `pr-<编号>` preview，GitHub 会在 PR 中显示对应的 deployment 与访问地址，后续提交沿用同一个分支预览地址。
+- 指向 `main` 的 PR 通过 `wrangler versions upload` 部署到 `pr-<编号>` preview alias，GitHub 会在 PR 中显示对应的 deployment 与访问地址，后续提交沿用同一个预览地址。
 
-仓库需要配置三个 Actions secrets：
+仓库需要配置两个 Actions secrets：
 
-- `CLOUDFLARE_API_TOKEN`：具有 `Account / Cloudflare Pages / Edit` 权限的 API token；
-- `CLOUDFLARE_ACCOUNT_ID`：Pages 项目所在的 Cloudflare account ID；
-- `CLOUDFLARE_PROJECT_NAME`：Cloudflare Pages 项目名。
+- `CLOUDFLARE_API_TOKEN`：具有 Workers 脚本编辑权限的 API token；
+- `CLOUDFLARE_ACCOUNT_ID`：Worker 所在的 Cloudflare account ID。
 
-Cloudflare Pages 的 production branch 设为 `main`。在项目的 **Settings → Builds → Branch control** 中关闭 **Enable automatic production branch deployments**，并将 **Preview branch** 设为 **None**；Cloudflare 只托管 Actions 上传的成品，不再自行构建。
+Cloudflare Worker 名称须为 `hanji`，与 `wrangler.json` 中的 `name` 一致。
 
-全部 8,449 个字组详情页都会生成独立 HTML；页面数据在本地 bundle 中，因此关闭了每路由额外生成 `_payload.json` 的 payload extraction。地区异体别名也不另外生成跳转页，而是通过 `public/_redirects` 回到应用后由客户端跳转。同一条回退规则也让应用显示未知字符的 404；`public/_headers` 给带内容哈希的 `_nuxt/*` 设了长缓存。
+请在 Cloudflare 的 **Settings → Domains & Routes** 中连接 production 域名。PR preview URL 保持开启。
+
+需要页面访问量和 Web Vitals 时，请在实际域名所属账户的 **Web Analytics → Add a site** 中选择已由 Cloudflare 代理的 hostname，并使用 automatic setup。Cloudflare 会在边缘自动注入 beacon。
+
+每个字组详情页都会生成独立 HTML；页面数据在本地 bundle 中，因此关闭了每路由额外生成 `_payload.json` 的 payload extraction。地区异体别名不另外生成跳转页：它先由 Static Assets 返回 `404.html` 和 HTTP 404，再由 Nuxt 客户端中间件跳到所属行；搜索引擎不会把 alias 当作成功页面重复收录。真正未知的地址保持 HTTP 404；`public/_headers` 给带内容哈希的 `_nuxt/*` 设了长缓存。
 
 第三方资产的具体 commit、官方附件标识与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析有版本上游的版本号，并重新校验没有版本号的官方直链；内容有变化时更新 lockfile 并直接重新生成数据，完全未变则跳过生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **215 MB** 原始数据（其中 195 MB 是十份 Noto CJK 字体）；任何未显式更新的直链内容变化都会因校验和不符而失败，不会静默进入数据。Actions 分开缓存原始下载与生成字体：前者只由 lockfile 决定，后者由 lockfile、实际生成脚本、相关依赖、locale 与字表决定；字体输入完全不变时跳过数据生成。
 
@@ -93,7 +100,8 @@ Cloudflare Pages 的 production branch 设为 `main`。在项目的 **Settings �
 
 ```bash
 pnpm build:data && pnpm generate
-pnpm wrangler pages deploy .output/public --project-name="$CLOUDFLARE_PROJECT_NAME"
+pnpm preview:worker # http://localhost:8787
+pnpm deploy
 ```
 
 ## 数据来源
