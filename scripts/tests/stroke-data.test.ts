@@ -9,12 +9,13 @@ import { strokeDataUrl, strokeDuration } from '../../app/utils/stroke-data.ts'
 describe('stroke data', () => {
   afterEach(() => vi.unstubAllGlobals())
 
-  it('uses local row-group shards', () => {
-    expect(strokeDataUrl('説')).toBe('/strokes/0c.json')
-    expect(ANIMCJK_LICENSE).toBe('/strokes/licenses/animcjk-APL.txt')
+  it('uses Vite-built row-group shards and a stable license URL', () => {
+    expect(strokeDataUrl('説')).toContain('0c')
+    expect(strokeDataUrl('説')).not.toBe('/strokes/0c.json')
+    expect(ANIMCJK_LICENSE).toBe('/notices/animcjk-APL.txt')
   })
 
-  it('loads regional forms without an application cache', async () => {
+  it('fetches a shard once when loading multiple forms from one group', async () => {
     const body = {
       _meta: { version: 6 },
       groups: {
@@ -42,9 +43,8 @@ describe('stroke data', () => {
 
     expect(chinese?.strokes).toHaveLength(1)
     expect(japanese?.strokes).toHaveLength(1)
-    expect(fetcher).toHaveBeenCalledTimes(2)
-    expect(fetcher).toHaveBeenNthCalledWith(1, '/strokes/02.json')
-    expect(fetcher).toHaveBeenNthCalledWith(2, '/strokes/02.json')
+    expect(fetcher).toHaveBeenCalledOnce()
+    expect(fetcher).toHaveBeenCalledWith(strokeDataUrl('時'))
   })
 
   it('merges visible regions that share one geometry variant', () => {

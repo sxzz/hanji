@@ -5,7 +5,7 @@ import type { CharsData } from '../../shared/types.ts'
 
 const chars: CharsData = JSON.parse(
   readFileSync(
-    new URL('../../public/data/chars.json', import.meta.url),
+    new URL('../../app/assets/data/chars.json', import.meta.url),
     'utf8',
   ),
 )

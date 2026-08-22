@@ -1,4 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs'
+import { copyFile, mkdir } from 'node:fs/promises'
 import * as path from 'node:path'
 import process from 'node:process'
 import { RESTORE_SCRIPT } from './app/utils/theme.ts'
@@ -12,24 +13,43 @@ import type { NuxtConfig } from 'nuxt/schema'
  * tiny file for each alias would consume thousands of the host's file quota.
  */
 const charPath = (key: string) => `/char/${encodeURIComponent(key)}`
-const charsPath = path.resolve(import.meta.dirname, 'public/data/chars.json')
+const charsPath = path.resolve(
+  import.meta.dirname,
+  'app/assets/data/chars.json',
+)
 
 // A clean install runs `nuxt prepare` before the ignored dataset exists. Type
 // preparation does not prerender or bundle the app, so it can safely use an
-// empty route list. Every command that builds or serves the site still fails
+// empty route list. Every command that builds or serves the app still fails
 // with a clear instruction until the real dataset has been generated.
 if (
   !existsSync(charsPath) &&
   process.env.npm_lifecycle_event !== 'postinstall'
 ) {
-  throw new Error('Missing public/data/chars.json; run pnpm build:data first.')
+  throw new Error(
+    'Missing app/assets/data/chars.json; run pnpm build:data first.',
+  )
 }
+
+const publicCharsPath = path.resolve(
+  import.meta.dirname,
+  '.output/public/data/chars.json',
+)
 
 const PRERENDERED_CHARS = existsSync(charsPath)
   ? (JSON.parse(readFileSync(charsPath, 'utf8')) as CharsData).rows.map((row) =>
       charPath(row.key),
     )
   : []
+
+// A clean install prepares Nuxt before generated fonts exist. Include the
+// eager sans styles as soon as build:fonts has produced them; generate/dev
+// still fail later on the explicit serif import if the build is incomplete.
+const generatedFontStyles = ['fonts-ui.css', 'fonts-sans.css']
+  .filter((file) =>
+    existsSync(path.resolve(import.meta.dirname, 'app/assets/fonts', file)),
+  )
+  .map((file) => `~/assets/fonts/${file}`)
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default {
@@ -52,6 +72,15 @@ export default {
   // Fully static. The language never enters the URL, so routes do not fan out
   // per locale -- these are all of them.
   nitro: {
+    hooks: {
+      // The app consumes the Vite-managed source, while external users need a
+      // stable URL. Add that byte-for-byte copy only to the finished output so
+      // it never bypasses Vite inside the source tree.
+      'prerender:done': async function () {
+        await mkdir(path.dirname(publicCharsPath), { recursive: true })
+        await copyFile(charsPath, publicCharsPath)
+      },
+    },
     prerender: {
       // Crawling would walk every character linked from the first page; the
       // route list below is the deliberate one.
@@ -66,6 +95,7 @@ export default {
 
   css: [
     '@unocss/reset/tailwind.css',
+    ...generatedFontStyles,
     '~/styles/vars.css',
     '~/styles/global.css',
     '~/styles/overprint.css',
@@ -84,14 +114,9 @@ export default {
         { innerHTML: RESTORE_SCRIPT, tagPosition: 'head' },
         { innerHTML: PREFERENCE_RESTORE_SCRIPT, tagPosition: 'head' },
       ],
-      // Chunked Han subsets. Keeping the @font-face rules in their own
-      // cacheable files keeps them out of the JS/CSS bundle; serif is linked
-      // on demand from app.vue.
       link: [
         // Explicitly opt out instead of letting browsers probe /favicon.ico.
         { rel: 'icon', href: 'data:,' },
-        { rel: 'stylesheet', href: '/fonts/fonts-ui.css' },
-        { rel: 'stylesheet', href: '/fonts/fonts-sans.css' },
       ],
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },

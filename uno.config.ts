@@ -36,7 +36,7 @@ export default defineConfig({
     },
   },
 
-  /** Every face this site uses is cut and served by us; see vars.css. */
+  /** Every face this app uses is cut and served by us; see vars.css. */
   rules: [['font-mono', { 'font-family': 'var(--font-mono)' }]],
 
   shortcuts: {

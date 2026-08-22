@@ -59,7 +59,7 @@ export interface OverprintOptions {
 }
 
 /**
- * The behavior shared by every overprint on the site: the hero, the row
+ * The behavior shared by every overprint in the app: the hero, the row
  * thumbnails and the character being compared on a detail page.
  *
  * A stack reads as one picture, which tells the reader nothing about how many

@@ -216,7 +216,7 @@ const activeFocus = computed(() =>
 
 <style scoped>
 /* Color, blending, the fan and how the held-back layers behave are shared
-   with every other stack on the site; see styles/overprint.css. */
+   with every other stack in the app; see styles/overprint.css. */
 .overprint {
   position: relative;
   display: inline-grid;

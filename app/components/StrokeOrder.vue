@@ -4,13 +4,14 @@ import {
   ANIMCJK_LICENSE,
   ANIMCJK_REVEAL_WIDTH,
   ANIMCJK_VIEW_BOX,
-  loadAnimCJK,
+  unpackAnimCJK,
   type StrokeOrderChoice,
 } from '~/utils/animcjk.ts'
 import { STROKE_SPEED_KEY } from '~/utils/preference-restore.ts'
-import { strokeDuration } from '~/utils/stroke-data.ts'
+import { loadStrokeGroup, strokeDuration } from '~/utils/stroke-data.ts'
 import type { ComponentPublicInstance } from 'vue'
 import type {
+  PackedStrokeGroup,
   StrokeAnimationData,
   StrokeAnimationPath,
 } from '~~/shared/strokes.ts'
@@ -40,6 +41,10 @@ const isLoading = ref(true)
 const showSkeleton = ref(true)
 const phase = ref<Phase>('idle')
 const displayedChoice = shallowRef<StrokeOrderChoice>()
+const loadedGroup = shallowRef<{
+  key: string
+  data: PackedStrokeGroup
+}>()
 const strokes = shallowRef<StrokeAnimationPath[]>([])
 const viewBox = ref(ANIMCJK_VIEW_BOX)
 const strokeTransform = ref<string>()
@@ -55,7 +60,7 @@ const pathElements: SVGPathElement[] = []
 const clipPrefix = useId().replaceAll(':', '')
 
 let mounted = false
-let request: AbortController | undefined
+let requestVersion = 0
 let animation: Animation | undefined
 let run = 0
 
@@ -182,24 +187,46 @@ async function measure() {
   )
 }
 
-function loadChoice(
-  choice: StrokeOrderChoice,
-  signal: AbortSignal,
-): Promise<StrokeAnimationData | undefined> {
-  return loadAnimCJK(choice.variant, choice.groupKey, signal)
+async function displayChoice(choice: StrokeOrderChoice) {
+  const data: StrokeAnimationData | undefined = unpackAnimCJK(
+    loadedGroup.value?.data.variants[choice.variant],
+  )
+  if (!data) throw new Error('declared stroke data is missing')
+
+  cancelSkeletonReveal()
+  isLoading.value = false
+  showSkeleton.value = false
+  stop()
+  pathElements.length = 0
+  completed.value = 0
+  strokes.value = data.strokes
+  viewBox.value = data.viewBox
+  strokeTransform.value = data.transform
+  revealWidth.value = data.revealWidth ?? ANIMCJK_REVEAL_WIDTH
+  displayedChoice.value = choice
+  status.value = 'ready'
+  await measure()
 }
 
 async function load() {
-  request?.abort()
-  stop()
-  cancelSkeletonReveal()
-
+  const version = ++requestVersion
   const choice = currentChoice.value
   if (!choice) {
     isLoading.value = false
     return
   }
 
+  if (loadedGroup.value?.key === choice.groupKey) {
+    try {
+      await displayChoice(choice)
+    } catch {
+      status.value = 'error'
+    }
+    return
+  }
+
+  stop()
+  cancelSkeletonReveal()
   const keepCurrent =
     status.value === 'ready' && displayedChoice.value !== undefined
   isLoading.value = true
@@ -211,32 +238,20 @@ async function load() {
     showSkeleton.value = true
   }
 
-  const controller = new AbortController()
-  request = controller
   try {
-    const data = await loadChoice(choice, controller.signal)
-    if (controller.signal.aborted) return
-    if (!data) throw new Error('declared stroke data is missing')
+    const data = await loadStrokeGroup(choice.groupKey)
+    if (version !== requestVersion) return
+    if (!data) throw new Error('declared stroke group is missing')
+    loadedGroup.value = { key: choice.groupKey, data }
+    const latest = currentChoice.value
+    if (!latest || latest.groupKey !== choice.groupKey) return
+    await displayChoice(latest)
+  } catch {
+    if (version !== requestVersion) return
     cancelSkeletonReveal()
     isLoading.value = false
     showSkeleton.value = false
-    stop()
-    pathElements.length = 0
-    completed.value = 0
-    strokes.value = data.strokes
-    viewBox.value = data.viewBox
-    strokeTransform.value = data.transform
-    revealWidth.value = data.revealWidth ?? ANIMCJK_REVEAL_WIDTH
-    displayedChoice.value = choice
-    status.value = 'ready'
-    await measure()
-  } catch (error) {
-    if (!(error instanceof DOMException) || error.name !== 'AbortError') {
-      cancelSkeletonReveal()
-      isLoading.value = false
-      showSkeleton.value = false
-      status.value = 'error'
-    }
+    status.value = 'error'
   }
 }
 
@@ -333,7 +348,7 @@ onMounted(() => {
   load()
 })
 onBeforeUnmount(() => {
-  request?.abort()
+  requestVersion++
   cancelSkeletonReveal()
   stop()
 })

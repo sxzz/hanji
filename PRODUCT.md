@@ -40,7 +40,7 @@ and choose the regions participating in a comparison. Character detail pages
 provide stable direct URLs, regional metadata, readings, stroke-order material
 where available, related forms, and links to external dictionaries. The
 interface supports Simplified Chinese, Hong Kong Traditional Chinese, Taiwan
-Traditional Chinese, Japanese, and Korean. The product is a static website
+Traditional Chinese, Japanese, and Korean. The product is a static web app
 with no account or server-side workflow, and its generated datasets are also
 published as downloadable files.
 
@@ -82,15 +82,18 @@ language so that every comparison displays the intended local form.
 
 - `README.md` and the localized About page document scope, methodology,
   limitations, naming, and deployment.
-- `public/data/chars.json`, `public/data/sources.json`, and
-  `public/data/NOTICE.md` expose the generated character data, source metadata,
-  licenses, and transformation notes.
+- `app/assets/data/chars.json` provides the generated character data through a
+  Vite-fingerprinted asset. Static generation also copies it to the stable
+  `/data/chars.json` URL for external consumers. Attribution metadata lives in
+  `shared/sources.ts`, while `public/notices/data-sources.md` keeps
+  transformation and license notes at a stable, revalidated URL.
 - `data/sources.lock.json` pins third-party inputs and checksums.
 - The data and font pipelines under `scripts/`, together with their Vitest
   suites, encode and verify grouping, source, mapping, and rendered-outline
   guarantees.
 - Region-specific Noto CJK font subsets and local interface fonts are generated
-  for the site, with the applicable font license included in `public/fonts/`.
+  into `app/assets/fonts/`, with the applicable font license included in
+  `public/notices/`.
 - The repository contains no testimonials, institutional endorsements,
   commercial benchmarks, or other proof that future work may fabricate.
 

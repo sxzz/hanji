@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useStyle } from '~/composables/style.ts'
 import { revealRestoredPreferences } from '~/utils/preference-restore.ts'
+import serifStylesheetUrl from '~/assets/fonts/fonts-serif.css?url'
 
 const { t, meta } = useT()
 const route = useRoute()
@@ -43,9 +44,7 @@ useHead({
   titleTemplate: (title) =>
     title ? `${title} \u00B7 ${t('meta.title')}` : t('meta.title'),
   link: () =>
-    serifWanted.value
-      ? [{ rel: 'stylesheet', href: '/fonts/fonts-serif.css' }]
-      : [],
+    serifWanted.value ? [{ rel: 'stylesheet', href: serifStylesheetUrl }] : [],
 })
 </script>
 

@@ -46,7 +46,7 @@
 
 ## 字形与笔画
 
-字形比较使用 Source Han Sans 与 Source Han Serif 的地区 CMap。同一套字体内 CID 相同即视为同形；黑体或宋体任一方认为两地同形，最终就按同形处理。这样会过滤只由一套字体作出的设计区分，但也意味着本站衡量的是 Source Han 的地区设计，而不是规范文件本身。
+字形比较使用 Source Han Sans 与 Source Han Serif 的地区 CMap。同一套字体内 CID 相同即视为同形；黑体或宋体任一方认为两地同形，最终就按同形处理。这样会过滤只由一套字体作出的设计区分，但也意味着本应用衡量的是 Source Han 的地区设计，而不是规范文件本身。
 
 笔画数按地区取值，优先级为 `kAlternateTotalStrokes` → 日本列的 `kRSAdobe_Japan1_6` → `kTotalStrokes`。日本可能采用不同计数习惯，例如 `那` 五列为 `6 / 6 / 6 / 7 / 6`。
 

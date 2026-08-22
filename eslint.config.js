@@ -14,8 +14,9 @@ export default sxzz({
   })
   .append({
     ignores: [
-      'public/data/**',
-      'public/fonts/**',
+      'app/assets/data/**',
+      'app/assets/fonts/**',
+      'app/assets/strokes/**',
       'data/raw/**',
       // Written by scripts/build-fonts.ts; formatting it only churns the diff
       'app/generated/**',

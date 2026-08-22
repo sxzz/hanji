@@ -48,13 +48,16 @@ describe('Workers Static Assets configuration', () => {
     expect(wrangler.preview_urls).toBe(true)
   })
 
-  it('revalidates stable datasets without a custom stroke cache policy', () => {
+  it('caches fingerprinted assets and stable public resources', () => {
     expect(headers).toMatch(
-      /\/data\/\*\.json[\s\S]*Cache-Control: public, max-age=0, must-revalidate/,
+      /\/_nuxt\/\*[\s\S]*Access-Control-Allow-Origin: \*[\s\S]*Cache-Control: public, max-age=31536000, immutable/,
     )
     expect(headers).toMatch(
-      /\/strokes\/\*\n {2}Access-Control-Allow-Origin: \*/,
+      /\/notices\/\*[\s\S]*Access-Control-Allow-Origin: \*[\s\S]*Cache-Control: public, no-cache/,
     )
-    expect(headers).not.toMatch(/\/strokes\/\*[\s\S]*Cache-Control:/)
+    expect(headers).toMatch(
+      /\/data\/chars\.json[\s\S]*Access-Control-Allow-Origin: \*[\s\S]*Cache-Control: public, max-age=3600, stale-while-revalidate=86400/,
+    )
+    expect(headers).not.toMatch(/\/(?:fonts|flags|strokes)\//)
   })
 })

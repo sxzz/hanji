@@ -8,7 +8,7 @@ export const FREQUENCY_REGIONS = ['cn', 'hk', 'tw', 'jp'] as const
 export type FrequencyRegion = (typeof FREQUENCY_REGIONS)[number]
 
 /**
- * Typeface. Serif only changes what is drawn -- every judgment on this site is
+ * Typeface. Serif only changes what is drawn -- every judgment in this app is
  * made from the sans faces.
  */
 export const STYLES = ['sans', 'serif'] as const

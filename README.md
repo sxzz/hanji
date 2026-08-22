@@ -4,11 +4,11 @@
 
 <!-- When editing this file, update README.ja-JP.md in the same change. -->
 
-中国大陆、香港、台湾、日本、韩国五地常用汉字的字表。本站对照的是通用黑体与宋体中的印刷字形：同一个字，在各地可能呈现不同字形。这里把五地字形并排列出，默认按界面语言对应地区的字频排序，也可按笔画或码点排序，并按差异模式筛选。韩国没有字频数据，韩国列默认关闭，可在显示选项中启用。
+中国大陆、香港、台湾、日本、韩国五地常用汉字的字表。本应用对照的是通用黑体与宋体中的印刷字形：同一个字，在各地可能呈现不同字形。这里把五地字形并排列出，默认按界面语言对应地区的字频排序，也可按笔画或码点排序，并按差异模式筛选。韩国没有字频数据，韩国列默认关闭，可在显示选项中启用。
 
 字形只是其中一个维度。收录范围是五地常用字表的并集，**字形完全相同的字同样收录**：这是一份五地汉字的资料表，不是一份差异清单。
 
-下面是概要，逐条的完整说明在站内的「关于」页。
+下面是概要，逐条的完整说明在应用内的「关于」页。
 
 ## 名字的由来
 
@@ -36,13 +36,13 @@
 
 判定使用 Adobe Source Han Sans 与 Source Han Serif，页面则用与它们同源的 Noto Sans CJK 与 Noto Serif CJK 显示结果。每套字体让中、港、台、日、韩五个地区共用一个字形池，并分别提供「Unicode 码点 → 字形编号（CID）」映射。两地映射到同一 CID，就视为同形。Adobe 已把这些映射以纯文本公开，因此不需要比对轮廓或渲染截图。
 
-最终判定取**黑体与宋体结果的并集**：只要其中一款把两地画成同一字形，本站就按同形处理。这能排除只出现在单款字体中的设计细节。例如 Source Han Sans 为约五分之一的日本常用汉字提供独立字形，其中约两百个在 Source Han Serif 并未区分（了、人、子、水、金都在其中）；本站不把这类差异算作地区规范差异。完整取舍见 [数据规则与已知限制](docs/known-issues.md)。
+最终判定取**黑体与宋体结果的并集**：只要其中一款把两地画成同一字形，本应用就按同形处理。这能排除只出现在单款字体中的设计细节。例如 Source Han Sans 为约五分之一的日本常用汉字提供独立字形，其中约两百个在 Source Han Serif 并未区分（了、人、子、水、金都在其中）；本应用不把这类差异算作地区规范差异。完整取舍见 [数据规则与已知限制](docs/known-issues.md)。
 
 页面会按这份判定重新分组：被判为同形的格子统一借用组内一个地区的 Noto 字体，使屏幕上也真正呈现同一轮廓。相应地，被上述规则过滤的地区版本细小差异不会显示。`scripts/tests/fonts.test.ts` 会用 fontkit 取出生成字体的真实轮廓，逐字验证判定与画面显示一致。
 
 ## 局限
 
-- 本站只比较通用黑体与宋体中的印刷字形，不涵盖手写习惯，也不以教科书体的示范字形为准。日语教科书体主要为日语教学设计，并没有与中、港、台、韩共享同一字形池的正式地区版本；若拼接风格相近但来源不同的字体，地区差异与字体自身的设计差异就无法分开。为了控制变量，本站只能选用同时提供五地版本的同源字体系列。
+- 本应用只比较通用黑体与宋体中的印刷字形，不涵盖手写习惯，也不以教科书体的示范字形为准。日语教科书体主要为日语教学设计，并没有与中、港、台、韩共享同一字形池的正式地区版本；若拼接风格相近但来源不同的字体，地区差异与字体自身的设计差异就无法分开。为了控制变量，本应用只能选用同时提供五地版本的同源字体系列。
 - 判定的对象是 Source Han 的地区字形设计，不是各地标准本身。它是个高质量的代理——Adobe 的地区字形分别依据大陆《印刷通用汉字字形表》、台湾教育部《國字標準字體》、香港教育局《常用字字形表》、日本 JIS X 0208/0213、韩国 KS X 1001/1002。
 - Source Han 的香港字形覆盖并不完整，「只有香港不同」这一类可能少报。
 - 笔画数逐地区取：先看 Unihan 的 `kAlternateTotalStrokes`，日本再退到 `kRSAdobe_Japan1_6`（它分析的是 Adobe-Japan1-6 收的日本字形，所以 突 是 8 画而不是 9 画），都没有才用 `kTotalStrokes`。后者只区分简繁两档，港台日韩通常共用繁体值；例如 那 的五列笔画数是 6/6/6/7/6。
@@ -53,9 +53,9 @@
 
 ## 声明
 
-本站是基于公开资料制作的字形对照工具，不是各地的规范、词典或教学材料。页面展示的是本站采用的数据与自动规则所得的结果，不能据此断定某个字在当地只有这一种“正确”形式。
+本应用是基于公开资料制作的字形对照工具，不是各地的规范、词典或教学材料。页面展示的是本应用采用的数据与自动规则所得的结果，不能据此断定某个字在当地只有这一种“正确”形式。
 
-各地规范的适用范围和定义并不完全相同，字体也只是规范的一种设计实现。本站会整理、转换并合并不同来源的数据，也会为未收录项补上参考字形；这些都是工程取舍，难免带来简化、遗漏与错误。
+各地规范的适用范围和定义并不完全相同，字体也只是规范的一种设计实现。本应用会整理、转换并合并不同来源的数据，也会为未收录项补上参考字形；这些都是工程取舍，难免带来简化、遗漏与错误。
 
 页面中的“同形”或“不同”只在上述资料、字体与规则内成立；地区的排列与分组只为方便对照，不表示优劣或立场。正式场合请以原始规范与词典为准；每个字的详情页都列有相应地区的字典链接。汉字数量巨大，出错难免，发现数据有误请提 [issue](https://github.com/sxzz/hanji/issues)。
 
@@ -67,16 +67,16 @@ pnpm build:data   # 生成字表与字体子集，首次会下载约 261 MiB 原
 pnpm update:sources # 检查并锁定新版第三方数据；有变化时下载并重新生成
 pnpm dev
 pnpm test
-pnpm generate     # 静态站点
+pnpm generate     # 静态应用
 ```
 
 每一行的地址是它的行名（`/char/着`）。五地展示形、`aka` 和 `alternatives` 也可作为地址，由客户端跳到所属的行——例如 `/char/国`、`/char/郞`、`/char/缐`，页面用 `rel=canonical` 指回行名地址；未确认关系不是地址别名。
 
-字表 `public/data/chars.json` 和来源清单 `public/data/sources.json` 都由 `pnpm build:dataset` 生成，**不提交**；构建后仍分别作为 `/data/chars.json` 与 `/data/sources.json` 开放下载。所有 `/data/*.json` 响应均允许任意来源跨域读取，并要求缓存重新验证，避免稳定 URL 留下旧数据。字体子集约 12MB，同样不提交，由 `pnpm build:data` 生成——所以构建前必须先跑一次。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`、`strokes/`），已 gitignore；构建会清理从旧缓存恢复、但已不在当前来源清单中的文件。
+字表 `app/assets/data/chars.json` 由 `pnpm build:dataset` 生成，**不提交**；应用直接导入它，Vite 也会输出带内容哈希的下载地址。静态生成结束后，字表会额外复制到固定的 `/data/chars.json` 供外部网站引用，“关于”页链接的也是这个地址；它缓存 1 小时，过期后可在后台重新验证期间继续使用旧版本 1 天。来源与许可元数据直接维护在 `shared/sources.ts`，由页面和构建脚本共同导入，不再生成 `sources.json`。约 12MB 的字体子集生成到 `app/assets/fonts/`，同样不提交；字表、笔顺、字体和旗帜都进入 Vite 资源图，由 `/_nuxt/*` 的长期 immutable 缓存安全复用。会变动而又需要稳定 URL 的 NOTICE 与 license 文本单独放在 `public/notices/`，每次使用前必须重新验证。构建前需先运行 `pnpm build:data`。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`、`strokes/`），已 gitignore；构建会清理从旧缓存恢复、但已不在当前来源清单中的文件。
 
 ## 部署
 
-静态站点，`.output/public` 直接丢给任意静态托管即可。线上部署由 [GitHub Actions](.github/workflows/deploy.yml) 构建后直传 Cloudflare Workers Static Assets：
+这是静态应用，`.output/public` 直接交给任意静态托管即可。线上部署由 [GitHub Actions](.github/workflows/deploy.yml) 构建后直传 Cloudflare Workers Static Assets：
 
 - `main` 的 push 部署到 production；
 - 指向 `main` 的 PR 通过 `wrangler versions upload` 部署到 `pr-<编号>` preview alias，GitHub 会在 PR 中显示对应的 deployment 与访问地址，后续提交沿用同一个预览地址。
@@ -92,11 +92,11 @@ Cloudflare Worker 名称须为 `hanji`，与 `wrangler.json` 中的 `name` 一�
 
 需要页面访问量和 Web Vitals 时，请在实际域名所属账户的 **Web Analytics → Add a site** 中选择已由 Cloudflare 代理的 hostname，并使用 automatic setup。Cloudflare 会在边缘自动注入 beacon。
 
-每个字组详情页都会生成独立 HTML；页面数据在本地 bundle 中，因此关闭了每路由额外生成 `_payload.json` 的 payload extraction。地区异体别名不另外生成跳转页：它先由 Static Assets 返回 `404.html` 和 HTTP 404，再由 Nuxt 客户端中间件跳到所属行；搜索引擎不会把 alias 当作成功页面重复收录。真正未知的地址保持 HTTP 404；`public/_headers` 给带内容哈希的 `_nuxt/*` 设了长缓存。
+每个字组详情页都会生成独立 HTML；页面数据在本地 bundle 中，因此关闭了每路由额外生成 `_payload.json` 的 payload extraction。地区异体别名不另外生成跳转页：它先由 Static Assets 返回 `404.html` 和 HTTP 404，再由 Nuxt 客户端中间件跳到所属行；搜索引擎不会把 alias 当作成功页面重复收录。真正未知的地址保持 HTTP 404；`public/_headers` 给带内容哈希的 `_nuxt/*` 设长期 immutable 缓存，让稳定的 `/notices/*` URL 使用 `no-cache`，并为 `/data/chars.json` 设置 1 小时的 `max-age` 与 1 天的 `stale-while-revalidate`。
 
 第三方资产的具体 commit、官方附件标识与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析有版本上游的版本号，并重新校验没有版本号的官方直链；内容有变化时更新 lockfile 并直接重新生成数据，完全未变则跳过生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **261 MiB** 原始数据（其中 195 MiB 是十份 Noto CJK 字体）；任何未显式更新的直链内容变化都会因校验和不符而失败，不会静默进入数据。Actions 分开缓存原始下载与生成字体：前者只由 lockfile 决定，后者由 lockfile、实际生成脚本、相关依赖、locale 与字表决定；字体输入完全不变时跳过数据生成。
 
-笔顺分片和随附授权由 `pnpm build:dataset` 生成到 `public/strokes/`，不提交到仓库；部署流程会在测试和静态生成前重建它们。同一字组内，按笔画顺序排列的轮廓完全一致时只保存第一份变体及其中线，界面也把对应地区合并为一个选择项。笔顺分片使用稳定路径，不设置专用缓存策略。
+笔顺分片由 `pnpm build:dataset` 生成到 `app/assets/strokes/`，不提交到仓库；部署流程会在测试和静态生成前重建，再由 Vite 输出带内容哈希的文件名。随附授权保留在 `public/notices/` 的稳定 URL 下并要求重新验证。同一字组内，按笔画顺序排列的轮廓完全一致时只保存第一份变体及其中线，界面也把对应地区合并为一个选择项；页面加载时只获取一次所属分片，之后切换地区直接复用内存中的字组数据。
 
 本地也可构建后直传：
 
@@ -130,7 +130,7 @@ pnpm deploy
 
 逐字对照工具 [tofu.tools](https://tofu.tools/) 是本项目的先行者，同样用 Noto 系列区分地区字形。
 
-字体为 Noto Sans CJK 与 Noto Serif CJK（SIL OFL 1.1）按本站用字子集化后的产物，声明随附于 `/fonts/OFL.txt`。生成的数据文件派生自上述来源，请遵守各自许可；逐项转换方式与署名也写入公开的 [`/data/NOTICE.md`](public/data/NOTICE.md)。
+字体为 Noto Sans CJK 与 Noto Serif CJK（SIL OFL 1.1）按本应用用字子集化后的产物，声明随附于 [`/notices/noto-ofl.txt`](public/notices/noto-ofl.txt)。生成的数据文件派生自上述来源，请遵守各自许可；逐项转换方式与署名也写入公开的 [`/notices/data-sources.md`](public/notices/data-sources.md)。
 
 ## License
 

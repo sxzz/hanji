@@ -23,7 +23,7 @@ export interface StrokeOrderCandidate {
 }
 
 export const ANIMCJK_HOME = 'https://github.com/parsimonhi/animCJK'
-export const ANIMCJK_LICENSE = '/strokes/licenses/animcjk-APL.txt'
+export const ANIMCJK_LICENSE = '/notices/animcjk-APL.txt'
 
 export const ANIMCJK_SOURCE_SIZE = 1024
 export const ANIMCJK_SOURCE_BASELINE = 900
@@ -116,9 +116,8 @@ export function unpackAnimCJK(
 export async function loadAnimCJK(
   variant: number,
   groupKey: string,
-  signal?: AbortSignal,
 ): Promise<StrokeAnimationData | undefined> {
   if (!Number.isInteger(variant) || variant < 0) return undefined
-  const group = await loadStrokeGroup(groupKey, signal)
+  const group = await loadStrokeGroup(groupKey)
   return unpackAnimCJK(group?.variants[variant])
 }
