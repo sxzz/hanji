@@ -1,4 +1,0 @@
-# Canonical character pages are prerendered. Regional aliases use this fallback
-# so the client can redirect them; unknown characters use it for the app's 404.
-# Static files win, so generated detail pages are still served with their HTML.
-/char/*  /200  200

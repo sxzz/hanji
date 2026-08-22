@@ -41,6 +41,10 @@ export default {
       // Crawling would walk every character linked from the first page; the
       // route list below is the deliberate one.
       crawlLinks: false,
+      // Cloudflare serves /char/學 directly from char/學.html. Directory
+      // indexes would first redirect the non-ASCII URL to /char/學/, and the
+      // client-facing routes deliberately have no trailing slash.
+      autoSubfolderIndex: false,
       routes: ['/', '/about', ...PRERENDERED_CHARS],
     },
   },
