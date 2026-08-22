@@ -1,0 +1,567 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-08-22T16:37:23Z",
+  "title": "Design System: Hanji",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Ink",
+        "canonical": "#16151a",
+        "tonalRamp": [
+          "oklch(15% 0.010 294.6)",
+          "oklch(27% 0.010 294.6)",
+          "oklch(39% 0.010 294.6)",
+          "oklch(51% 0.010 294.6)",
+          "oklch(63% 0.010 294.6)",
+          "oklch(75% 0.010 294.6)",
+          "oklch(87% 0.010 294.6)",
+          "oklch(95% 0.010 294.6)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Soft Ink",
+        "canonical": "#4a4852",
+        "tonalRamp": [
+          "oklch(15% 0.017 294.8)",
+          "oklch(27% 0.017 294.8)",
+          "oklch(39% 0.017 294.8)",
+          "oklch(51% 0.017 294.8)",
+          "oklch(63% 0.017 294.8)",
+          "oklch(75% 0.017 294.8)",
+          "oklch(87% 0.017 294.8)",
+          "oklch(95% 0.017 294.8)"
+        ]
+      },
+      "ink-mute": {
+        "role": "neutral",
+        "displayName": "Muted Ink",
+        "canonical": "#86838d",
+        "tonalRamp": [
+          "oklch(15% 0.015 299.6)",
+          "oklch(27% 0.015 299.6)",
+          "oklch(39% 0.015 299.6)",
+          "oklch(51% 0.015 299.6)",
+          "oklch(63% 0.015 299.6)",
+          "oklch(75% 0.015 299.6)",
+          "oklch(87% 0.015 299.6)",
+          "oklch(95% 0.015 299.6)"
+        ]
+      },
+      "paper": {
+        "role": "primary",
+        "displayName": "Paper",
+        "canonical": "#fbfaf7",
+        "tonalRamp": [
+          "oklch(15% 0.004 91.4)",
+          "oklch(27% 0.004 91.4)",
+          "oklch(39% 0.004 91.4)",
+          "oklch(51% 0.004 91.4)",
+          "oklch(63% 0.004 91.4)",
+          "oklch(75% 0.004 91.4)",
+          "oklch(87% 0.004 91.4)",
+          "oklch(95% 0.004 91.4)"
+        ]
+      },
+      "paper-sunk": {
+        "role": "neutral",
+        "displayName": "Sunk Paper",
+        "canonical": "#f2f0ea",
+        "tonalRamp": [
+          "oklch(15% 0.008 91.5)",
+          "oklch(27% 0.008 91.5)",
+          "oklch(39% 0.008 91.5)",
+          "oklch(51% 0.008 91.5)",
+          "oklch(63% 0.008 91.5)",
+          "oklch(75% 0.008 91.5)",
+          "oklch(87% 0.008 91.5)",
+          "oklch(95% 0.008 91.5)"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule",
+        "canonical": "#dfdcd4",
+        "tonalRamp": [
+          "oklch(15% 0.011 89.7)",
+          "oklch(27% 0.011 89.7)",
+          "oklch(39% 0.011 89.7)",
+          "oklch(51% 0.011 89.7)",
+          "oklch(63% 0.011 89.7)",
+          "oklch(75% 0.011 89.7)",
+          "oklch(87% 0.011 89.7)",
+          "oklch(95% 0.011 89.7)"
+        ]
+      },
+      "proof-red": {
+        "role": "secondary",
+        "displayName": "Proof Red",
+        "canonical": "#d1503f",
+        "tonalRamp": [
+          "oklch(15% 0.167 30.2)",
+          "oklch(27% 0.167 30.2)",
+          "oklch(39% 0.167 30.2)",
+          "oklch(51% 0.167 30.2)",
+          "oklch(63% 0.167 30.2)",
+          "oklch(75% 0.167 30.2)",
+          "oklch(87% 0.167 30.2)",
+          "oklch(95% 0.167 30.2)"
+        ]
+      },
+      "blue-pencil": {
+        "role": "secondary",
+        "displayName": "Blue Pencil",
+        "canonical": "#3f72bd",
+        "tonalRamp": [
+          "oklch(15% 0.130 258.0)",
+          "oklch(27% 0.130 258.0)",
+          "oklch(39% 0.130 258.0)",
+          "oklch(51% 0.130 258.0)",
+          "oklch(63% 0.130 258.0)",
+          "oklch(75% 0.130 258.0)",
+          "oklch(87% 0.130 258.0)",
+          "oklch(95% 0.130 258.0)"
+        ]
+      },
+      "ochre": {
+        "role": "tertiary",
+        "displayName": "Ochre",
+        "canonical": "#b8871f",
+        "tonalRamp": [
+          "oklch(15% 0.126 80.7)",
+          "oklch(27% 0.126 80.7)",
+          "oklch(39% 0.126 80.7)",
+          "oklch(51% 0.126 80.7)",
+          "oklch(63% 0.126 80.7)",
+          "oklch(75% 0.126 80.7)",
+          "oklch(87% 0.126 80.7)",
+          "oklch(95% 0.126 80.7)"
+        ]
+      },
+      "violet": {
+        "role": "tertiary",
+        "displayName": "Violet",
+        "canonical": "#8d5cb4",
+        "tonalRamp": [
+          "oklch(15% 0.140 308.3)",
+          "oklch(27% 0.140 308.3)",
+          "oklch(39% 0.140 308.3)",
+          "oklch(51% 0.140 308.3)",
+          "oklch(63% 0.140 308.3)",
+          "oklch(75% 0.140 308.3)",
+          "oklch(87% 0.140 308.3)",
+          "oklch(95% 0.140 308.3)"
+        ]
+      },
+      "verdigris": {
+        "role": "tertiary",
+        "displayName": "Verdigris",
+        "canonical": "#1f8d81",
+        "tonalRamp": [
+          "oklch(15% 0.096 183.9)",
+          "oklch(27% 0.096 183.9)",
+          "oklch(39% 0.096 183.9)",
+          "oklch(51% 0.096 183.9)",
+          "oklch(63% 0.096 183.9)",
+          "oklch(75% 0.096 183.9)",
+          "oklch(87% 0.096 183.9)",
+          "oklch(95% 0.096 183.9)"
+        ]
+      },
+      "night-ink": {
+        "role": "primary",
+        "displayName": "Night Ink",
+        "canonical": "#e9e7e2",
+        "tonalRamp": [
+          "oklch(15% 0.007 88.6)",
+          "oklch(27% 0.007 88.6)",
+          "oklch(39% 0.007 88.6)",
+          "oklch(51% 0.007 88.6)",
+          "oklch(63% 0.007 88.6)",
+          "oklch(75% 0.007 88.6)",
+          "oklch(87% 0.007 88.6)",
+          "oklch(95% 0.007 88.6)"
+        ]
+      },
+      "night-ink-soft": {
+        "role": "neutral",
+        "displayName": "Night Soft Ink",
+        "canonical": "#a6a39d",
+        "tonalRamp": [
+          "oklch(15% 0.009 84.6)",
+          "oklch(27% 0.009 84.6)",
+          "oklch(39% 0.009 84.6)",
+          "oklch(51% 0.009 84.6)",
+          "oklch(63% 0.009 84.6)",
+          "oklch(75% 0.009 84.6)",
+          "oklch(87% 0.009 84.6)",
+          "oklch(95% 0.009 84.6)"
+        ]
+      },
+      "night-ink-mute": {
+        "role": "neutral",
+        "displayName": "Night Muted Ink",
+        "canonical": "#74716c",
+        "tonalRamp": [
+          "oklch(15% 0.008 80.7)",
+          "oklch(27% 0.008 80.7)",
+          "oklch(39% 0.008 80.7)",
+          "oklch(51% 0.008 80.7)",
+          "oklch(63% 0.008 80.7)",
+          "oklch(75% 0.008 80.7)",
+          "oklch(87% 0.008 80.7)",
+          "oklch(95% 0.008 80.7)"
+        ]
+      },
+      "night-paper": {
+        "role": "primary",
+        "displayName": "Night Paper",
+        "canonical": "#121215",
+        "tonalRamp": [
+          "oklch(15% 0.006 285.8)",
+          "oklch(27% 0.006 285.8)",
+          "oklch(39% 0.006 285.8)",
+          "oklch(51% 0.006 285.8)",
+          "oklch(63% 0.006 285.8)",
+          "oklch(75% 0.006 285.8)",
+          "oklch(87% 0.006 285.8)",
+          "oklch(95% 0.006 285.8)"
+        ]
+      },
+      "night-paper-sunk": {
+        "role": "neutral",
+        "displayName": "Night Sunk Paper",
+        "canonical": "#1b1b1f",
+        "tonalRamp": [
+          "oklch(15% 0.008 285.8)",
+          "oklch(27% 0.008 285.8)",
+          "oklch(39% 0.008 285.8)",
+          "oklch(51% 0.008 285.8)",
+          "oklch(63% 0.008 285.8)",
+          "oklch(75% 0.008 285.8)",
+          "oklch(87% 0.008 285.8)",
+          "oklch(95% 0.008 285.8)"
+        ]
+      },
+      "night-rule": {
+        "role": "neutral",
+        "displayName": "Night Rule",
+        "canonical": "#2f2f35",
+        "tonalRamp": [
+          "oklch(15% 0.011 285.8)",
+          "oklch(27% 0.011 285.8)",
+          "oklch(39% 0.011 285.8)",
+          "oklch(51% 0.011 285.8)",
+          "oklch(63% 0.011 285.8)",
+          "oklch(75% 0.011 285.8)",
+          "oklch(87% 0.011 285.8)",
+          "oklch(95% 0.011 285.8)"
+        ]
+      },
+      "night-proof-red": {
+        "role": "secondary",
+        "displayName": "Night Proof Red",
+        "canonical": "#d2604f",
+        "tonalRamp": [
+          "oklch(15% 0.148 30.4)",
+          "oklch(27% 0.148 30.4)",
+          "oklch(39% 0.148 30.4)",
+          "oklch(51% 0.148 30.4)",
+          "oklch(63% 0.148 30.4)",
+          "oklch(75% 0.148 30.4)",
+          "oklch(87% 0.148 30.4)",
+          "oklch(95% 0.148 30.4)"
+        ]
+      },
+      "night-blue-pencil": {
+        "role": "secondary",
+        "displayName": "Night Blue Pencil",
+        "canonical": "#5d8fd4",
+        "tonalRamp": [
+          "oklch(15% 0.117 256.7)",
+          "oklch(27% 0.117 256.7)",
+          "oklch(39% 0.117 256.7)",
+          "oklch(51% 0.117 256.7)",
+          "oklch(63% 0.117 256.7)",
+          "oklch(75% 0.117 256.7)",
+          "oklch(87% 0.117 256.7)",
+          "oklch(95% 0.117 256.7)"
+        ]
+      },
+      "night-ochre": {
+        "role": "tertiary",
+        "displayName": "Night Ochre",
+        "canonical": "#c08f33",
+        "tonalRamp": [
+          "oklch(15% 0.121 79.5)",
+          "oklch(27% 0.121 79.5)",
+          "oklch(39% 0.121 79.5)",
+          "oklch(51% 0.121 79.5)",
+          "oklch(63% 0.121 79.5)",
+          "oklch(75% 0.121 79.5)",
+          "oklch(87% 0.121 79.5)",
+          "oklch(95% 0.121 79.5)"
+        ]
+      },
+      "night-violet": {
+        "role": "tertiary",
+        "displayName": "Night Violet",
+        "canonical": "#9d79c9",
+        "tonalRamp": [
+          "oklch(15% 0.122 303.9)",
+          "oklch(27% 0.122 303.9)",
+          "oklch(39% 0.122 303.9)",
+          "oklch(51% 0.122 303.9)",
+          "oklch(63% 0.122 303.9)",
+          "oklch(75% 0.122 303.9)",
+          "oklch(87% 0.122 303.9)",
+          "oklch(95% 0.122 303.9)"
+        ]
+      },
+      "night-verdigris": {
+        "role": "tertiary",
+        "displayName": "Night Verdigris",
+        "canonical": "#3da294",
+        "tonalRamp": [
+          "oklch(15% 0.095 182.6)",
+          "oklch(27% 0.095 182.6)",
+          "oklch(39% 0.095 182.6)",
+          "oklch(51% 0.095 182.6)",
+          "oklch(63% 0.095 182.6)",
+          "oklch(75% 0.095 182.6)",
+          "oklch(87% 0.095 182.6)",
+          "oklch(95% 0.095 182.6)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "glyph-display": {
+        "displayName": "Regional Glyph Display",
+        "purpose": "Hero and specimen glyphs; substitute the matching regional Hanji face for every layer."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The hero's concise explanatory claim."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Route titles and major reading headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Interface explanations and ordinary content."
+      },
+      "body-small": {
+        "displayName": "Small Body",
+        "purpose": "Controls, supporting labels, and compact explanatory copy."
+      },
+      "prose": {
+        "displayName": "Reading Prose",
+        "purpose": "Methodology, limitations, and source documentation."
+      },
+      "label": {
+        "displayName": "Proof Label",
+        "purpose": "Regions, metadata headings, and compact proof annotations."
+      }
+    },
+    "shadows": [
+      {
+        "name": "selection-low",
+        "value": "0 1px 2px rgb(0 0 0 / 0.06)",
+        "purpose": "The smallest lift inside segmented controls; never a resting surface shadow."
+      },
+      {
+        "name": "floating-menu",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05)",
+        "purpose": "Temporary language and options menus only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-fast",
+        "value": "100ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Character-row hover feedback."
+      },
+      {
+        "name": "state-standard",
+        "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Control color, border, and opacity transitions."
+      },
+      {
+        "name": "menu-pop",
+        "value": "120ms ease",
+        "purpose": "Floating-menu fade and four-pixel vertical settle."
+      },
+      {
+        "name": "overprint-spring",
+        "value": "420ms cubic-bezier(0.22, 1.4, 0.36, 1)",
+        "purpose": "Registration layers returning from a fan or scrub."
+      },
+      {
+        "name": "route-morph",
+        "value": "420ms cubic-bezier(0.32, 0.72, 0, 1)",
+        "purpose": "A character specimen expanding between list, hero, and detail views."
+      }
+    ],
+    "breakpoints": [
+      { "name": "xs", "value": "380px" },
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" },
+      { "name": "2xl", "value": "1536px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "The default quiet action: outlined, compact, and flat.",
+      "html": "<button class=\"ds-btn-ghost\">View details</button>",
+      "css": ".ds-btn-ghost { min-height: 32px; padding: 6px 12px; border: 1px solid var(--c-rule, #dfdcd4); border-radius: 6px; background: transparent; color: var(--c-ink-soft, #4a4852); font: 400 14px/20px var(--font-ui, system-ui, sans-serif); transition: color 150ms, border-color 150ms; } .ds-btn-ghost:hover { border-color: color-mix(in srgb, var(--c-ink, #16151a) 25%, transparent); color: var(--c-ink, #16151a); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--c-g2, #3f72bd); outline-offset: 2px; }"
+    },
+    {
+      "name": "Primary Action Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "A rare solid action used when the interface truly starts or controls an operation.",
+      "html": "<button class=\"ds-btn-primary\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 5v14l11-7z\"/></svg><span>Play strokes</span></button>",
+      "css": ".ds-btn-primary { min-width: 96px; height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 16px; border: 0; border-radius: 6px; background: var(--c-ink, #16151a); color: var(--c-paper, #fbfaf7); font: 400 14px/20px var(--font-ui, system-ui, sans-serif); transition: opacity 150ms; } .ds-btn-primary svg { width: 16px; height: 16px; fill: currentColor; } .ds-btn-primary:hover { opacity: 0.8; } .ds-btn-primary:focus-visible { outline: 2px solid var(--c-g2, #3f72bd); outline-offset: 2px; }"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "input-search",
+      "description": "A compact recessed field that stays subordinate to the filter labels around it.",
+      "html": "<input class=\"ds-input-search\" type=\"search\" placeholder=\"Character / reading / U+9AA8\" aria-label=\"Search\" />",
+      "css": ".ds-input-search { box-sizing: border-box; width: 208px; height: 28px; padding: 0 10px; border: 1px solid var(--c-rule, #dfdcd4); border-radius: 6px; background: var(--c-paper-sunk, #f2f0ea); color: var(--c-ink, #16151a); font: 400 14px/20px var(--font-ui, system-ui, sans-serif); } .ds-input-search::placeholder { color: var(--c-ink-mute, #86838d); } .ds-input-search:focus-visible { outline: 2px solid var(--c-g2, #3f72bd); outline-offset: 2px; }"
+    },
+    {
+      "name": "Filter Chip — Selected",
+      "kind": "chip",
+      "refersTo": "chip-selected",
+      "description": "The high-clarity selected state used across dense filter groups.",
+      "html": "<button class=\"ds-chip-selected\" aria-pressed=\"true\">Three forms <span>3116</span></button>",
+      "css": ".ds-chip-selected { height: 28px; display: inline-flex; align-items: center; gap: 8px; padding: 0 8px; border: 1px solid var(--c-ink, #16151a); border-radius: 6px; background: var(--c-ink, #16151a); color: var(--c-paper, #fbfaf7); font: 400 12px/16px var(--font-ui, system-ui, sans-serif); transition: opacity 150ms; } .ds-chip-selected span { opacity: 0.7; font-variant-numeric: tabular-nums; } .ds-chip-selected:hover { opacity: 0.88; } .ds-chip-selected:focus-visible { outline: 2px solid var(--c-g2, #3f72bd); outline-offset: 2px; }"
+    },
+    {
+      "name": "Filter Chip — Resting",
+      "kind": "chip",
+      "refersTo": "chip-resting",
+      "description": "The outlined resting state; hover strengthens the rule without adding elevation.",
+      "html": "<button class=\"ds-chip-resting\" aria-pressed=\"false\">Two forms <span>3021</span></button>",
+      "css": ".ds-chip-resting { height: 28px; display: inline-flex; align-items: center; gap: 8px; padding: 0 8px; border: 1px solid var(--c-rule, #dfdcd4); border-radius: 6px; background: var(--c-paper, #fbfaf7); color: var(--c-ink-soft, #4a4852); font: 400 12px/16px var(--font-ui, system-ui, sans-serif); transition: color 150ms, border-color 150ms; } .ds-chip-resting span { color: var(--c-ink-mute, #86838d); font-variant-numeric: tabular-nums; } .ds-chip-resting:hover { border-color: color-mix(in srgb, var(--c-ink, #16151a) 30%, transparent); color: var(--c-ink, #16151a); } .ds-chip-resting:focus-visible { outline: 2px solid var(--c-g2, #3f72bd); outline-offset: 2px; }"
+    },
+    {
+      "name": "Segmented Choice",
+      "kind": "chip",
+      "refersTo": "chip-selected",
+      "description": "A recessed well whose selected option returns to Paper with the system's smallest lift.",
+      "html": "<div class=\"ds-segmented\" role=\"group\" aria-label=\"Sort\"><button class=\"ds-segmented-active\" aria-pressed=\"true\">Frequency ↑</button><button aria-pressed=\"false\">Strokes</button><button aria-pressed=\"false\">Code point</button></div>",
+      "css": ".ds-segmented { height: 28px; display: inline-flex; align-items: center; gap: 1px; padding: 2px; border: 1px solid var(--c-rule, #dfdcd4); border-radius: 6px; background: var(--c-paper-sunk, #f2f0ea); } .ds-segmented button { height: 22px; padding: 0 10px; border: 0; border-radius: 4px; background: transparent; color: var(--c-ink-mute, #86838d); font: 400 12px/16px var(--font-ui, system-ui, sans-serif); transition: color 150ms, background 150ms; } .ds-segmented button:hover { color: var(--c-ink-soft, #4a4852); } .ds-segmented .ds-segmented-active { background: var(--c-paper, #fbfaf7); color: var(--c-ink, #16151a); box-shadow: 0 1px 2px rgb(0 0 0 / 0.06); } .ds-segmented button:focus-visible { outline: 2px solid var(--c-g2, #3f72bd); outline-offset: 2px; }"
+    },
+    {
+      "name": "Floating Menu",
+      "kind": "nav",
+      "refersTo": "floating-menu",
+      "description": "The sole floating surface: a compact Paper menu with a quiet, temporary shadow.",
+      "html": "<div class=\"ds-menu\" role=\"menu\"><button role=\"menuitemradio\" aria-checked=\"true\">简体中文 <span>✓</span></button><button role=\"menuitemradio\" aria-checked=\"false\">繁體中文</button><button role=\"menuitemradio\" aria-checked=\"false\">日本語</button></div>",
+      "css": ".ds-menu { box-sizing: border-box; width: 176px; padding: 6px; border: 1px solid var(--c-rule, #dfdcd4); border-radius: 8px; background: var(--c-paper, #fbfaf7); color: var(--c-ink, #16151a); box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05); font-family: var(--font-ui, system-ui, sans-serif); } .ds-menu button { width: 100%; min-height: 36px; display: flex; align-items: center; justify-content: space-between; padding: 8px 10px; border: 0; border-radius: 6px; background: transparent; color: var(--c-ink-soft, #4a4852); font: inherit; font-size: 14px; text-align: left; transition: color 150ms, background 150ms; } .ds-menu button:hover { background: var(--c-paper-sunk, #f2f0ea); color: var(--c-ink, #16151a); } .ds-menu span { color: var(--c-g2, #3f72bd); } .ds-menu button:focus-visible { outline: 2px solid var(--c-g2, #3f72bd); outline-offset: 0; }"
+    },
+    {
+      "name": "Character Comparison Row",
+      "kind": "custom",
+      "refersTo": "character-row",
+      "description": "The core evidence row: overprint thumbnail, equal regional tracks, and tabular metadata.",
+      "html": "<a class=\"ds-character-row\" href=\"#\"><span class=\"ds-row-overprint\" aria-hidden=\"true\"><b>國</b><i>国</i></span><span class=\"ds-row-cells\"><span class=\"ds-cn\">国<small>U+56FD</small></span><span class=\"ds-jp\">国<small>U+56FD</small></span><span class=\"ds-hk\">國<small>U+570B</small></span><span class=\"ds-tw\">國<small>U+570B</small></span></span><span class=\"ds-row-meta\">8</span></a>",
+      "css": ".ds-character-row { min-width: 720px; display: grid; grid-template-columns: 72px minmax(0, 1fr) 72px; align-items: center; gap: 12px; padding: 10px 20px; border-bottom: 1px solid var(--c-rule, #dfdcd4); background: var(--c-paper, #fbfaf7); color: var(--c-ink, #16151a); text-decoration: none; transition: background 100ms; } .ds-character-row:hover { background: var(--c-paper-sunk, #f2f0ea); } .ds-row-overprint { position: relative; width: 60px; height: 60px; display: grid; place-items: center; font-size: 52px; line-height: 1; isolation: isolate; } .ds-row-overprint b, .ds-row-overprint i { position: absolute; grid-area: 1 / 1; font-style: normal; font-weight: 400; mix-blend-mode: var(--overprint-blend, darken); } .ds-row-overprint b { color: var(--c-ink, #16151a); font-family: 'Hanji Sans TW', sans-serif; } .ds-row-overprint i { color: var(--c-g1, #d1503f); font-family: 'Hanji Sans CN', sans-serif; opacity: 0.78; } .ds-row-cells { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); } .ds-row-cells > span { display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 44px; line-height: 1.1; } .ds-row-cells small, .ds-row-meta { color: var(--c-ink-mute, #86838d); font: 400 10px/14px var(--font-ui, system-ui, sans-serif); font-variant-numeric: tabular-nums; } .ds-cn { font-family: 'Hanji Sans CN', sans-serif; } .ds-jp { font-family: 'Hanji Sans JP', sans-serif; } .ds-hk { font-family: 'Hanji Sans HK', sans-serif; } .ds-tw { font-family: 'Hanji Sans TW', sans-serif; } .ds-row-meta { text-align: right; font-size: 12px; color: var(--c-ink-soft, #4a4852); } .ds-character-row:focus-visible { outline: 2px solid var(--c-g2, #3f72bd); outline-offset: 2px; }"
+    },
+    {
+      "name": "Overprint Glyph",
+      "kind": "custom",
+      "refersTo": "overprint-glyph",
+      "description": "Hanji's signature comparison object: one ink baseline with proof-colored regional departures.",
+      "html": "<div class=\"ds-overprint\" role=\"img\" aria-label=\"Regional forms of 返\"><span class=\"ds-overprint-cn\">返</span><span class=\"ds-overprint-jp\">返</span><span class=\"ds-overprint-hk\">返</span><span class=\"ds-overprint-tw\">返</span></div>",
+      "css": ".ds-overprint { width: 176px; height: 176px; display: inline-grid; place-items: center; position: relative; isolation: isolate; font-size: 176px; line-height: 1; } .ds-overprint span { position: absolute; inset: 0; display: grid; place-items: center; color: var(--layer-color); mix-blend-mode: var(--overprint-blend, darken); opacity: 0.78; transition: translate 420ms cubic-bezier(0.22, 1.4, 0.36, 1), opacity 220ms ease; } .ds-overprint span:first-child { opacity: 1; } .ds-overprint:hover span:nth-child(1) { translate: -3.9px -1.6px; } .ds-overprint:hover span:nth-child(2) { translate: -1.3px -0.5px; } .ds-overprint:hover span:nth-child(3) { translate: 1.3px 0.5px; } .ds-overprint:hover span:nth-child(4) { translate: 3.9px 1.6px; } .ds-overprint-cn { --layer-color: var(--c-ink, #16151a); font-family: 'Hanji Sans CN', sans-serif; } .ds-overprint-jp { --layer-color: var(--c-g1, #d1503f); font-family: 'Hanji Sans JP', sans-serif; } .ds-overprint-hk { --layer-color: var(--c-g2, #3f72bd); font-family: 'Hanji Sans HK', sans-serif; } .ds-overprint-tw { --layer-color: var(--c-g3, #b8871f); font-family: 'Hanji Sans TW', sans-serif; } @media (prefers-reduced-motion: reduce) { .ds-overprint span { transition: none; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Comparative Proof Sheet",
+    "overview": "Hanji behaves like a comparative proof pulled from a careful type workshop: warm paper, cool ink, fine rules, registration colors, and character forms treated as evidence rather than ornament. The overprint is the system's signature object. It places regional forms in one footprint, then lets their departures emerge as colored registration marks.\n\nThe system is precise, quiet, scholarly, and materially print-like without becoming nostalgic. It is dense where comparison benefits from density and generous where a character needs to be inspected. Controls feel like restrained editorial instruments: compact, clear, lightly outlined, and solid only when selection needs to read immediately.",
+    "keyCharacteristics": [
+      "Warm paper and cool ink in light mode, with an equally deliberate night proof in dark mode.",
+      "Hairline rules and spacing carry structure before color or elevation does.",
+      "Regional glyphs are the visual subject; interface furniture stays quiet.",
+      "Registration accents describe glyph groups and departures, never geography.",
+      "Motion explains stacking, separation, selection, or navigation and yields to reduced-motion preferences."
+    ],
+    "rules": [
+      {
+        "name": "The Grouping, Not Geography Rule",
+        "body": "Accents encode glyph grouping and departures; they never assign a permanent color to a region.",
+        "section": "colors"
+      },
+      {
+        "name": "The Baseline Wins Rule",
+        "body": "Ink is the reference form; proof colors annotate only where other forms depart, and spacing remains the primary non-color cue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Region Owns the Glyph Rule",
+        "body": "Every comparison glyph uses the font for the region it represents, regardless of interface locale.",
+        "section": "typography"
+      },
+      {
+        "name": "The Interface Follows the Reader Rule",
+        "body": "Interface copy uses the selected locale's self-hosted CJK face, with sans and serif as equal user-selectable modes.",
+        "section": "typography"
+      },
+      {
+        "name": "The Figures Line Up Rule",
+        "body": "Code points, stroke counts, ranks, and page numbers use tabular numerals.",
+        "section": "typography"
+      },
+      {
+        "name": "The Columns Stay Columns Rule",
+        "body": "Regional character columns do not reflow into cards on narrow screens; scale them or allow horizontal scrolling.",
+        "section": "layout"
+      },
+      {
+        "name": "The Flat-by-Default Rule",
+        "body": "Resting surfaces are separated by tone and hairlines; shadows are reserved for a temporary floating layer or a selected inset control.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Quiet Radius Rule",
+        "body": "Corners soften controls without becoming a visual motif; large capsules belong only to tiny run markers and scroll thumbs.",
+        "section": "shapes"
+      },
+      {
+        "name": "The Selected State Is a Slab Rule",
+        "body": "Filters use ink-on-paper inversion for the selected state, not a brighter border alone.",
+        "section": "components"
+      },
+      {
+        "name": "The Glyph Leads Rule",
+        "body": "Controls, labels, rules, and motion remain subordinate to the character forms.",
+        "section": "components"
+      }
+    ],
+    "dos": [
+      "Do preserve the current proof-sheet identity when extending or refining the interface.",
+      "Do select every data glyph's font from its region, independently of the interface language.",
+      "Do use spacing and run separation as the primary comparison cue, with the five proof colors as redundant annotation.",
+      "Do keep controls compact, labels explicit, focus visible, and meaningful states understandable without color.",
+      "Do respect reduced-motion preferences and keep motion tied to stacking, separation, selection, or navigation."
+    ],
+    "donts": [
+      "Don't assign permanent colors to regions or use flags as the primary brand language.",
+      "Don't turn the interface into a dashboard of independent cards.",
+      "Don't introduce gradients, glass effects, decorative shadows, or effects that compete with the glyphs.",
+      "Don't allow the interface locale to substitute for a regional glyph font.",
+      "Don't reflow regional comparison columns into a different order on small screens."
+    ]
+  }
+}
