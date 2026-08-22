@@ -4,7 +4,7 @@
  * These are golden samples measured from the Adobe CMaps while planning, so a
  * change upstream shows up here instead of silently reaching the page.
  */
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { dictGroups, dictLinks, formsOf } from '../../shared/links.ts'
@@ -53,6 +53,10 @@ const entered = Object.fromEntries(
 const jpShinjitai = parseDict(
   readFileSync(join(RAW_DIR, 'opencc', 'JPShinjitaiCharacters.txt'), 'utf8'),
 )
+
+it('does not emit redundant source metadata JSON', () => {
+  expect(existsSync(join(DATA_DIR, 'sources.json'))).toBe(false)
+})
 
 describe('glyph partitions, columns in CN HK TW JP KR order', () => {
   it.each([

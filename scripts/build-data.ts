@@ -1,5 +1,5 @@
 /**
- * Generates the character/source datasets and stroke assets consumed by Vite.
+ * Generates the character dataset and stroke assets consumed by Vite.
  *
  * A row is a character group: one abstract character, with each of the five
  * columns holding the codepoint that region actually uses. The row key is the
@@ -10,9 +10,10 @@
  * Every common character is listed, including the ~40% written identically
  * everywhere. Difference is a facet to filter on, not the entry condition.
  */
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { format, resolveConfig } from 'prettier'
+import { SOURCES } from '../shared/sources.ts'
 import { buildStrokeData } from './build-strokes.ts'
 import { parseCMap, partitionSignature } from './cmap.ts'
 import {
@@ -29,7 +30,6 @@ import {
   rawText,
   reverseDict,
   ROOT,
-  SOURCES,
 } from './sources.ts'
 import type {
   CharRow,
@@ -763,7 +763,7 @@ function fold(all: CharRow[]): CharRow[] {
     /**
      * What each region writes. OpenCC's answer wins when that region's own
      * table lists it; otherwise whichever form of the group the table does
-     * list, because the standard tables are what this site is built on.
+     * list, because the standard tables are what this app is built on.
      *
      * Looking across the whole group rather than at one column matters:
      * `JPShinjitaiCharacters` records Japanese pre-reform shapes -- 郎 -> 郞,
@@ -1041,13 +1041,11 @@ await Promise.all([
   mkdir(DATA_DIR, { recursive: true }),
   mkdir(NOTICES_DIR, { recursive: true }),
 ])
+// Older builds emitted this redundant runtime copy of shared/sources.ts.
+await rm(join(DATA_DIR, 'sources.json'), { force: true })
 await writeFile(
   join(DATA_DIR, 'chars.json'),
   `${JSON.stringify({ stats, rows })}\n`,
-)
-await writeFile(
-  join(DATA_DIR, 'sources.json'),
-  `${JSON.stringify(SOURCES, null, 2)}\n`,
 )
 await writeFile(
   join(NOTICES_DIR, 'data-sources.md'),
@@ -1070,7 +1068,7 @@ await writeFile(
   ),
 )
 
-// Keep the README's table generated from the same list the site renders, so
+// Keep the README's table generated from the same list the app renders, so
 // there is only ever one place to update attribution.
 const readmePath = join(ROOT, 'README.md')
 const readme = await readFile(readmePath, 'utf8')

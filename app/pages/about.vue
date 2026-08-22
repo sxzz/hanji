@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ISSUES_URL } from '~~/shared/links.ts'
 import charsDataUrl from '~/assets/data/chars.json?url&no-inline'
-import sourcesDataUrl from '~/assets/data/sources.json?url&no-inline'
 import { stats } from '~/composables/chars.ts'
 
 const { t } = useT()
@@ -68,7 +67,6 @@ useSeoMeta({
             >/data/chars.json</a
           >
         </li>
-        <li><a :href="sourcesDataUrl">sources.json</a></li>
         <li>
           <a href="/notices/data-sources.md">data-sources.md</a>
         </li>

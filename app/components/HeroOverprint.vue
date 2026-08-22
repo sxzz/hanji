@@ -38,7 +38,7 @@ const field = useTemplateRef<HTMLInputElement>('field')
 /**
  * The character on show, held across a trip to a detail page and back: a
  * reader who typed one in should find it still standing when they return,
- * rather than the site's own opening character. Kept as a key rather than a
+ * rather than the app's own opening character. Kept as a key rather than a
  * row so what crosses the hydration payload is one character.
  */
 const heroKey = useState('hero-char', () => HERO_ROW.key)

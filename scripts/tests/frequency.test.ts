@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { frequencyRankOf } from '../../shared/frequency.ts'
+import { SOURCES } from '../../shared/sources.ts'
 import {
   FREQUENCY_REGIONS,
   type CharRow,
@@ -12,7 +13,6 @@ import {
   parseCountFrequencyCsv,
   parseTaiwanFrequency,
   RAW_DIR,
-  SOURCES,
 } from '../sources.ts'
 
 const data: CharsData = JSON.parse(

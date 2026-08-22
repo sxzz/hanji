@@ -18,7 +18,6 @@ fi
 shopt -s nullglob
 data_files=(
   "$source_assets/data/chars.json"
-  "$source_assets/data/sources.json"
 )
 stroke_shards=("$source_assets"/strokes/[0-9a-f][0-9a-f].json)
 font_binaries=("$source_assets"/fonts/*.woff2)

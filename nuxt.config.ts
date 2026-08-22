@@ -20,7 +20,7 @@ const charsPath = path.resolve(
 
 // A clean install runs `nuxt prepare` before the ignored dataset exists. Type
 // preparation does not prerender or bundle the app, so it can safely use an
-// empty route list. Every command that builds or serves the site still fails
+// empty route list. Every command that builds or serves the app still fails
 // with a clear instruction until the real dataset has been generated.
 if (
   !existsSync(charsPath) &&

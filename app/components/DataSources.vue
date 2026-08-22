@@ -1,11 +1,9 @@
 <script setup lang="ts">
-import sources from '~/assets/data/sources.json'
-import type { Source } from '~~/scripts/sources.ts'
+import { SOURCES, type Source } from '#shared/sources.ts'
 
 withDefaults(defineProps<{ detailed?: boolean }>(), { detailed: false })
 
 const { t, locale } = useT()
-const list = sources as Source[]
 const localize = (
   fallback: string,
   translations?: Source['localizedName'],
@@ -32,7 +30,7 @@ const localize = (
       </thead>
       <tbody>
         <tr
-          v-for="source in list"
+          v-for="source in SOURCES"
           :key="source.id"
           class="border-b border-rule/60 align-top"
         >
