@@ -6,7 +6,6 @@ import {
   LOCALE_KEY,
   OUTLINE_KEY,
   RESTORING_ATTRIBUTE,
-  VISIBILITY_VERSION_KEY,
 } from '../../app/utils/preference-restore.ts'
 import config from '../../nuxt.config.ts'
 import { PREFERENCE_RESTORE_SCRIPT } from '../preference-restore.ts'
@@ -53,15 +52,16 @@ describe('preference restoration screen', () => {
     ).toBe(false)
   })
 
-  it('understands legacy column state before deciding it differs', () => {
-    expect(runRestore({ storage: { [HIDDEN_KEY]: '[]' } }).isRestoring()).toBe(
-      false,
-    )
+  it('normalizes stored column state before deciding it differs', () => {
+    expect(
+      runRestore({
+        storage: { [HIDDEN_KEY]: JSON.stringify(['unknown', 'kr']) },
+      }).isRestoring(),
+    ).toBe(false)
     expect(
       runRestore({
         storage: {
           [HIDDEN_KEY]: JSON.stringify(['cn', 'hk', 'tw', 'jp', 'kr']),
-          [VISIBILITY_VERSION_KEY]: 'true',
         },
       }).isRestoring(),
     ).toBe(false)
@@ -71,10 +71,7 @@ describe('preference restoration screen', () => {
     ['stored locale', { [LOCALE_KEY]: '"ja-JP"' }],
     ['flag labels', { [FLAGS_KEY]: 'true' }],
     ['outlines', { [OUTLINE_KEY]: '"true"' }],
-    [
-      'comparison scope',
-      { [HIDDEN_KEY]: '[]', [VISIBILITY_VERSION_KEY]: 'true' },
-    ],
+    ['comparison scope', { [HIDDEN_KEY]: '[]' }],
   ])('hides a mismatching SSG frame for %s', (_, storage) => {
     expect(runRestore({ storage }).isRestoring()).toBe(true)
   })

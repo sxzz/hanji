@@ -11,10 +11,9 @@ import {
   FLAGS_KEY,
   HIDDEN_KEY,
   OUTLINE_KEY,
-  VISIBILITY_VERSION_KEY,
 } from '~/utils/preference-restore.ts'
 
-type PreferenceMode = '' | 'default' | 'custom'
+type PreferenceMode = 'default' | 'custom'
 const isColumn = (value: string): value is Column =>
   (COLUMNS as readonly string[]).includes(value)
 
@@ -37,13 +36,10 @@ export function useColumnVisibility() {
   const hidden = useLocalStorage<string[]>(HIDDEN_KEY, [
     ...DEFAULT_HIDDEN_COLUMNS,
   ])
-  const visibilityInitialized = useLocalStorage(VISIBILITY_VERSION_KEY, false)
-  // An empty value identifies installations from before preference provenance
-  // was recorded. Do not write that default: its absence is what lets the
-  // migration preserve every existing v2 selection as custom.
-  const preferenceMode = useLocalStorage<PreferenceMode>(COLUMN_MODE_KEY, '', {
-    writeDefaults: false,
-  })
+  const preferenceMode = useLocalStorage<PreferenceMode>(
+    COLUMN_MODE_KEY,
+    'default',
+  )
 
   const applyLocaleDefault = () => {
     hidden.value = applyKoreanColumnDefault(
@@ -56,16 +52,7 @@ export function useColumnVisibility() {
   // produces, and localStorage is not available while prerendering.
   const mounted = ref(false)
   onMounted(() => {
-    // The v2 migration predates the locale-aware default. A missing v2 marker
-    // means either a new reader or the older four-region build, whose choices
-    // could not include Korea; preserve its other columns and choose Korea by
-    // locale. Existing v2 readers may already have toggled Korea, so their
-    // exact stored value becomes custom rather than being guessed at.
-    if (!visibilityInitialized.value) {
-      applyLocaleDefault()
-      preferenceMode.value = 'default'
-      visibilityInitialized.value = true
-    } else if (!preferenceMode.value) preferenceMode.value = 'custom'
+    if (preferenceMode.value === 'default') applyLocaleDefault()
     mounted.value = true
   })
 
