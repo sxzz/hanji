@@ -129,6 +129,51 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
 
+      - name: Publish GitHub production deployment
+        if: github.event_name == 'push'
+        env:
+          DEPLOYED_SHA: ${{ github.sha }}
+          GH_TOKEN: ${{ github.token }}
+          PRODUCTION_URL: https://hanji.sxzz.moe
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          environment="production"
+          deployment_id="$(
+            jq -n \
+              --arg ref "$DEPLOYED_SHA" \
+              --arg environment "$environment" \
+              '{
+                ref: $ref,
+                environment: $environment,
+                auto_merge: false,
+                required_contexts: [],
+                transient_environment: false,
+                production_environment: true,
+                description: "Cloudflare Workers production"
+              }' |
+              gh api \
+                --method POST \
+                "repos/${GITHUB_REPOSITORY}/deployments" \
+                --input - \
+                --jq '.id'
+          )"
+
+          jq -n \
+            --arg environment "$environment" \
+            --arg environment_url "$PRODUCTION_URL" \
+            --arg log_url "$RUN_URL" \
+            '{
+              state: "success",
+              environment: $environment,
+              environment_url: $environment_url,
+              log_url: $log_url,
+              description: "Cloudflare Workers production is ready"
+            }' |
+            gh api \
+              --method POST \
+              "repos/${GITHUB_REPOSITORY}/deployments/${deployment_id}/statuses" \
+              --input -
+
       - name: Fail Workflow on Unit Test Failure
         if: ${{ always() && github.event_name == 'pull_request' && steps.unit_test.outcome == 'failure' }}
         run: exit 1
