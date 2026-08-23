@@ -11,7 +11,7 @@ import {
 
 const chars = injectChars()
 const { t, locale } = useT()
-const { visibleColumns, visibleRegions } = usePrefs()
+const { flagsOn, visibleColumns, visibleRegions } = usePrefs()
 
 // Every label has to be computed, not built once: t() reads the active locale
 // and the reader can change it after the component is set up
@@ -149,9 +149,14 @@ const strokeHigh = computed({
 /** Tier labels live under char.tierCn and friends; old forms use region.old. */
 const listingOptions = computed(() =>
   listingOptionsFor(visibleColumns.value).map((entry) => {
+    const oldFull = t('region.old.full')
+    const japanFull = t('region.jp.full')
+    const oldFlagSuffix = oldFull.startsWith(japanFull)
+      ? oldFull.slice(japanFull.length).trimStart()
+      : undefined
     const label =
       entry.kind === 'old'
-        ? t('region.old.short')
+        ? oldFull
         : t(
             `char.tier${entry.region[0]!.toUpperCase()}${entry.region[1]}.${entry.tier}`,
           )
@@ -166,7 +171,9 @@ const listingOptions = computed(() =>
       ariaLabel: entry.kind === 'old' ? title : `${title} ${label}`,
       parts:
         entry.kind === 'old'
-          ? [{ suffix: label }]
+          ? flagsOn.value && oldFlagSuffix
+            ? [{ region: entry.region, suffix: oldFlagSuffix }]
+            : [{ suffix: oldFull }]
           : [{ region: entry.region, suffix: label }],
     }
   }),
