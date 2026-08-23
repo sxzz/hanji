@@ -83,7 +83,7 @@ jobs:
 
           preview_url="https://pr-$PR_NUMBER-$preview_host"
 
-          environment="preview-pr-$PR_NUMBER"
+          environment="preview"
           deployment_id="$(
             jq -n \
               --arg ref "$PR_HEAD_SHA" \
