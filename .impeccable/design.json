@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-08-22T16:37:23Z",
+  "generatedAt": "2026-08-23T19:48:15Z",
   "title": "Design System: Hanji",
   "extensions": {
     "colorMeta": {
@@ -356,6 +356,10 @@
         "displayName": "Small Body",
         "purpose": "Controls, supporting labels, and compact explanatory copy."
       },
+      "control-small": {
+        "displayName": "Small Control",
+        "purpose": "Compact filter and region-option labels aligned inside a 28-pixel control."
+      },
       "prose": {
         "displayName": "Reading Prose",
         "purpose": "Methodology, limitations, and source documentation."
@@ -407,6 +411,7 @@
     "breakpoints": [
       { "name": "xs", "value": "380px" },
       { "name": "sm", "value": "640px" },
+      { "name": "filter-inline", "value": "736px" },
       { "name": "md", "value": "768px" },
       { "name": "lg", "value": "1024px" },
       { "name": "xl", "value": "1280px" },
@@ -461,6 +466,14 @@
       "description": "A recessed well whose selected option returns to Paper with the system's smallest lift.",
       "html": "<div class=\"ds-segmented\" role=\"group\" aria-label=\"Sort\"><button class=\"ds-segmented-active\" aria-pressed=\"true\">Frequency ↑</button><button aria-pressed=\"false\">Strokes</button><button aria-pressed=\"false\">Code point</button></div>",
       "css": ".ds-segmented { height: 28px; display: inline-flex; align-items: center; gap: 1px; padding: 2px; border: 1px solid var(--c-rule, #dfdcd4); border-radius: 6px; background: var(--c-paper-sunk, #f2f0ea); } .ds-segmented button { height: 22px; padding: 0 10px; border: 0; border-radius: 4px; background: transparent; color: var(--c-ink-mute, #86838d); font: 400 12px/16px var(--font-ui, system-ui, sans-serif); transition: color 150ms, background 150ms; } .ds-segmented button:hover { color: var(--c-ink-soft, #4a4852); } .ds-segmented .ds-segmented-active { background: var(--c-paper, #fbfaf7); color: var(--c-ink, #16151a); box-shadow: 0 1px 2px rgb(0 0 0 / 0.06); } .ds-segmented button:focus-visible { outline: 2px solid var(--c-g2, #3f72bd); outline-offset: 2px; }"
+    },
+    {
+      "name": "Region Options",
+      "kind": "chip",
+      "refersTo": "region-option-selected",
+      "description": "An artwork-safe regional selector whose edge and Paper surface carry selection independently of its label.",
+      "html": "<div class=\"ds-region-choice\" role=\"group\" aria-label=\"Stroke count region\"><button class=\"ds-region-option ds-region-option-active\" aria-label=\"Mainland China\" aria-pressed=\"true\"><span aria-hidden=\"true\">中</span></button><button class=\"ds-region-option ds-region-option-resting\" aria-label=\"Hong Kong\" aria-pressed=\"false\"><span aria-hidden=\"true\">港</span></button><button class=\"ds-region-option ds-region-option-resting\" aria-label=\"Taiwan\" aria-pressed=\"false\"><span aria-hidden=\"true\">台</span></button><button class=\"ds-region-option ds-region-option-resting\" aria-label=\"Japan\" aria-pressed=\"false\"><span aria-hidden=\"true\">日</span></button></div>",
+      "css": ".ds-region-choice { height: 28px; display: inline-flex; align-items: center; gap: 2px; padding: 3px; border-radius: 6px; background: var(--c-paper-sunk, #f2f0ea); } .ds-region-option { min-width: 22px; height: 22px; display: inline-flex; align-items: center; justify-content: center; padding: 0 6px; border: 1px solid var(--c-rule, #dfdcd4); border-radius: 6px; background: var(--c-paper-sunk, #f2f0ea); color: var(--c-ink-mute, #86838d); font: 400 11px/1 var(--font-ui, system-ui, sans-serif); transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease; } .ds-region-option-active { border-color: var(--c-ink-soft, #4a4852); background: var(--c-paper, #fbfaf7); color: var(--c-ink, #16151a); } @media (hover: hover) { .ds-region-option-resting:hover { border-color: color-mix(in srgb, var(--c-ink-mute, #86838d) 45%, var(--c-rule, #dfdcd4)); color: var(--c-ink-soft, #4a4852); } .ds-region-option-active:hover { border-color: var(--c-ink, #16151a); } } .ds-region-option:focus-visible { outline: 2px solid var(--c-g2, #3f72bd); outline-offset: 2px; } @media (prefers-reduced-motion: reduce) { .ds-region-option { transition: none; } }"
     },
     {
       "name": "Floating Menu",
@@ -540,7 +553,12 @@
       },
       {
         "name": "The Selected State Is a Slab Rule",
-        "body": "Filters use ink-on-paper inversion for the selected state, not a brighter border alone.",
+        "body": "Non-regional content filters use ink-on-paper inversion for the selected state, not a brighter border alone. Region options are the explicit artwork-safe exception defined below.",
+        "section": "components"
+      },
+      {
+        "name": "The Artwork Never Carries State Rule",
+        "body": "A region option must remain visibly selected when its flag or text label is removed. State belongs to the control edge and surface, while the artwork only names the region.",
         "section": "components"
       },
       {

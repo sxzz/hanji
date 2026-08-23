@@ -68,6 +68,7 @@ jobs:
         run: pnpm generate
 
       - name: Restore generated OG images
+        if: github.event_name == 'push'
         id: og-cache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -77,7 +78,7 @@ jobs:
           key: og-v1-${{ runner.os }}-${{ hashFiles('data/sources.lock.json', 'package.json', 'pnpm-lock.yaml', 'scripts/build-og-images.ts', 'scripts/sources.ts', 'shared/brand.ts', 'shared/row.ts', 'shared/types.ts', 'public/logo.svg', 'app/assets/data/chars.json') }}
 
       - name: Build OG images
-        if: steps.og-cache.outputs.cache-hit != 'true'
+        if: github.event_name == 'push' && steps.og-cache.outputs.cache-hit != 'true'
         run: pnpm build:og
 
       - name: Upload Cloudflare Workers preview

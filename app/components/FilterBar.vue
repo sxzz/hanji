@@ -264,7 +264,6 @@ function toggleRegion(region: string) {
         <span class="filter-control flex items-center gap-1.5">
           <SegChoice
             v-model="sortModel"
-            class="w-full sm:w-auto"
             :options="sorts"
             @repeat="reverseSort"
           />
@@ -425,12 +424,6 @@ function toggleRegion(region: string) {
     flex: none;
   }
 
-  /* Second field onwards: “笔画” and “排序” sit against the field before them,
-     so a full label column there is only dead space. */
-  .filter-line .filter-field ~ .filter-field .filter-label {
-    width: auto;
-  }
-
   .filter-count {
     order: 1;
     align-self: auto;
@@ -440,6 +433,15 @@ function toggleRegion(region: string) {
   .filter-clear {
     align-self: auto;
     margin-left: auto;
+  }
+}
+
+/* The complete search row, including its result count, first fits at 46rem.
+   Below that width a later field can wrap, so every field keeps the shared
+   label column. Once the row fits, inline labels can shrink to their copy. */
+@media (min-width: 46rem) {
+  .filter-line .filter-field ~ .filter-field .filter-label {
+    width: auto;
   }
 }
 </style>
