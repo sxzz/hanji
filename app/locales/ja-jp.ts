@@ -7,6 +7,7 @@ export const jaJP: typeof zhCN = {
     slogan: '一字のあいだに、五地域の字形が見える',
     description:
       '一つの漢字を並べて重ね、中国大陸、香港、台湾、日本、韓国のあいだにある、細やかで確かな字形の違いを映し出します。',
+    charImageAlt: '{char}の中国大陸・香港・台湾・日本における字形の重ね刷り',
   },
   region: {
     cn: { short: '中', full: '中国大陸' },

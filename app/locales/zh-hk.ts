@@ -7,6 +7,7 @@ export const zhHK: typeof zhCN = {
     slogan: '一字之間，照見五地字形',
     description:
       '把同一個漢字並排、疊印，照見中國大陸、香港、台灣、日本與韓國之間細微而真實的字形差異。',
+    charImageAlt: '{char}在中國大陸、香港、台灣和日本的字形疊印',
   },
   region: {
     cn: { short: '中', full: '中國大陸' },

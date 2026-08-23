@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { charOgPath, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from '~~/shared/brand.ts'
+import { charOgPath } from '~~/shared/brand.ts'
 import { dictGroups } from '~~/shared/links.ts'
 import {
   fontRegionOf,
@@ -30,7 +30,6 @@ definePageMeta({ middleware: 'char-alias' })
 const route = useRoute()
 const { t, list, locale } = useT()
 const { flagsOn, visibleColumns, visibleRegions } = usePrefs()
-const siteUrl = useRuntimeConfig().public.siteUrl
 
 const key = computed(() => decodeURIComponent(String(route.params.key)))
 const row = computed(() => rowsByKey.get(key.value))
@@ -346,15 +345,6 @@ const morph = computed(() =>
   morphing.value?.key === key.value ? morphName(key.value) : undefined,
 )
 
-/**
- * A row has one address, the one keyed by its orthodox form. The regional
- * forms redirect here, and this says so for anything that reads the page
- * without following the redirect.
- */
-useHead({
-  link: () => [{ rel: 'canonical', href: charPath(row.value!.key) }],
-})
-
 const seoDescription = computed(
   () =>
     `${key.value} — ${list(
@@ -364,30 +354,23 @@ const seoDescription = computed(
       'narrow',
     )}`,
 )
-const pageUrl = computed(() => new URL(charPath(row.value!.key), siteUrl).href)
-const ogImage = computed(
-  () => new URL(charOgPath(row.value!.key), siteUrl).href,
-)
 const seoTitle = computed(() => `${key.value} · ${t('meta.title')}`)
-const ogImageAlt = computed(() => `${key.value} 的中日港台四地字形叠印`)
+const ogImageAlt = computed(() => t('meta.charImageAlt', { char: key.value }))
 
-useSeoMeta({
+/**
+ * A row has one address, the one keyed by its orthodox form. The regional
+ * forms redirect here, and the canonical metadata keeps that identity for
+ * anything reading the page without following the redirect.
+ */
+usePageSeo({
+  path: () => charPath(row.value!.key),
+  pageType: 'ItemPage',
   title: () => key.value,
+  socialTitle: seoTitle,
   description: seoDescription,
-  ogTitle: seoTitle,
-  ogDescription: seoDescription,
-  ogImage,
-  ogImageAlt,
-  ogImageWidth: OG_IMAGE_WIDTH,
-  ogImageHeight: OG_IMAGE_HEIGHT,
+  imagePath: () => charOgPath(row.value!.key),
+  imageAlt: ogImageAlt,
   ogType: 'article',
-  ogUrl: pageUrl,
-  ogSiteName: () => t('meta.title'),
-  twitterCard: 'summary_large_image',
-  twitterTitle: seoTitle,
-  twitterDescription: seoDescription,
-  twitterImage: ogImage,
-  twitterImageAlt: ogImageAlt,
 })
 </script>
 
