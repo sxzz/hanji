@@ -15,8 +15,11 @@
   },
   "scripts": {
     "dev": "nuxt dev",
+    "prebuild": "pnpm build:pwa-icons",
     "build": "nuxt build",
+    "pregenerate": "pnpm build:pwa-icons",
     "generate": "nuxt generate",
+    "postgenerate": "pnpm check:pwa",
     "preview": "nuxt preview",
     "preview:worker": "wrangler dev",
     "deploy": "wrangler deploy",
@@ -25,6 +28,8 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "optimize:svg": "svgo --config svgo.config.mjs public/logo.svg public/logo-seal.svg public/favicon.svg",
+    "build:pwa-icons": "node scripts/build-pwa-icons.ts",
+    "check:pwa": "node scripts/check-pwa-output.ts",
     "build:dataset": "node scripts/build-data.ts",
     "build:fonts": "node scripts/build-fonts.ts",
     "build:data": "pnpm build:dataset && pnpm build:fonts",
@@ -40,13 +45,15 @@
     "@nuxtjs/sitemap": "catalog:",
     "@unocss/nuxt": "catalog:",
     "@unocss/reset": "catalog:",
+    "@vite-pwa/nuxt": "catalog:",
     "@vueuse/core": "catalog:",
     "@vueuse/nuxt": "catalog:",
     "@vueuse/router": "catalog:",
     "nuxt": "catalog:",
     "nuxt-site-config": "catalog:",
     "unocss": "catalog:",
-    "vue": "catalog:"
+    "vue": "catalog:",
+    "workbox-window": "catalog:"
   },
   "devDependencies": {
     "@resvg/resvg-js": "catalog:",

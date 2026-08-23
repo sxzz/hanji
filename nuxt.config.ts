@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { existsSync, readFileSync } from 'node:fs'
 import { copyFile, mkdir } from 'node:fs/promises'
 import * as path from 'node:path'
@@ -43,6 +44,9 @@ const CHAR_KEYS = existsSync(charsPath)
       (row) => row.key,
     )
   : []
+const CHARS_REVISION = existsSync(charsPath)
+  ? createHash('sha256').update(readFileSync(charsPath)).digest('hex')
+  : 'missing'
 const PRERENDERED_CHARS = CHAR_KEYS.map(charPath)
 const PRERENDER_ROUTES = ['/', '/about', ...PRERENDERED_CHARS]
 const SITEMAP_ROUTES = [
@@ -95,7 +99,25 @@ export default {
     '@nuxtjs/robots',
     '@unocss/nuxt',
     '@vueuse/nuxt',
+    '@vite-pwa/nuxt',
   ],
+
+  hooks: {
+    // vite-plugin-pwa appends the manifest to its mutable additional-entry
+    // array. Nuxt can regenerate the worker more than once in a static build,
+    // so make that hook idempotent before Workbox receives the final list.
+    'pwa:beforeBuildServiceWorker': (options) => {
+      const seen = new Set<string>()
+      options.workbox.additionalManifestEntries =
+        options.workbox.additionalManifestEntries?.filter((entry) => {
+          const url = typeof entry === 'string' ? entry : entry.url
+          if (seen.has(url)) return false
+
+          seen.add(url)
+          return true
+        })
+    },
+  },
 
   site: {
     url: SITE_URL,
@@ -109,6 +131,113 @@ export default {
 
   appConfig: {
     buildInfo: BUILD_INFO,
+  },
+
+  pwa: {
+    registerType: 'autoUpdate',
+    manifestFilename: 'manifest.webmanifest',
+    // These assets are included by the final Workbox scan below. Turning off
+    // Vite's earlier injection avoids duplicate entries when Nuxt regenerates
+    // the service worker after prerendering.
+    includeManifestIcons: false,
+    client: {
+      installPrompt: 'hanji:pwa-install-dismissed',
+      periodicSyncForUpdates: 60 * 60,
+    },
+    manifest: {
+      id: '/',
+      name: 'Hanji',
+      short_name: 'Hanji',
+      description: BRAND_DESCRIPTION,
+      lang: 'zh-CN',
+      start_url: '/',
+      scope: '/',
+      display: 'standalone',
+      orientation: 'any',
+      background_color: '#fbfaf7',
+      theme_color: '#fbfaf7',
+      icons: [
+        {
+          src: '/pwa/icon-192.png',
+          sizes: '192x192',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/pwa/icon-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'any',
+        },
+        {
+          src: '/pwa/maskable-icon-512.png',
+          sizes: '512x512',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+      ],
+    },
+    workbox: {
+      cacheId: 'hanji',
+      cleanupOutdatedCaches: true,
+      disableDevLogs: true,
+      globPatterns: [
+        '_nuxt/**/*',
+        '200.html',
+        'favicon.svg',
+        'favicon-32x32.png',
+        'favicon.ico',
+        'logo.svg',
+        'logo-seal.svg',
+        'pwa/*.png',
+        'notices/**/*',
+      ],
+      // Nuxt normally rewrites every precached HTML filename to its route.
+      // Keep the client-only fallback as a real file so Workbox can serve it
+      // for an offline character URL that was never visited before. The
+      // transform also removes duplicate assets collected from public/ and
+      // the generated web manifest.
+      manifestTransforms: [
+        (entries) => {
+          const seen = new Set<string>()
+
+          return {
+            manifest: entries.filter((entry) => {
+              if (entry.url === '200.html') entry.url = '/200.html'
+              if (seen.has(entry.url)) return false
+
+              seen.add(entry.url)
+              return true
+            }),
+          }
+        },
+      ],
+      maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+      navigationPreload: true,
+      // The module defaults this to `/`, which would register a precached
+      // route before the Network First handler below and bypass the network.
+      navigateFallback: null,
+      additionalManifestEntries: [
+        { url: '/data/chars.json', revision: CHARS_REVISION },
+      ],
+      runtimeCaching: [
+        {
+          urlPattern: ({ request }) => request.mode === 'navigate',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'hanji-pages',
+            networkTimeoutSeconds: 3,
+            cacheableResponse: { statuses: [0, 200] },
+            expiration: {
+              maxEntries: 64,
+              maxAgeSeconds: 30 * 24 * 60 * 60,
+              purgeOnQuotaError: true,
+            },
+            precacheFallback: { fallbackURL: '/200.html' },
+          },
+        },
+      ],
+    },
   },
 
   sitemap: {
@@ -210,11 +339,28 @@ export default {
         {
           rel: 'apple-touch-icon',
           sizes: '180x180',
-          href: '/apple-touch-icon.png',
+          href: '/pwa/apple-touch-icon-180.png',
         },
+        { rel: 'manifest', href: '/manifest.webmanifest' },
       ],
       meta: [
-        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1, viewport-fit=cover',
+        },
+        {
+          name: 'theme-color',
+          media: '(prefers-color-scheme: light)',
+          content: '#fbfaf7',
+        },
+        {
+          name: 'theme-color',
+          media: '(prefers-color-scheme: dark)',
+          content: '#121215',
+        },
+        { name: 'mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-capable', content: 'yes' },
+        { name: 'apple-mobile-web-app-title', content: 'Hanji' },
         {
           name: 'description',
           content: BRAND_DESCRIPTION,

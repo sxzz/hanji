@@ -13,6 +13,7 @@ catalog:
   '@unocss/eslint-plugin': ^66.8.0
   '@unocss/nuxt': ^66.8.0
   '@unocss/reset': ^66.8.0
+  '@vite-pwa/nuxt': ^1.1.1
   '@vueuse/core': ^14.4.0
   '@vueuse/nuxt': ^14.4.0
   '@vueuse/router': ^14.4.0
@@ -31,6 +32,7 @@ catalog:
   vitest: ^4.1.11
   vue: ^3.5.41
   vue-tsc: ^3.3.10
+  workbox-window: ^7.4.1
   wrangler: 4.124.0
 allowBuilds:
   esbuild: true
