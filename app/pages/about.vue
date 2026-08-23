@@ -1,17 +1,10 @@
 <script setup lang="ts">
-import {
-  ABOUT_OG_PATH,
-  OG_IMAGE_HEIGHT,
-  OG_IMAGE_WIDTH,
-} from '~~/shared/brand.ts'
+import { ABOUT_OG_PATH } from '~~/shared/brand.ts'
 import { ISSUES_URL, REPO_URL } from '~~/shared/links.ts'
 import charsDataUrl from '~/assets/data/chars.json?url&no-inline'
 import { stats } from '~/composables/chars.ts'
 
 const { t } = useT()
-const siteUrl = useRuntimeConfig().public.siteUrl
-const pageUrl = new URL('/about', siteUrl).href
-const ogImage = new URL(ABOUT_OG_PATH, siteUrl).href
 const LICENSE_URL = `${REPO_URL}/blob/main/LICENSE`
 const CC_BY_URL = 'https://creativecommons.org/licenses/by/4.0/'
 
@@ -21,23 +14,14 @@ const numbers = computed(() => ({
   allDiffer: stats.allDiffer.toLocaleString(),
 }))
 
-useSeoMeta({
+usePageSeo({
+  path: '/about',
+  pageType: 'AboutPage',
   title: () => t('about.title'),
+  socialTitle: () => `${t('about.title')} · ${t('meta.title')}`,
   description: () => t('meta.description'),
-  ogTitle: () => `${t('about.title')} · ${t('meta.title')}`,
-  ogDescription: () => t('meta.description'),
-  ogImage,
-  ogImageAlt: () => `${t('about.title')} · ${t('meta.title')}`,
-  ogImageWidth: OG_IMAGE_WIDTH,
-  ogImageHeight: OG_IMAGE_HEIGHT,
-  ogType: 'website',
-  ogUrl: pageUrl,
-  ogSiteName: () => t('meta.title'),
-  twitterCard: 'summary_large_image',
-  twitterTitle: () => `${t('about.title')} · ${t('meta.title')}`,
-  twitterDescription: () => t('meta.description'),
-  twitterImage: ogImage,
-  twitterImageAlt: () => `${t('about.title')} · ${t('meta.title')}`,
+  imagePath: ABOUT_OG_PATH,
+  imageAlt: () => `${t('about.title')} · ${t('meta.title')}`,
 })
 </script>
 

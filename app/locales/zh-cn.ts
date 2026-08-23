@@ -6,6 +6,7 @@ export const zhCN = {
     name: 'Hanji',
     slogan: BRAND_SLOGAN,
     description: BRAND_DESCRIPTION,
+    charImageAlt: '{char}在中国大陆、香港、台湾和日本的字形叠印',
   },
   region: {
     cn: { short: '中', full: '中国大陆' },

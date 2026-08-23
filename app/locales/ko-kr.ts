@@ -7,6 +7,7 @@ export const koKR: typeof zhCN = {
     slogan: '한 글자 사이로, 다섯 지역의 자형을 비추다',
     description:
       '한 글자를 나란히 놓고 겹쳐, 중국 대륙·홍콩·대만·일본·한국 사이의 작지만 분명한 자형 차이를 비춥니다.',
+    charImageAlt: '{char}의 중국 대륙·홍콩·대만·일본 자형 겹침 인쇄',
   },
   region: {
     cn: { short: '중', full: '중국 대륙' },
