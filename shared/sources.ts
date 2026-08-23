@@ -40,6 +40,9 @@ export const SOURCES: Source[] = [
     },
     name: 'Adobe Source Han Sans / Serif（CMap 资源）',
     localizedName: {
+      'zh-CN': 'Adobe Source Han Sans / Serif（CMap资源）',
+      'zh-TW': 'Adobe Source Han Sans / Serif（CMap資源）',
+      'zh-HK': 'Adobe Source Han Sans / Serif（CMap資源）',
       'ja-JP': 'Adobe Source Han Sans / Serif（CMapリソース）',
       'ko-KR': 'Adobe Source Han Sans / Serif(CMap 리소스)',
     },
@@ -48,11 +51,11 @@ export const SOURCES: Source[] = [
     licenseUrl: 'https://openfontlicense.org/',
     note: {
       'zh-CN':
-        '每套字体的五份地区 CMap 给出「码点 → CID」映射，同一字形池内 CID 相同即同一字形。判定取黑体与宋体的并集。',
+        '每套字体的五份地区CMap给出「码点 → CID」映射，同一字形池内CID相同即同一字形。判定取黑体与宋体的并集。',
       'zh-TW':
-        '每套字體的五份地區 CMap 給出「碼位 → CID」對映，同一字形池內 CID 相同即同一字形。判定取黑體與宋體的聯集。',
+        '每套字體的五份地區CMap給出「碼位 → CID」對映，同一字形池內CID相同即同一字形。判定取黑體與宋體的聯集。',
       'zh-HK':
-        '每套字體的五份地區 CMap 給出「碼點 → CID」對應，同一字形池內 CID 相同即同一字形。判定取黑體與宋體的並集。',
+        '每套字體的五份地區CMap給出「碼點 → CID」對應，同一字形池內CID相同即同一字形。判定取黑體與宋體的並集。',
       'ja-JP':
         '各書体の5地域向けCMapには「コードポイント → CID」の対応があり、同じ字形プール内でCIDが同じなら同一字形です。判定にはゴシック体と明朝体の和集合を使います。',
       'ko-KR':
@@ -70,6 +73,9 @@ export const SOURCES: Source[] = [
     },
     name: 'Noto Sans / Noto Serif（含 CJK）',
     localizedName: {
+      'zh-CN': 'Noto Sans / Noto Serif（含CJK）',
+      'zh-TW': 'Noto Sans / Noto Serif（含CJK）',
+      'zh-HK': 'Noto Sans / Noto Serif（含CJK）',
       'ja-JP': 'Noto Sans / Noto Serif（CJK対応）',
       'ko-KR': 'Noto Sans / Noto Serif(CJK 지원)',
     },
@@ -78,15 +84,70 @@ export const SOURCES: Source[] = [
     licenseUrl: 'https://openfontlicense.org/',
     note: {
       'zh-CN':
-        '汉字取自 CJK 版本，拉丁字母与数字取自拉丁版本，都按应用内用字子集化后自托管，OFL 声明随附于 /notices/noto-ofl.txt。',
+        '汉字取自CJK版本，拉丁字母与数字取自拉丁版本，都按应用内用字子集化后自托管，OFL声明随附于 /notices/noto-ofl.txt。',
       'zh-TW':
-        '漢字取自 CJK 版本，拉丁字母與數字取自拉丁版本，都按應用內用字子集化後自行託管，OFL 聲明隨附於 /notices/noto-ofl.txt。',
+        '漢字取自CJK版本，拉丁字母與數字取自拉丁版本，都按應用內用字子集化後自行託管，OFL聲明隨附於 /notices/noto-ofl.txt。',
       'zh-HK':
-        '漢字取自 CJK 版本，拉丁字母與數字取自拉丁版本，都按應用內用字子集化後自行託管，OFL 聲明隨附於 /notices/noto-ofl.txt。',
+        '漢字取自CJK版本，拉丁字母與數字取自拉丁版本，都按應用內用字子集化後自行託管，OFL聲明隨附於 /notices/noto-ofl.txt。',
       'ja-JP':
         '漢字はCJK版、ラテン文字と数字はラテン版を使用し、アプリ内で使う文字だけにサブセット化してセルフホストしています。OFLの表記は/notices/noto-ofl.txtに同梱しています。',
       'ko-KR':
         '한자는 CJK 버전, 라틴 문자와 숫자는 라틴 버전을 사용합니다. 앱에서 쓰는 문자만 서브셋으로 만들어 자체 호스팅하며, OFL 고지문은 /notices/noto-ofl.txt에 함께 제공합니다.',
+    },
+  },
+  {
+    id: 'plangothic',
+    use: {
+      'zh-CN': '补充Noto未收录的黑体字形',
+      'zh-TW': '補充Noto未收錄的黑體字形',
+      'zh-HK': '補充Noto未收錄的黑體字形',
+      'ja-JP': 'Noto未収録字のゴシック体補完',
+      'ko-KR': 'Noto 미수록 글자의 고딕체 보완',
+    },
+    name: 'Plangothic P1',
+    homepage:
+      'https://github.com/Fitzgerald-Porthmouth-Koenigsegg/Plangothic_Project',
+    license: 'SIL OFL 1.1',
+    licenseUrl:
+      'https://github.com/Fitzgerald-Porthmouth-Koenigsegg/Plangothic_Project/blob/main/LICENSE-OFL.txt',
+    note: {
+      'zh-CN':
+        '按当前数据中Noto未收录但需要显示的码点，动态生成重命名后的网页字体子集；这些字形不参与地区差异判定。OFL声明随附于/notices/plangothic-ofl.txt。',
+      'zh-TW':
+        '依目前資料中Noto未收錄但需要顯示的碼位，動態產生重新命名的網頁字型子集；這些字形不參與地區差異判定。OFL聲明隨附於/notices/plangothic-ofl.txt。',
+      'zh-HK':
+        '按目前資料中Noto未收錄但需要顯示的碼位，動態產生重新命名的網頁字體子集；這些字形不參與地區差異判定。OFL聲明隨附於/notices/plangothic-ofl.txt。',
+      'ja-JP':
+        '現在のデータで表示が必要ながらNotoにないコードポイントから、名称を変更したWebフォントサブセットを動的に生成します。これらの字形は地域差の判定には使いません。OFL表記は/notices/plangothic-ofl.txtに同梱しています。',
+      'ko-KR':
+        '현재 데이터에서 표시해야 하지만 Noto에 없는 코드 포인트를 동적으로 수집해 이름을 바꾼 웹 글꼴 서브셋을 생성합니다. 이 자형은 지역 차이 판정에 사용하지 않습니다. OFL 고지문은 /notices/plangothic-ofl.txt에 있습니다.',
+    },
+  },
+  {
+    id: 'wenjin-mincho',
+    use: {
+      'zh-CN': '补充Noto未收录的宋体字形',
+      'zh-TW': '補充Noto未收錄的宋體字形',
+      'zh-HK': '補充Noto未收錄的宋體字形',
+      'ja-JP': 'Noto未収録字の明朝体補完',
+      'ko-KR': 'Noto 미수록 글자의 명조체 보완',
+    },
+    name: 'WenJin Mincho P2',
+    homepage: 'https://github.com/takushun-wu/WenJinMincho',
+    license: 'SIL OFL 1.1',
+    licenseUrl:
+      'https://github.com/takushun-wu/WenJinMincho/blob/main/LICENSE.md',
+    note: {
+      'zh-CN':
+        '按当前数据中Noto未收录但需要显示的码点，动态生成重命名后的网页字体子集；这些字形不参与地区差异判定。OFL声明随附于/notices/wenjin-mincho-ofl.md。',
+      'zh-TW':
+        '依目前資料中Noto未收錄但需要顯示的碼位，動態產生重新命名的網頁字型子集；這些字形不參與地區差異判定。OFL聲明隨附於/notices/wenjin-mincho-ofl.md。',
+      'zh-HK':
+        '按目前資料中Noto未收錄但需要顯示的碼位，動態產生重新命名的網頁字體子集；這些字形不參與地區差異判定。OFL聲明隨附於/notices/wenjin-mincho-ofl.md。',
+      'ja-JP':
+        '現在のデータで表示が必要ながらNotoにないコードポイントから、名称を変更したWebフォントサブセットを動的に生成します。これらの字形は地域差の判定には使いません。OFL表記は/notices/wenjin-mincho-ofl.mdに同梱しています。',
+      'ko-KR':
+        '현재 데이터에서 표시해야 하지만 Noto에 없는 코드 포인트를 동적으로 수집해 이름을 바꾼 웹 글꼴 서브셋을 생성합니다. 이 자형은 지역 차이 판정에 사용하지 않습니다. OFL 고지문은 /notices/wenjin-mincho-ofl.md에 있습니다.',
     },
   },
   {
@@ -100,6 +161,9 @@ export const SOURCES: Source[] = [
     },
     name: 'OpenCC 开放中文转换',
     localizedName: {
+      'zh-CN': 'OpenCC开放中文转换',
+      'zh-TW': 'OpenCC開放中文轉換',
+      'zh-HK': 'OpenCC開放中文轉換',
       'ja-JP': 'OpenCC（Open Chinese Convert）',
       'ko-KR': 'OpenCC(Open Chinese Convert)',
     },

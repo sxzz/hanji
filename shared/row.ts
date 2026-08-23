@@ -1,4 +1,10 @@
-import { REGIONS, type CharRow, type Column, type Region } from './types.ts'
+import {
+  REGIONS,
+  type CharRow,
+  type Column,
+  type Region,
+  type Style,
+} from './types.ts'
 
 /**
  * Which region's font should render this cell: the earliest region in its
@@ -25,6 +31,15 @@ export function fontIndexOf(row: CharRow, region: number): number {
 export function fontRegionOf(row: CharRow, region: number): Region {
   // REGIONS and every regional tuple have the same length, so this is in range
   return REGIONS[fontIndexOf(row, region)]!
+}
+
+/** Whether this column uses the bundled supplemental face for this style. */
+export function usesSupplementalFont(
+  row: CharRow,
+  column: Column,
+  style: Style,
+): boolean {
+  return row.supplementalFont?.[style]?.includes(column) ?? false
 }
 
 /**

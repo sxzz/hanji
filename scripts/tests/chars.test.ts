@@ -636,12 +636,25 @@ describe('source-entry accounting', () => {
     expect(row('穭').chars[0]).toBe('稆')
   })
 
-  it('keeps drawable entries when their mapped form cannot be rendered', () => {
-    for (const char of ['𫭼', '暅', '𬒗']) {
-      expect(row(char).chars).toEqual([char, char, char, char, char])
-      expect(row(char).tier[0]).toBeGreaterThan(0)
-    }
-  })
+  it.each([
+    ['𡑍', '𫭼'],
+    ['𣈶', '暅'],
+    ['𥗽', '𬒗'],
+  ])(
+    'keeps the explicit %s mapping when bundled fonts only cover %s',
+    (orthodox, mainland) => {
+      expect(row(orthodox)).toMatchObject({
+        chars: [mainland, orthodox, orthodox, orthodox, orthodox],
+        cp: '01111',
+        glyph: '01111',
+        supplementalFont: {
+          sans: ['hk', 'tw', 'jp', 'kr'],
+          serif: ['hk', 'tw', 'jp', 'kr'],
+        },
+      })
+      expect(row(orthodox).tier[0]).toBeGreaterThan(0)
+    },
+  )
 
   it('does not duplicate the selected form among regional alternatives', () => {
     for (const entry of data.rows)

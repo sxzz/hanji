@@ -25,8 +25,7 @@ export const groupColor = (group: number) =>
 
 /**
  * BCP-47 tag per column. This is accessibility semantics, unrelated to the
- * interface language; it also drives the system's own CJK fallback when a
- * subset has not loaded. The kyujitai is Japan's own, so it is tagged as
+ * interface language. The kyujitai is Japan's own, so it is tagged as
  * Japanese too.
  */
 export const COLUMN_LANG: Record<Column, string> = {

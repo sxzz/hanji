@@ -39,7 +39,7 @@ export const zhHK: typeof zhCN = {
   },
   nav: {
     about: '關於',
-    github: 'GitHub 倉庫',
+    github: 'GitHub倉庫',
     theme: '切換深淺色',
     back: '返回字表',
     options: '顯示選項',
@@ -158,9 +158,9 @@ export const zhHK: typeof zhCN = {
     title: '關於',
     nameTitle: '名字的由來',
     name1:
-      '「Hanji」跟漢字在各地的叫法各差一個字母：漢語拼音的 hanzi 差一個 z，日語的 kanji 差一個 k，韓語的 hanja 差一個 a。同一件東西，每個地方都改掉一點點——這正是這個應用在講的事。',
+      '「Hanji」跟漢字在各地的叫法各差一個字母：漢語拼音的hanzi差一個z，日語的kanji差一個k，韓語的hanja差一個a。同一件東西，每個地方都改掉一點點——這正是這個應用在講的事。',
     name2:
-      '它同時也是閩南語「漢字」的實際讀音 hàn-jī，所以它並不是憑空造出來的詞，而是又一地的讀法。中文名「漢智」取其音。',
+      '它同時也是閩南語「漢字」的實際讀音hàn-jī，所以它並不是憑空造出來的詞，而是又一地的讀法。中文名「漢智」取其音。',
     methodTitle: '字形差異是怎樣判定的',
     scopeTitle: '收錄範圍',
     sourcesTitle: '數據來源',
@@ -196,7 +196,7 @@ export const zhHK: typeof zhCN = {
     limit5:
       'OpenCC與各地規範字表衝突時以規範字表為準。它的異體表裏混着「同字異形」和「一字代用另一字」；某地區的字表分開收錄兩者時就不合併。若只有一個地區提供證據，而候選還屬於另一字組，則保守拆分，並在詳情頁用雙向「關係未確認」連結提示。',
     limit6:
-      '每個地區格會區分字表主條目、括注異體和未收錄回退。未收錄格仍顯示傳承參考字形；這些狀態只在詳情頁說明，不在列表頁增加角標。',
+      '每個地區格會區分字表主條目、括注異體和未收錄回退。未收錄格仍顯示傳承參考字形；這些狀態只在詳情頁說明，不在列表頁增加角標。若明確對應到Noto未涵蓋的碼點，頁面仍會顯示該碼點，並分別使用Plangothic P1（黑體）和WenJin Mincho P2（宋體）的專案內置子集補全；這些補充字形不參與地區差異判定。',
     notice1:
       '本應用是根據公開數據製作的字形對照工具，不是各地的規範、詞典或教材。頁面顯示的是本應用採用的數據與自動規則所得結果，不能據此斷定某個字在當地只有這一種「正確」形式。',
     notice2:
@@ -206,7 +206,7 @@ export const zhHK: typeof zhCN = {
     notice4: '漢字數量龐大，出錯難免。發現數據有誤，請透過{issues}回報。',
     data1: '本應用的字表數據以JSON提供，可直接取用：',
     thanks:
-      '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粵典、國家教育研究院、scriptin/kanji-frequency、Adobe Source Han與Noto CJK的維護者。逐字對照工具{tofu}是本項目的先行者，同樣用Noto系列區分地區字形。',
+      '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粵典、國家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic與WenJin Mincho的維護者。逐字對照工具{tofu}是本項目的先行者，同樣用Noto系列區分地區字形。',
   },
   footer: {
     sources: '數據來源',

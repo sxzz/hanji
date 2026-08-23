@@ -36,7 +36,7 @@ import {
   type Locale,
 } from '../app/locales/index.ts'
 import { dictLinks, formsOf } from '../shared/links.ts'
-import { fontIndexOf } from '../shared/row.ts'
+import { fontIndexOf, usesSupplementalFont } from '../shared/row.ts'
 import { SOURCES } from '../shared/sources.ts'
 import { REGIONS, STYLES, type CharsData, type Style } from '../shared/types.ts'
 import { DATA_DIR, FONT_DIR, NOTICES_DIR, raw, ROOT } from './sources.ts'
@@ -53,6 +53,16 @@ const NOTO: Record<string, string> = {
 
 const otf = (style: Style, region: string) =>
   `font/Noto${style === 'sans' ? 'Sans' : 'Serif'}CJK${NOTO[region]}-Regular.otf`
+
+const SUPPLEMENTAL_FONT: Record<Style, string> = {
+  sans: 'font/PlangothicP1-Regular.ttf',
+  serif: 'font/WenJinMinchoP2-Regular.otf',
+}
+
+const SUPPLEMENTAL_FAMILY: Record<Style, string> = {
+  sans: 'Hanji Rare Sans',
+  serif: 'Hanji Rare Serif',
+}
 
 /** Characters per chunk. Smaller means a lighter first paint but more
  * @font-face rules and more requests. */
@@ -75,30 +85,75 @@ for (const name of await readdir(FONT_DIR))
   if (name.endsWith('.woff2')) await unlink(join(FONT_DIR, name))
 
 await mkdir(NOTICES_DIR, { recursive: true })
-await writeFile(join(NOTICES_DIR, 'noto-ofl.txt'), await raw('font/OFL.txt'))
+await Promise.all([
+  writeFile(join(NOTICES_DIR, 'noto-ofl.txt'), await raw('font/OFL.txt')),
+  writeFile(
+    join(NOTICES_DIR, 'plangothic-ofl.txt'),
+    await raw('font/Plangothic-OFL.txt'),
+  ),
+  writeFile(
+    join(NOTICES_DIR, 'wenjin-mincho-ofl.md'),
+    await raw('font/WenJinMincho-OFL.md'),
+  ),
+])
 
 /** Collect the characters each region needs, in display-priority order. */
-const needed: Record<string, string[]> = Object.fromEntries(
-  REGIONS.map((r) => [r, [] as string[]]),
-)
-const seen: Record<string, Set<string>> = Object.fromEntries(
-  REGIONS.map((r) => [r, new Set<string>()]),
-)
+const needed = Object.fromEntries(
+  STYLES.map((style) => [
+    style,
+    Object.fromEntries(REGIONS.map((region) => [region, [] as string[]])),
+  ]),
+) as Record<Style, Record<(typeof REGIONS)[number], string[]>>
+const seen = Object.fromEntries(
+  STYLES.map((style) => [
+    style,
+    Object.fromEntries(REGIONS.map((region) => [region, new Set<string>()])),
+  ]),
+) as Record<Style, Record<(typeof REGIONS)[number], Set<string>>>
+const supplementalNeeded = Object.fromEntries(
+  STYLES.map((style) => [style, [] as string[]]),
+) as Record<Style, string[]>
+const supplementalSeen = Object.fromEntries(
+  STYLES.map((style) => [style, new Set<string>()]),
+) as Record<Style, Set<string>>
 
-const need = (region: string, char: string) => {
-  if (seen[region]!.has(char)) return
-  seen[region]!.add(char)
-  needed[region]!.push(char)
+const need = (style: Style, region: (typeof REGIONS)[number], char: string) => {
+  if (seen[style][region].has(char)) return
+  seen[style][region].add(char)
+  needed[style][region].push(char)
+}
+
+const supplement = (style: Style, char: string) => {
+  if (supplementalSeen[style].has(char)) return
+  supplementalSeen[style].add(char)
+  supplementalNeeded[style].push(char)
 }
 
 const collect = (row: (typeof data.rows)[number]) => {
-  for (let i = 0; i < REGIONS.length; i++)
-    need(REGIONS[fontIndexOf(row, i)]!, row.chars[i]!)
-  // The Japanese column also shows kyujitai, which has no group to share with
-  if (row.old) need('jp', row.old.char)
-  // A key or merged-in name the columns never show still appears on the
-  // character page, next to the references that look it up
-  for (const form of formsOf(row)) need(form.font, form.char)
+  for (const style of STYLES) {
+    for (let i = 0; i < REGIONS.length; i++) {
+      const column = REGIONS[i]!
+      if (usesSupplementalFont(row, column, style)) {
+        supplement(style, row.chars[i]!)
+        continue
+      }
+      need(style, REGIONS[fontIndexOf(row, i)]!, row.chars[i]!)
+    }
+    // The Japanese column also shows kyujitai, which has no group to share
+    // with.
+    if (row.old) {
+      if (usesSupplementalFont(row, 'old', style))
+        supplement(style, row.old.char)
+      else need(style, 'jp', row.old.char)
+    }
+    // A key or merged-in name the columns never show still appears on the
+    // character page, next to the references that look it up.
+    for (const form of formsOf(row)) {
+      if (form.column && usesSupplementalFont(row, form.column, style))
+        supplement(style, form.char)
+      else need(style, form.font, form.char)
+    }
+  }
 }
 
 /**
@@ -211,7 +266,7 @@ const styleChunks: Record<string, number[]> = { sans: [], serif: [] }
 
 for (const style of STYLES) {
   for (const region of REGIONS) {
-    const chars = needed[region]!
+    const chars = needed[style][region]
     for (let start = 0, index = 0; start < chars.length; start += CHUNK_SIZE) {
       const chunk = chars.slice(start, start + CHUNK_SIZE)
       const file = `hanji-${style}-${region}-${index}.woff2`
@@ -229,6 +284,57 @@ for (const style of STYLES) {
       index++
     }
   }
+}
+
+/**
+ * Source Han/Noto can omit explicit mapping targets in the current data. Keep
+ * them as real Unicode text and provide one small face per style instead of
+ * depending on an unknown system-font fallback chain. The source font must
+ * cover every dynamically collected target or the build fails above output.
+ */
+for (const style of STYLES) {
+  const chars = supplementalNeeded[style]
+  if (chars.length === 0) continue
+
+  const source = fontkit.create(
+    Buffer.from(await raw(SUPPLEMENTAL_FONT[style])),
+  ) as fontkit.Font
+  const missing = chars.filter(
+    (char) => source.glyphForCodePoint(char.codePointAt(0)!).id === 0,
+  )
+  if (missing.length > 0)
+    throw new Error(
+      `${SUPPLEMENTAL_FONT[style]} does not cover supplemental characters: ${missing.join(' ')}`,
+    )
+
+  const file = `hanji-rare-${style}.woff2`
+  styleChunks[style]!.push(
+    queue({
+      font: SUPPLEMENTAL_FONT[style],
+      text: chars.join(''),
+      file,
+      names:
+        style === 'sans'
+          ? {
+              family: 'HJS',
+              fullName: 'HJS',
+              postscriptName: 'HJS',
+            }
+          : {
+              family: 'HJR',
+              fullName: 'HJR',
+              postscriptName: 'HJR',
+            },
+    }),
+  )
+  faces[style]!.push(
+    `@font-face {
+  font-family: '${SUPPLEMENTAL_FAMILY[style]}';
+  src: url('./${file}') format('woff2');
+  font-display: block;
+  unicode-range: ${unicodeRange(chars)};
+}`,
+  )
 }
 
 /**
@@ -429,16 +535,27 @@ export const FACE_MARKS: Record<string, Record<string, string>> = ${JSON.stringi
 await writeFile(join(ROOT, 'app/generated/face-marks.ts'), await faceMarks())
 console.error('app/generated/face-marks.ts')
 
-const banner = `/* Generated by scripts/build-fonts.ts -- do not edit.
+const banners: Record<string, string> = {
+  ui: `/* Generated by scripts/build-fonts.ts -- do not edit.
  * Noto Sans CJK and Noto Serif CJK (SIL OFL 1.1), subset to the characters
  * this app uses. Licence text is served at /notices/noto-ofl.txt.
- */`
+ */`,
+  sans: `/* Generated by scripts/build-fonts.ts -- do not edit.
+ * Noto Sans CJK plus a data-driven Plangothic P1 supplement, both under SIL
+ * OFL 1.1. Notices: /notices/noto-ofl.txt and /notices/plangothic-ofl.txt.
+ */`,
+  serif: `/* Generated by scripts/build-fonts.ts -- do not edit.
+ * Noto Serif CJK plus a data-driven WenJin Mincho P2 supplement, both under
+ * SIL OFL 1.1. Notices: /notices/noto-ofl.txt and
+ * /notices/wenjin-mincho-ofl.md.
+ */`,
+}
 
 // Serif ships as its own stylesheet so the ~140KB of @font-face rules only
 // arrive when a reader actually asks for serif.
 let cssBytes = 0
 for (const [name, rules] of Object.entries(faces)) {
-  const css = `${banner}\n\n${rules.join('\n\n')}\n`
+  const css = `${banners[name]}\n\n${rules.join('\n\n')}\n`
   await writeFile(join(FONT_DIR, `fonts-${name}.css`), css)
   cssBytes += css.length
   console.error(`fonts-${name}.css  ${(css.length / 1024).toFixed(0)} KB`)

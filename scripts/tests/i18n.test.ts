@@ -12,6 +12,7 @@ import { zhCN } from '../../app/locales/zh-cn.ts'
 import { zhHK } from '../../app/locales/zh-hk.ts'
 import { zhTW } from '../../app/locales/zh-tw.ts'
 import { hanNumber } from '../../app/utils/han-number.ts'
+import { SOURCES } from '../../shared/sources.ts'
 
 function leaves(value: unknown, prefix = ''): Record<string, string> {
   if (typeof value === 'string') return { [prefix]: value }
@@ -24,6 +25,51 @@ function leaves(value: unknown, prefix = ''): Record<string, string> {
 
 const params = (message: string): string[] =>
   [...message.matchAll(/\{(\w+)\}/g)].map((match) => match[1]!).toSorted()
+
+const chineseMessages = [
+  ['zh-CN', zhCN],
+  ['zh-TW', zhTW],
+  ['zh-HK', zhHK],
+] as const
+
+const manualHanLatinSpace =
+  /\p{Script=Han}[ \u{A0}]+(?=[\p{Script=Latin}\p{Number}])|[\p{Script=Latin}\p{Number}][ \u{A0}]+(?=\p{Script=Han})/u
+
+describe('Chinese typography', () => {
+  it('leaves Han–Latin spacing to text-autospace', () => {
+    const copy: Array<[string, string]> = chineseMessages.flatMap(
+      ([locale, messages]) =>
+        Object.entries(leaves(messages)).map(
+          ([key, value]) => [`${locale}.${key}`, value] as [string, string],
+        ),
+    )
+
+    for (const source of SOURCES) {
+      for (const [locale] of chineseMessages) {
+        copy.push(
+          [`sources.${source.id}.${locale}.use`, source.use[locale]],
+          [
+            `sources.${source.id}.${locale}.name`,
+            source.localizedName?.[locale] ?? source.name,
+          ],
+          [
+            `sources.${source.id}.${locale}.license`,
+            source.localizedLicense?.[locale] ?? source.license,
+          ],
+        )
+        if (source.note)
+          copy.push([
+            `sources.${source.id}.${locale}.note`,
+            source.note[locale],
+          ])
+      }
+    }
+
+    expect(
+      copy.filter(([, message]) => manualHanLatinSpace.test(message)),
+    ).toEqual([])
+  })
+})
 
 describe('browser locale matching', () => {
   it.each(['ja', 'ja-JP', 'ja-Jpan-JP'])('matches %s to Japanese', (tag) => {

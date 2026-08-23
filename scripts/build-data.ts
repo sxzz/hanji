@@ -13,7 +13,19 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { format, resolveConfig } from 'prettier'
+import { fontIndexOf } from '../shared/row.ts'
 import { SOURCES } from '../shared/sources.ts'
+import {
+  STYLES,
+  type CharRow,
+  type Column,
+  type ListedAlternative,
+  type Region,
+  type RegionalTuple,
+  type Stats,
+  type Style,
+  type UncertainRelation,
+} from '../shared/types.ts'
 import { buildStrokeData } from './build-strokes.ts'
 import { parseCMap, partitionSignature } from './cmap.ts'
 import {
@@ -31,15 +43,6 @@ import {
   reverseDict,
   ROOT,
 } from './sources.ts'
-import type {
-  CharRow,
-  ListedAlternative,
-  Region,
-  RegionalTuple,
-  Stats,
-  UncertainRelation,
-} from '../shared/types.ts'
-
 const dict = async (name: string) =>
   parseDict(await rawText(`opencc/${name}.txt`))
 
@@ -360,7 +363,10 @@ function pick<T extends object, K extends keyof T>(
  * glyph. Source Han Sans hands Japan its own glyph for a fifth of common
  * characters; for a couple of hundred of those the serif faces do not, which
  * marks the difference as that typeface's design decision rather than a
- * regional one. Agreement in either face is therefore taken as agreement.
+ * regional one. Agreement in either face is therefore taken as agreement. If
+ * neither face covers a codepoint, its same-codepoint columns remain one
+ * unmeasured group; different codepoints still remain distinct and are drawn
+ * by the project's supplemental fonts.
  *
  * The union of two equivalence relations need not be transitive, so the groups
  * are the connected components rather than the pairs themselves.
@@ -368,6 +374,7 @@ function pick<T extends object, K extends keyof T>(
 function unifiedSignature(
   sans: (number | undefined)[],
   serif: (number | undefined)[],
+  codePoints?: (number | undefined)[],
 ): string {
   const parent = sans.map((_, i) => i)
   const find = (x: number): number =>
@@ -378,7 +385,15 @@ function unifiedSignature(
 
   for (let i = 0; i < parent.length; i++)
     for (let j = i + 1; j < parent.length; j++) {
-      if (!agree(sans, i, j) && !agree(serif, i, j)) continue
+      const sameUnmeasuredCodePoint =
+        codePoints?.[i] !== undefined &&
+        codePoints[i] === codePoints[j] &&
+        sans[i] === undefined &&
+        sans[j] === undefined &&
+        serif[i] === undefined &&
+        serif[j] === undefined
+      if (!agree(sans, i, j) && !agree(serif, i, j) && !sameUnmeasuredCodePoint)
+        continue
       const [ri, rj] = [find(i), find(j)]
       if (ri !== rj) parent[rj] = ri
     }
@@ -437,12 +452,9 @@ function buildRow(
     char,
   ]) as RegionalTuple<string[]>,
   alternatives?: CharRow['alternatives'],
-): CharRow | undefined {
+): CharRow {
   const codePoints = chars.map((c) => c.codePointAt(0)) as RegionalTuple<number>
   const sansCids = codePoints.map((cp, i) => sansCMaps[i]!.get(cp))
-  // A character Noto does not cover can be neither drawn nor judged
-  if (sansCids.includes(undefined)) return undefined
-
   const serifCids = codePoints.map((cp, i) => serifCMaps[i]!.get(cp))
 
   /**
@@ -456,13 +468,14 @@ function buildRow(
   const oldPoint = oldChar?.codePointAt(0)
   const oldSans =
     oldPoint === undefined ? undefined : sansCMaps[JP_INDEX]!.get(oldPoint)
-  const hasOld = oldChar !== undefined && oldSans !== undefined
+  const hasOld = oldChar !== undefined
   const oldSerif =
     oldPoint === undefined ? undefined : serifCMaps[JP_INDEX]!.get(oldPoint)
 
   const signature = unifiedSignature(
     hasOld ? [...sansCids, oldSans] : sansCids,
     hasOld ? [...serifCids, oldSerif] : serifCids,
+    hasOld ? [...codePoints, oldPoint] : codePoints,
   )
   const glyph = signature.slice(0, REGION_IDS.length)
   const cp = partitionSignature(codePoints)
@@ -512,6 +525,26 @@ function buildRow(
     common: tier.filter(Boolean).length,
     ...(Object.keys(readings).length > 0 ? { readings } : {}),
   }
+
+  const mapsByStyle: Record<Style, typeof sansCMaps> = {
+    sans: sansCMaps,
+    serif: serifCMaps,
+  }
+  const supplementalFont: Partial<Record<Style, Column[]>> = {}
+  for (const style of STYLES) {
+    const maps = mapsByStyle[style]
+    const columns: Column[] = []
+    for (const [region, id] of REGION_IDS.entries()) {
+      const font = fontIndexOf(row, region)
+      if (!maps[font]!.has(codePoints[region]!)) columns.push(id)
+    }
+    if (hasOld && oldPoint !== undefined && !maps[JP_INDEX]!.has(oldPoint))
+      columns.push('old')
+    if (columns.length > 0) supplementalFont[style] = columns
+  }
+  if (Object.keys(supplementalFont).length > 0)
+    row.supplementalFont = supplementalFont
+
   candidatesByRow.set(row, candidates)
   return row
 }
@@ -522,7 +555,7 @@ for (const key of keys) {
     (forms) => forms[0] ?? key,
   ) as RegionalTuple<string>
   const row = buildRow(key, chars, undefined, candidates)
-  if (row) rows.push(row)
+  rows.push(row)
   if (++done % 1000 === 0) console.error(`  ${done}/${keys.size}`)
 }
 
@@ -815,10 +848,6 @@ function fold(all: CharRow[]): CharRow[] {
     const aka = names.filter((name) => name !== key)
 
     const folded = buildRow(key!, chars, aka, regionalCandidates, alternatives)
-    if (!folded)
-      throw new Error(
-        `cannot render folded row ${key}: ${REGION_IDS.map((id, region) => `${id}:${chars[region]}`).join(' ')}; names=${names.join(' ')} candidates=${JSON.stringify(regionalCandidates)}`,
-      )
     rootsByRow.set(folded, [groupRoot])
     out.push(folded)
   }
@@ -832,10 +861,10 @@ rows = fold(rows).filter((row) => row.common > 0)
 /**
  * Every primary source entry must be represented as either the displayed form
  * or a listed alternative. A few mainland entries have an ST mapping whose
- * orthodox target is absent from the reverse TS table (昵 -> 暱, 稆 -> 穭), or
- * whose target cannot be drawn in every regional font. In that case the source
- * entry itself is still drawable and gets a conservative, unconverted row
- * rather than disappearing during normalization.
+ * orthodox target is absent from the reverse TS table (昵 -> 暱, 稆 -> 穭).
+ * Anything normalization still failed to account for gets its own row rather
+ * than disappearing; font coverage is recorded separately by buildRow and
+ * never changes the codepoint selected here.
  */
 const rowEntries: Set<string>[] = [
   new Set([...entries['cn-1'], ...entries['cn-2'], ...entries['cn-3']]),
@@ -852,19 +881,14 @@ const accountsFor = (region: number, char: string) =>
         (entry) => entry.char === char,
       ),
   )
-const unrenderable: string[] = []
 for (const [region, source] of rowEntries.entries())
   for (const char of source) {
     if (accountsFor(region, char)) continue
     const chars = REGION_IDS.map(() => char) as RegionalTuple<string>
     const fallback = buildRow(char, chars)
-    if (fallback) {
-      rootsByRow.set(fallback, [rootName(char)])
-      rows.push(fallback)
-    } else unrenderable.push(`${REGION_IDS[region]}:${char}`)
+    rootsByRow.set(fallback, [rootName(char)])
+    rows.push(fallback)
   }
-if (unrenderable.length > 0)
-  throw new Error(`unrenderable source entries: ${unrenderable.join(' ')}`)
 
 /**
  * Substituting a form can leave two rows with the same five columns -- one of

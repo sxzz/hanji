@@ -16,7 +16,7 @@
 
 ## 收录范围
 
-收录《通用规范汉字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）、韩国《漢文教育用基礎漢字》（2000）五份字表的并集。韩国字表含 1,800 个常用汉字。把简繁、日本新旧字体和韩式异体这类跨码点的对应合并成一行后，共 **8,449 行**——其中 1,695 行五地字形完全一致，129 行五地各不相同。
+收录《通用规范汉字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）、韩国《漢文教育用基礎漢字》（2000）五份字表的并集。韩国字表含 1,800 个常用汉字。把简繁、日本新旧字体和韩式异体这类跨码点的对应合并成一行后，共 **8,449 行**——其中 1,692 行五地字形完全一致，129 行五地各不相同。
 
 台湾《次常用國字表》只为已有行提供二级收录状态和候选，不参与生成新行；其 6,343 个主条目中有 3,599 个独有条目明确在产品范围之外。
 
@@ -39,6 +39,8 @@
 最终判定取**黑体与宋体结果的并集**：只要其中一款把两地画成同一字形，本应用就按同形处理。这能排除只出现在单款字体中的设计细节。例如 Source Han Sans 为约五分之一的日本常用汉字提供独立字形，其中约两百个在 Source Han Serif 并未区分（了、人、子、水、金都在其中）；本应用不把这类差异算作地区规范差异。完整取舍见 [数据规则与已知限制](docs/known-issues.md)。
 
 页面会按这份判定重新分组：被判为同形的格子统一借用组内一个地区的 Noto 字体，使屏幕上也真正呈现同一轮廓。相应地，被上述规则过滤的地区版本细小差异不会显示。`scripts/tests/fonts.test.ts` 会用 fontkit 取出生成字体的真实轮廓，逐字验证判定与画面显示一致。
+
+明确的跨码点映射不会因为 Noto/Source Han 未收录目标字而退回原码点。例如 `𬒗 → 𥗽` 仍会显示为两个码点。构建会从当前数据自动收集 Noto 缺少但页面需要显示的码点，并生成项目内置的补充 WOFF2 子集：黑体取 Plangothic P1，宋体取 WenJin Mincho P2；所选字体缺少任一码点时，构建会明确失败。页面始终保留真正的 Unicode 文本，不依赖用户设备的本机字体。这两套补充字形只负责显示，不参与地区差异判定。
 
 ## 局限
 
@@ -63,7 +65,7 @@
 
 ```bash
 pnpm install
-pnpm build:data   # 生成字表与字体子集，首次会下载约 261 MiB 原始数据，之后走缓存
+pnpm build:data   # 生成字表与字体子集，首次会下载约 302 MiB 原始数据，之后走缓存
 pnpm update:sources # 检查并锁定新版第三方数据；有变化时下载并重新生成
 pnpm dev
 pnpm test
@@ -94,7 +96,7 @@ Cloudflare Worker 名称须为 `hanji`，与 `wrangler.json` 中的 `name` 一�
 
 每个字组详情页都会生成独立 HTML；页面数据在本地 bundle 中，因此关闭了每路由额外生成 `_payload.json` 的 payload extraction。地区异体别名不另外生成跳转页：它先由 Static Assets 返回 `404.html` 和 HTTP 404，再由 Nuxt 客户端中间件跳到所属行；搜索引擎不会把 alias 当作成功页面重复收录。真正未知的地址保持 HTTP 404。`@nuxtjs/sitemap` 会在静态生成时把全部 canonical 页面写入 `/sitemap.xml`，`@nuxtjs/robots` 生成 `/robots.txt` 并公布 sitemap 地址。两者的绝对 URL 来自 `NUXT_SITE_URL`；GitHub Actions 优先读取同名仓库变量，未设置时使用仓库 homepage，其他环境需在运行 `pnpm generate` 时设置。PR 预览构建通过 `NUXT_SITE_ENV=preview` 禁止索引。`public/_headers` 给带内容哈希的 `_nuxt/*` 设长期 immutable 缓存，让稳定的 `/notices/*`、sitemap 和 robots URL 使用 `no-cache`，并为 `/data/chars.json` 设置 1 小时的 `max-age` 与 1 天的 `stale-while-revalidate`。
 
-第三方资产的具体 commit、官方附件标识与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析有版本上游的版本号，并重新校验没有版本号的官方直链；内容有变化时更新 lockfile 并直接重新生成数据，完全未变则跳过生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **261 MiB** 原始数据（其中 195 MiB 是十份 Noto CJK 字体）；任何未显式更新的直链内容变化都会因校验和不符而失败，不会静默进入数据。Actions 分开缓存原始下载与生成字体：前者只由 lockfile 决定，后者由 lockfile、实际生成脚本、相关依赖、locale 与字表决定；字体输入完全不变时跳过数据生成。
+第三方资产的具体 commit、GitHub release tag、官方附件标识与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析 GitHub 分支、最新 release 与 Unicode 版本，并重新校验没有版本号的官方直链；内容有变化时更新 lockfile 并直接重新生成数据，完全未变则跳过生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **302 MiB** 原始数据（其中 195 MiB 是十份 Noto CJK 字体，另有约 40 MiB 的两份补充字体）；任何未显式更新的直链内容变化都会因校验和不符而失败，不会静默进入数据。Actions 分开缓存原始下载与生成字体：前者只由 lockfile 决定，后者由 lockfile、实际生成脚本、相关依赖、locale 与字表决定；字体输入完全不变时跳过数据生成。
 
 笔顺分片由 `pnpm build:dataset` 生成到 `app/assets/strokes/`，不提交到仓库；部署流程会在测试和静态生成前重建，再由 Vite 输出带内容哈希的文件名。随附授权保留在 `public/notices/` 的稳定 URL 下并要求重新验证。同一字组内，按笔画顺序排列的轮廓完全一致时只保存第一份变体及其中线，界面也把对应地区合并为一个选择项；页面加载时只获取一次所属分片，之后切换地区直接复用内存中的字组数据。整站使用这里解析出的轮廓数量作为首选笔画数。
 
@@ -115,6 +117,8 @@ pnpm deploy
 | -------------------------------- | --------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
 | 判定五地字形差异                 | [Adobe Source Han Sans / Serif（CMap 资源）](https://github.com/adobe-fonts/source-han-sans)                    | [SIL OFL 1.1](https://openfontlicense.org/)                                                                                 |
 | 页面展示用字体                   | [Noto Sans / Noto Serif（含 CJK）](https://github.com/notofonts/noto-cjk)                                       | [SIL OFL 1.1](https://openfontlicense.org/)                                                                                 |
+| 补充Noto未收录的黑体字形         | [Plangothic P1](https://github.com/Fitzgerald-Porthmouth-Koenigsegg/Plangothic_Project)                         | [SIL OFL 1.1](https://github.com/Fitzgerald-Porthmouth-Koenigsegg/Plangothic_Project/blob/main/LICENSE-OFL.txt)             |
+| 补充Noto未收录的宋体字形         | [WenJin Mincho P2](https://github.com/takushun-wu/WenJinMincho)                                                 | [SIL OFL 1.1](https://github.com/takushun-wu/WenJinMincho/blob/main/LICENSE.md)                                             |
 | 简繁、港台异体、日本新旧字体对应 | [OpenCC 开放中文转换](https://github.com/BYVoid/OpenCC)                                                         | [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0)                                                                   |
 | 中、台、日、韩笔顺动画与笔画数   | [AnimCJK](https://github.com/parsimonhi/animCJK)                                                                | [Arphic Public License](https://github.com/parsimonhi/animCJK/blob/master/licenses/APL/english/ARPHICPL.TXT)                |
 | 五地标准字表                     | [zispace/hanzi-chars](https://github.com/zispace/hanzi-chars)                                                   | [仓库未声明](https://github.com/zispace/hanzi-chars)                                                                        |
@@ -129,9 +133,9 @@ pnpm deploy
 
 原始规范出处：《通用规范汉字表》（2013）、臺灣《常用國字標準字體表》（1982）、香港《常用字字形表》、日本《常用漢字表》（2010）与《学年別漢字配当表》（2017）、韩国《漢文教育用基礎漢字》（2000）。
 
-逐字对照工具 [tofu.tools](https://tofu.tools/) 是本项目的先行者，同样用 Noto 系列区分地区字形。
+逐字对照工具 [tofu.tools](https://tofu.tools/) 是本项目的先行者，同样用 Noto 系列区分地区字形。感谢 Plangothic 与 WenJin Mincho 的维护者提供生僻字补充字形。
 
-字体为 Noto Sans CJK 与 Noto Serif CJK（SIL OFL 1.1）按本应用用字子集化后的产物，声明随附于 [`/notices/noto-ofl.txt`](public/notices/noto-ofl.txt)。生成的数据文件派生自上述来源，请遵守各自许可；逐项转换方式与署名也写入公开的 [`/notices/data-sources.md`](public/notices/data-sources.md)。
+字体为 Noto Sans CJK、Noto Serif CJK、Plangothic P1 与 WenJin Mincho P2（均为 SIL OFL 1.1）按本应用用字子集化后的产物。声明分别随附于 [`/notices/noto-ofl.txt`](public/notices/noto-ofl.txt)、[`/notices/plangothic-ofl.txt`](public/notices/plangothic-ofl.txt) 与 [`/notices/wenjin-mincho-ofl.md`](public/notices/wenjin-mincho-ofl.md)。生成的数据文件派生自上述来源，请遵守各自许可；逐项转换方式与署名也写入公开的 [`/notices/data-sources.md`](public/notices/data-sources.md)。
 
 ## License
 

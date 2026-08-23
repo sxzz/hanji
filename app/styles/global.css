@@ -67,11 +67,10 @@ body {
 
 /*
  * The five Han columns, pinned to their own region and never following the
- * interface language. The fallback is deliberately a generic family and
- * never --font-ui: listing a webfont here would make every table character a
- * candidate for it, and the browser would pull dozens of that font's
- * unicode-range chunks. The lang attribute on each cell drives the system's
- * own CJK fallback instead.
+ * interface language. Noto remains the measured regional face; a dynamically
+ * subset project font follows it for explicit codepoints Noto does not cover.
+ * Both are unicode-range subsets, so only the file that contains a visible
+ * character is requested.
  *
  * The typeface is chosen by `data-style` on the root rather than by a class
  * binding. The root attribute is set by an inline script before first paint,
@@ -84,35 +83,35 @@ body {
  * the chunks holding characters on screen.
  */
 .hanji-cn {
-  font-family: 'Hanji Sans CN', sans-serif;
+  font-family: 'Hanji Sans CN', 'Hanji Rare Sans', sans-serif;
 }
 .hanji-hk {
-  font-family: 'Hanji Sans HK', sans-serif;
+  font-family: 'Hanji Sans HK', 'Hanji Rare Sans', sans-serif;
 }
 .hanji-tw {
-  font-family: 'Hanji Sans TW', sans-serif;
+  font-family: 'Hanji Sans TW', 'Hanji Rare Sans', sans-serif;
 }
 .hanji-jp {
-  font-family: 'Hanji Sans JP', sans-serif;
+  font-family: 'Hanji Sans JP', 'Hanji Rare Sans', sans-serif;
 }
 .hanji-kr {
-  font-family: 'Hanji Sans KR', sans-serif;
+  font-family: 'Hanji Sans KR', 'Hanji Rare Sans', sans-serif;
 }
 
 html[data-style='serif'] .hanji-cn {
-  font-family: 'Hanji Serif CN', serif;
+  font-family: 'Hanji Serif CN', 'Hanji Rare Serif', serif;
 }
 html[data-style='serif'] .hanji-hk {
-  font-family: 'Hanji Serif HK', serif;
+  font-family: 'Hanji Serif HK', 'Hanji Rare Serif', serif;
 }
 html[data-style='serif'] .hanji-tw {
-  font-family: 'Hanji Serif TW', serif;
+  font-family: 'Hanji Serif TW', 'Hanji Rare Serif', serif;
 }
 html[data-style='serif'] .hanji-jp {
-  font-family: 'Hanji Serif JP', serif;
+  font-family: 'Hanji Serif JP', 'Hanji Rare Serif', serif;
 }
 html[data-style='serif'] .hanji-kr {
-  font-family: 'Hanji Serif KR', serif;
+  font-family: 'Hanji Serif KR', 'Hanji Rare Serif', serif;
 }
 
 /*

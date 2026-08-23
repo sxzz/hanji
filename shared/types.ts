@@ -89,6 +89,12 @@ export interface CharRow {
    * to merge. These are display-only: they are not names or forms of the row.
    */
   uncertain?: UncertainRelation[]
+  /**
+   * Columns whose codepoint is absent from Noto and must use the bundled
+   * supplemental face. Kept per style because Source Han Sans and Serif do
+   * not necessarily cover the same codepoints.
+   */
+  supplementalFont?: Partial<Record<Style, Column[]>>
   /** Codepoint partition signature; "00000" when all five share a codepoint. */
   cp: string
   /**

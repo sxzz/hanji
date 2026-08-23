@@ -7,22 +7,26 @@
  * they ever disagree, the table would be labelling differences the reader
  * cannot see.
  */
-import { readdirSync, readFileSync } from 'node:fs'
+import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import * as fontkit from 'fontkit'
 import { describe, expect, it } from 'vitest'
 import { frequencyRankOf } from '../../shared/frequency.ts'
+import { formsOf } from '../../shared/links.ts'
 import {
   fontIndexOf,
   fontRegionOf,
   projectSignature,
+  usesSupplementalFont,
   varietyOf,
 } from '../../shared/row.ts'
 import {
   FREQUENCY_REGIONS,
   REGIONS,
+  STYLES,
   type CharsData,
   type FrequencyRegion,
+  type Style,
 } from '../../shared/types.ts'
 import { partitionSignature } from '../cmap.ts'
 import { DATA_DIR, FONT_DIR } from '../sources.ts'
@@ -31,6 +35,41 @@ const data: CharsData = JSON.parse(
   readFileSync(join(DATA_DIR, 'chars.json'), 'utf8'),
 )
 const rows = new Map(data.rows.map((row) => [row.key, row]))
+
+/** The data, rather than this test, decides which codepoints Noto cannot draw. */
+const supplementalChars = Object.fromEntries(
+  STYLES.map((style) => [style, new Set<string>()]),
+) as Record<Style, Set<string>>
+
+for (const row of data.rows) {
+  for (const style of STYLES) {
+    for (const [index, region] of REGIONS.entries())
+      if (usesSupplementalFont(row, region, style))
+        supplementalChars[style].add(row.chars[index]!)
+    if (row.old && usesSupplementalFont(row, 'old', style))
+      supplementalChars[style].add(row.old.char)
+    for (const form of formsOf(row))
+      if (form.column && usesSupplementalFont(row, form.column, style))
+        supplementalChars[style].add(form.char)
+  }
+}
+
+function unicodeRange(chars: Iterable<string>): string {
+  const points = [...chars]
+    .map((char) => char.codePointAt(0)!)
+    .toSorted((left, right) => left - right)
+  const parts: string[] = []
+  for (let index = 0; index < points.length;) {
+    let end = index
+    while (end + 1 < points.length && points[end + 1] === points[end]! + 1)
+      end++
+    const start = points[index]!.toString(16).toUpperCase()
+    const finish = points[end]!.toString(16).toUpperCase()
+    parts.push(index === end ? `U+${start}` : `U+${start}-${finish}`)
+    index = end + 1
+  }
+  return parts.join(',')
+}
 
 /** Which chunk holds a character is not known up front, so open them all. */
 const fontsOf = (region: string) =>
@@ -45,6 +84,14 @@ const fontsOf = (region: string) =>
     }))
 
 const fonts = Object.fromEntries(REGIONS.map((r) => [r, fontsOf(r)]))
+const supplementalFonts = Object.fromEntries(
+  STYLES.map((style) => [
+    style,
+    fontkit.create(
+      readFileSync(join(FONT_DIR, `hanji-rare-${style}.woff2`)),
+    ) as fontkit.Font,
+  ]),
+) as Record<Style, fontkit.Font>
 
 /** Glyph IDs are not comparable across subsets, so compare outlines. */
 function outline(region: string, char: string): string {
@@ -54,6 +101,23 @@ function outline(region: string, char: string): string {
     if (glyph && glyph.id !== 0) return glyph.path.toSVG()
   }
   throw new Error(`no chunk of hanji-sans-${region} carries ${char}`)
+}
+
+function supplementalOutline(style: Style, char: string): string {
+  const glyph = supplementalFonts[style].glyphForCodePoint(char.codePointAt(0)!)
+  if (glyph.id === 0)
+    throw new Error(`hanji-rare-${style}.woff2 does not carry ${char}`)
+  return glyph.path.toSVG()
+}
+
+function displayedSansOutline(
+  row: (typeof data.rows)[number],
+  region: number,
+): string {
+  const column = REGIONS[region]!
+  return usesSupplementalFont(row, column, 'sans')
+    ? supplementalOutline('sans', row.chars[region]!)
+    : outline(REGIONS[fontIndexOf(row, region)]!, row.chars[region]!)
 }
 
 /** Which generated chunk carries this region's character. */
@@ -104,17 +168,51 @@ describe('subset coverage', () => {
       ...data.rows.filter((r) => r.glyph === '01234').slice(0, 40),
     ]
     for (const row of sample)
-      for (let i = 0; i < REGIONS.length; i++)
-        expect(() =>
-          outline(REGIONS[fontIndexOf(row, i)], row.chars[i]),
-        ).not.toThrow()
+      for (const index of REGIONS.keys())
+        expect(() => displayedSansOutline(row, index)).not.toThrow()
+  })
+
+  it('draws every codepoint assigned to a bundled supplemental font', () => {
+    for (const style of STYLES) {
+      expect(supplementalChars[style].size).toBeGreaterThan(0)
+      for (const char of supplementalChars[style])
+        expect(() => supplementalOutline(style, char)).not.toThrow()
+    }
+  })
+
+  it('publishes renamed, data-driven supplemental webfonts', () => {
+    for (const style of STYLES) {
+      const file = join(FONT_DIR, `hanji-rare-${style}.woff2`)
+      const font = supplementalFonts[style]
+      const chars = supplementalChars[style]
+      expect(font.familyName).toBe(style === 'sans' ? 'HJS' : 'HJR')
+      expect(font.postscriptName).toBe(style === 'sans' ? 'HJS' : 'HJR')
+      expect(statSync(file).size).toBeGreaterThan(0)
+      for (const char of chars)
+        expect(font.glyphForCodePoint(char.codePointAt(0)!).id).not.toBe(0)
+      expect(font.characterSet.toSorted((left, right) => left - right)).toEqual(
+        [...chars]
+          .map((char) => char.codePointAt(0)!)
+          .toSorted((left, right) => left - right),
+      )
+
+      const css = readFileSync(join(FONT_DIR, `fonts-${style}.css`), 'utf8')
+      expect(css).toContain(
+        `font-family: 'Hanji Rare ${style === 'sans' ? 'Sans' : 'Serif'}'`,
+      )
+      expect(css).toContain(`unicode-range: ${unicodeRange(chars)};`)
+    }
   })
 
   it('carries the kyujitai in the Japanese font', () => {
     const withOld = data.rows.filter((r) => r.old).slice(0, 40)
     expect(withOld.length).toBeGreaterThan(0)
     for (const row of withOld)
-      expect(() => outline('jp', row.old!.char)).not.toThrow()
+      expect(() =>
+        usesSupplementalFont(row, 'old', 'sans')
+          ? supplementalOutline('sans', row.old!.char)
+          : outline('jp', row.old!.char),
+      ).not.toThrow()
   })
 })
 
