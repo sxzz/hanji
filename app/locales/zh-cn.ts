@@ -235,7 +235,6 @@ export const zhCN = {
       '感谢OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粤典、国家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic与WenJin Mincho的维护者。逐字对照工具{tofu}是本项目的先行者，同样用Noto系列区分地区字形。同时感谢{innei}为本项目设计Logo，以及{oliver}与{antfu}对项目Logo的探索和帮助。',
   },
   pwa: {
-    title: '安装Hanji',
     description: '安装后可离线查看字表、字形与笔顺。',
     install: '安装',
     dismiss: '关闭安装提示',

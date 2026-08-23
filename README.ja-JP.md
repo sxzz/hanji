@@ -74,10 +74,13 @@ pnpm install
 pnpm build:data   # 字表とフォントサブセットを生成。初回は約302 MiBをダウンロードし、以後はキャッシュを使用
 pnpm update:sources # サードパーティデータの更新を確認して固定。変更があればダウンロードして再生成
 pnpm dev
+pnpm dev:pwa # 開発用Service Workerを有効にし、インストールUI、Manifest、standaloneモードを確認
 pnpm test
 pnpm generate # 静的Webアプリ（OG画像は生成しない）
 pnpm build:og # 任意。完全なOG画像を生成
 ```
+
+PWAのインストール体験をデバッグする場合は、`pnpm dev:pwa` を起動してChromiumで `http://localhost:3000` を開きます。開発用Service WorkerはナビゲーションをNetwork Onlyにし、本番用の完全なオフラインキャッシュをダウンロードしないため、HMRを妨げません。完全なオフライン動作は引き続き `pnpm generate` の生成物で確認してください。開発モードでインストールバーを閉じても現在のページだけに適用され、更新すれば再テストできるため、本番プレビューの閉じた状態を汚しません。変更前の開発用Service Workerがまだページを制御している場合は、DevToolsのApplicationパネルで更新または登録解除してから、もう一度更新してください。
 
 各行のURLには行名を使います（`/char/着`）。5地域の表示字形、`aka`、`alternatives` もURLとして利用でき、クライアント側で対応する行へ移動します。たとえば `/char/国`、`/char/郞`、`/char/缐` です。ページの `rel=canonical` は行名のURLを指します。未確認関係はURL別名にはなりません。
 

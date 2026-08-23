@@ -1,6 +1,9 @@
+import { runInNewContext } from 'node:vm'
 import { describe, expect, it } from 'vitest'
 import {
   detectPwaInstallMode,
+  PWA_INSTALL_CAPTURE_SCRIPT,
+  PWA_INSTALL_PROMPT_READY_EVENT,
   type PwaInstallEnvironment,
 } from '../../app/utils/pwa-install.ts'
 
@@ -79,5 +82,46 @@ describe('PWA installation mode', () => {
 
   it('hides every installation path in standalone mode', () => {
     expect(mode({ promptAvailable: true, standalone: true })).toBeNull()
+  })
+})
+
+describe('PWA installation event bootstrap', () => {
+  it('preserves an early browser prompt until the Vue UI is ready', () => {
+    const listeners = new Map<
+      string,
+      (event: { preventDefault?: () => void }) => void
+    >()
+    const dispatched: string[] = []
+    const browserWindow: Record<string, unknown> = {
+      addEventListener: (
+        type: string,
+        listener: (event: { preventDefault?: () => void }) => void,
+      ) => listeners.set(type, listener),
+      dispatchEvent: (event: { type: string }) => dispatched.push(event.type),
+    }
+
+    class BrowserEvent {
+      constructor(readonly type: string) {}
+    }
+
+    runInNewContext(PWA_INSTALL_CAPTURE_SCRIPT, {
+      Event: BrowserEvent,
+      window: browserWindow,
+    })
+
+    let prevented = false
+    const prompt = {
+      preventDefault: () => {
+        prevented = true
+      },
+    }
+    listeners.get('beforeinstallprompt')?.(prompt)
+
+    expect(prevented).toBe(true)
+    expect(browserWindow.__hanjiPwaInstallPrompt).toBe(prompt)
+    expect(dispatched).toEqual([PWA_INSTALL_PROMPT_READY_EVENT])
+
+    listeners.get('appinstalled')?.({})
+    expect(browserWindow.__hanjiPwaInstallPrompt).toBeNull()
   })
 })

@@ -37,5 +37,9 @@ catalog:
 allowBuilds:
   esbuild: true
   workerd: true
-enableGlobalVirtualStore: true
 minimumReleaseAge: 0
+packageExtensions:
+  '@vite-pwa/nuxt':
+    dependencies:
+      h3: ^1.15.11
+virtualStoreType: global

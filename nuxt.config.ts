@@ -4,6 +4,8 @@ import { existsSync, readFileSync } from 'node:fs'
 import { copyFile, mkdir } from 'node:fs/promises'
 import * as path from 'node:path'
 import process from 'node:process'
+import { LOCALES, messages } from './app/locales/all.ts'
+import { PWA_INSTALL_CAPTURE_SCRIPT } from './app/utils/pwa-install.ts'
 import { RESTORE_SCRIPT } from './app/utils/theme.ts'
 import { PREFERENCE_RESTORE_SCRIPT } from './scripts/preference-restore.ts'
 import { BRAND_DESCRIPTION } from './shared/brand.ts'
@@ -55,6 +57,21 @@ const SITEMAP_ROUTES = [
   ...CHAR_KEYS.map((key) => `/char/${key}`),
 ]
 const SITE_URL = process.env.NUXT_SITE_URL || 'https://hanji.sxzz.moe'
+const PWA_DEV = process.env.NUXT_PWA_DEV === '1'
+
+// Chrome and Edge 148+ choose these values from the browser's language
+// preferences. The default remains Simplified Chinese for older browsers.
+const PWA_LOCALIZED_MANIFEST = {
+  name_localized: Object.fromEntries(
+    LOCALES.map((locale) => [locale, messages[locale].meta.title]),
+  ),
+  short_name_localized: Object.fromEntries(
+    LOCALES.map((locale) => [locale, messages[locale].meta.title]),
+  ),
+  description_localized: Object.fromEntries(
+    LOCALES.map((locale) => [locale, messages[locale].meta.description]),
+  ),
+}
 
 function resolveBuildSha(): string {
   const explicitSha = process.env.HANJI_BUILD_SHA?.trim()
@@ -107,6 +124,12 @@ export default {
     // array. Nuxt can regenerate the worker more than once in a static build,
     // so make that hook idempotent before Workbox receives the final list.
     'pwa:beforeBuildServiceWorker': (options) => {
+      // @vite-pwa/nuxt replaces a null fallback with `/` in development.
+      // An empty string survives that normalization; turn it back into null
+      // before Workbox validates the final configuration.
+      if (PWA_DEV && options.workbox.navigateFallback === '')
+        options.workbox.navigateFallback = null
+
       const seen = new Set<string>()
       options.workbox.additionalManifestEntries =
         options.workbox.additionalManifestEntries?.filter((entry) => {
@@ -131,11 +154,18 @@ export default {
 
   appConfig: {
     buildInfo: BUILD_INFO,
+    pwaDev: PWA_DEV,
   },
 
   pwa: {
     registerType: 'autoUpdate',
     manifestFilename: 'manifest.webmanifest',
+    devOptions: {
+      enabled: PWA_DEV,
+      // The development worker exists only for installability testing. It
+      // stays network-only below so it cannot cache Vite's HMR responses.
+      suppressWarnings: true,
+    },
     // These assets are included by the final Workbox scan below. Turning off
     // Vite's earlier injection avoids duplicate entries when Nuxt regenerates
     // the service worker after prerendering.
@@ -145,9 +175,10 @@ export default {
       periodicSyncForUpdates: 60 * 60,
     },
     manifest: {
+      ...PWA_LOCALIZED_MANIFEST,
       id: '/',
-      name: 'Hanji',
-      short_name: 'Hanji',
+      name: messages['zh-CN'].meta.title,
+      short_name: messages['zh-CN'].meta.title,
       description: BRAND_DESCRIPTION,
       lang: 'zh-CN',
       start_url: '/',
@@ -174,6 +205,22 @@ export default {
           sizes: '512x512',
           type: 'image/png',
           purpose: 'maskable',
+        },
+      ],
+      screenshots: [
+        {
+          src: '/pwa/screenshot-wide.png',
+          sizes: '1280x720',
+          type: 'image/png',
+          form_factor: 'wide',
+          label: '汉智桌面端字形对照界面',
+        },
+        {
+          src: '/pwa/screenshot-narrow.png',
+          sizes: '390x844',
+          type: 'image/png',
+          form_factor: 'narrow',
+          label: '汉智移动端字形对照界面',
         },
       ],
     },
@@ -213,30 +260,37 @@ export default {
         },
       ],
       maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
-      navigationPreload: true,
+      navigationPreload: !PWA_DEV,
       // The module defaults this to `/`, which would register a precached
       // route before the Network First handler below and bypass the network.
-      navigateFallback: null,
+      navigateFallback: PWA_DEV ? '' : null,
       additionalManifestEntries: [
         { url: '/data/chars.json', revision: CHARS_REVISION },
       ],
-      runtimeCaching: [
-        {
-          urlPattern: ({ request }) => request.mode === 'navigate',
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'hanji-pages',
-            networkTimeoutSeconds: 3,
-            cacheableResponse: { statuses: [0, 200] },
-            expiration: {
-              maxEntries: 64,
-              maxAgeSeconds: 30 * 24 * 60 * 60,
-              purgeOnQuotaError: true,
+      runtimeCaching: PWA_DEV
+        ? [
+            {
+              urlPattern: ({ request }) => request.mode === 'navigate',
+              handler: 'NetworkOnly',
             },
-            precacheFallback: { fallbackURL: '/200.html' },
-          },
-        },
-      ],
+          ]
+        : [
+            {
+              urlPattern: ({ request }) => request.mode === 'navigate',
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'hanji-pages',
+                networkTimeoutSeconds: 3,
+                cacheableResponse: { statuses: [0, 200] },
+                expiration: {
+                  maxEntries: 64,
+                  maxAgeSeconds: 30 * 24 * 60 * 60,
+                  purgeOnQuotaError: true,
+                },
+                precacheFallback: { fallbackURL: '/200.html' },
+              },
+            },
+          ],
     },
   },
 
@@ -322,11 +376,12 @@ export default {
     head: {
       htmlAttrs: { lang: 'zh-CN', 'data-style': 'sans' },
       // app.vue does not render into Nitro's client-only fallback documents.
-      // Keep both bootstraps static so 200.html and 404.html also restore the
+      // Keep the bootstraps static so 200.html and 404.html also restore the
       // theme and suppress a mismatching preference frame before first paint.
       script: [
         { innerHTML: RESTORE_SCRIPT, tagPosition: 'head' },
         { innerHTML: PREFERENCE_RESTORE_SCRIPT, tagPosition: 'head' },
+        { innerHTML: PWA_INSTALL_CAPTURE_SCRIPT, tagPosition: 'head' },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
@@ -360,7 +415,8 @@ export default {
         },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },
-        { name: 'apple-mobile-web-app-title', content: 'Hanji' },
+        { name: 'application-name', content: '汉智' },
+        { name: 'apple-mobile-web-app-title', content: '汉智' },
         {
           name: 'description',
           content: BRAND_DESCRIPTION,

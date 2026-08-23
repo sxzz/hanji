@@ -27,8 +27,28 @@ const sw = await readFile(resolve(OUTPUT, 'sw.js'), 'utf8')
 const shell = await readFile(resolve(OUTPUT, '200.html'), 'utf8')
 const headers = await readFile(resolve(OUTPUT, '_headers'), 'utf8')
 
-assert.equal(manifest.name, 'Hanji')
-assert.equal(manifest.short_name, 'Hanji')
+assert.equal(manifest.name, '汉智')
+assert.equal(manifest.short_name, '汉智')
+assert.deepEqual(manifest.name_localized, {
+  'zh-CN': '汉智',
+  'zh-TW': '漢智',
+  'zh-HK': '漢智',
+  'ja-JP': '漢智',
+  'ko-KR': '漢智',
+})
+assert.deepEqual(manifest.short_name_localized, manifest.name_localized)
+assert.deepEqual(manifest.description_localized, {
+  'zh-CN':
+    '把同一个汉字并排、叠印，照见中国大陆、香港、台湾、日本与韩国之间细微而真实的字形差异。',
+  'zh-TW':
+    '把同一個漢字並排、疊印，照見中國大陸、香港、臺灣、日本與韓國之間細微而真實的字形差異。',
+  'zh-HK':
+    '把同一個漢字並排、疊印，照見中國大陸、香港、台灣、日本與韓國之間細微而真實的字形差異。',
+  'ja-JP':
+    '一つの漢字を並べて重ね、中国大陸、香港、台湾、日本、韓国のあいだにある、細やかで確かな字形の違いを映し出します。',
+  'ko-KR':
+    '한 글자를 나란히 놓고 겹쳐, 중국 대륙·홍콩·대만·일본·한국 사이의 작지만 분명한 자형 차이를 비춥니다.',
+})
 assert.equal(manifest.id, '/')
 assert.equal(manifest.start_url, '/')
 assert.equal(manifest.scope, '/')
@@ -53,6 +73,22 @@ assert.deepEqual(manifest.icons, [
     sizes: '512x512',
     type: 'image/png',
     purpose: 'maskable',
+  },
+])
+assert.deepEqual(manifest.screenshots, [
+  {
+    src: '/pwa/screenshot-wide.png',
+    sizes: '1280x720',
+    type: 'image/png',
+    form_factor: 'wide',
+    label: '汉智桌面端字形对照界面',
+  },
+  {
+    src: '/pwa/screenshot-narrow.png',
+    sizes: '390x844',
+    type: 'image/png',
+    form_factor: 'narrow',
+    label: '汉智移动端字形对照界面',
   },
 ])
 
@@ -91,6 +127,8 @@ const requiredStableAssets = [
   '/pwa/icon-512.png',
   '/pwa/maskable-icon-512.png',
   '/pwa/apple-touch-icon-180.png',
+  '/pwa/screenshot-wide.png',
+  '/pwa/screenshot-narrow.png',
   ...notices,
 ]
 for (const asset of requiredStableAssets)
@@ -128,6 +166,8 @@ assert.match(
   shell,
   /name="theme-color" media="\(prefers-color-scheme: dark\)" content="#121215"/,
 )
+assert.match(shell, /name="application-name" content="汉智"/)
+assert.match(shell, /name="apple-mobile-web-app-title" content="汉智"/)
 assert.match(
   headers,
   /\/sw\.js\n {2}Cache-Control: public, max-age=0, must-revalidate/,

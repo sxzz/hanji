@@ -240,7 +240,6 @@ export const koKR: typeof zhCN = {
       'OpenCC, Unicode Unihan, zispace/hanzi-chars, Jun Da, words.hk, 국가교육연구원, scriptin/kanji-frequency, Adobe Source Han, Noto CJK, Plangothic, WenJin Mincho 유지 관리자 여러분께 감사드립니다. 한 글자씩 비교할 수 있는 {tofu}는 이 프로젝트에 앞서 같은 방식으로 Noto 계열을 사용해 지역별 자형을 구분한 도구입니다. 또한 이 프로젝트의 로고를 디자인한 {innei}님과 로고 탐구 및 지원에 도움을 준 {oliver}님, {antfu}님께 감사드립니다.',
   },
   pwa: {
-    title: 'Hanji 설치',
     description: '설치하면 한자표·자형·필순을 오프라인에서도 볼 수 있습니다.',
     install: '설치',
     dismiss: '설치 안내 닫기',

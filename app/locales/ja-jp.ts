@@ -240,7 +240,6 @@ export const jaJP: typeof zhCN = {
       'OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、words.hk、国家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic、WenJin Minchoのメンテナーの皆さまに感謝します。一字ずつ比較できる{tofu}は本プロジェクトの先駆けであり、同じくNotoシリーズを使って地域別字形を区別しています。また、本プロジェクトのロゴをデザインした{innei}氏と、ロゴの探究と支援に協力した{oliver}氏、{antfu}氏に感謝します。',
   },
   pwa: {
-    title: 'Hanjiをインストール',
     description:
       'インストールすると、字表・字形・筆順をオフラインでも利用できます。',
     install: 'インストール',

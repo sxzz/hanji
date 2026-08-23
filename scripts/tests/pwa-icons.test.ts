@@ -45,3 +45,15 @@ describe('PWA app icons', () => {
     },
   )
 })
+
+describe('PWA install screenshots', () => {
+  it.each([
+    ['screenshot-wide.png', 1280, 720],
+    ['screenshot-narrow.png', 390, 844],
+  ])('provides %s at %d×%d', async (file, width, height) => {
+    const metadata = await sharp(resolve(ROOT, 'public/pwa', file)).metadata()
+    expect(metadata.width).toBe(width)
+    expect(metadata.height).toBe(height)
+    expect(metadata.format).toBe('png')
+  })
+})

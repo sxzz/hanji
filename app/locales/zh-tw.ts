@@ -235,7 +235,6 @@ export const zhTW: typeof zhCN = {
       '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粵典、國家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic與WenJin Mincho的維護者。逐字對照工具{tofu}是本專案的先行者，同樣用Noto系列區分地區字形。也感謝{innei}為本專案設計Logo，以及{oliver}與{antfu}對專案Logo的探索與協助。',
   },
   pwa: {
-    title: '安裝Hanji',
     description: '安裝後可離線查看字表、字形與筆順。',
     install: '安裝',
     dismiss: '關閉安裝提示',

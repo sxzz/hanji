@@ -3,7 +3,7 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@11.22.0",
+  "packageManager": "pnpm@11.23.0",
   "description": "把同一个汉字并排、叠印，照见中国大陆、香港、台湾、日本与韩国之间细微而真实的字形差异。",
   "author": "Kevin Deng <sxzz@sxzz.moe>",
   "license": "MIT",
@@ -15,6 +15,7 @@
   },
   "scripts": {
     "dev": "nuxt dev",
+    "dev:pwa": "NUXT_PWA_DEV=1 nuxt dev",
     "prebuild": "pnpm build:pwa-icons",
     "build": "nuxt build",
     "pregenerate": "pnpm build:pwa-icons",
