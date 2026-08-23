@@ -38,7 +38,7 @@ export const zhCN = {
   },
   nav: {
     about: '关于',
-    github: 'GitHub 仓库',
+    github: 'GitHub仓库',
     theme: '切换深浅色',
     back: '返回字表',
     options: '显示选项',
@@ -157,9 +157,9 @@ export const zhCN = {
     title: '关于',
     nameTitle: '名字的由来',
     name1:
-      '「Hanji」跟汉字在各地的叫法各差一个字母：汉语拼音的 hanzi 差一个 z，日语的 kanji 差一个 k，韩语的 hanja 差一个 a。同一件东西，每个地方都改掉一点点——这正是这个应用在讲的事。',
+      '「Hanji」跟汉字在各地的叫法各差一个字母：汉语拼音的hanzi差一个z，日语的kanji差一个k，韩语的hanja差一个a。同一件东西，每个地方都改掉一点点——这正是这个应用在讲的事。',
     name2:
-      '它同时也是闽南语「漢字」的实际读音 hàn-jī，所以它并不是凭空造出来的词，而是又一地的读法。中文名「汉智」取其音。',
+      '它同时也是闽南语「漢字」的实际读音hàn-jī，所以它并不是凭空造出来的词，而是又一地的读法。中文名「汉智」取其音。',
     methodTitle: '字形差异是怎么判定的',
     scopeTitle: '收录范围',
     sourcesTitle: '数据来源',

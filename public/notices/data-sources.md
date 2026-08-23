@@ -7,14 +7,14 @@ Hanji 的程序代码采用 MIT 许可；来源数据及其派生字段仍须遵
 - 用途：判定五地字形差异
 - 来源：https://github.com/adobe-fonts/source-han-sans
 - 许可：SIL OFL 1.1 (https://openfontlicense.org/)
-- 备注：每套字体的五份地区 CMap 给出「码点 → CID」映射，同一字形池内 CID 相同即同一字形。判定取黑体与宋体的并集。
+- 备注：每套字体的五份地区CMap给出「码点 → CID」映射，同一字形池内CID相同即同一字形。判定取黑体与宋体的并集。
 
 ## Noto Sans / Noto Serif（含 CJK）
 
 - 用途：页面展示用字体
 - 来源：https://github.com/notofonts/noto-cjk
 - 许可：SIL OFL 1.1 (https://openfontlicense.org/)
-- 备注：汉字取自 CJK 版本，拉丁字母与数字取自拉丁版本，都按应用内用字子集化后自托管，OFL 声明随附于 /notices/noto-ofl.txt。
+- 备注：汉字取自CJK版本，拉丁字母与数字取自拉丁版本，都按应用内用字子集化后自托管，OFL声明随附于 /notices/noto-ofl.txt。
 
 ## Plangothic P1
 

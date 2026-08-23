@@ -40,6 +40,9 @@ export const SOURCES: Source[] = [
     },
     name: 'Adobe Source Han Sans / Serif（CMap 资源）',
     localizedName: {
+      'zh-CN': 'Adobe Source Han Sans / Serif（CMap资源）',
+      'zh-TW': 'Adobe Source Han Sans / Serif（CMap資源）',
+      'zh-HK': 'Adobe Source Han Sans / Serif（CMap資源）',
       'ja-JP': 'Adobe Source Han Sans / Serif（CMapリソース）',
       'ko-KR': 'Adobe Source Han Sans / Serif(CMap 리소스)',
     },
@@ -48,11 +51,11 @@ export const SOURCES: Source[] = [
     licenseUrl: 'https://openfontlicense.org/',
     note: {
       'zh-CN':
-        '每套字体的五份地区 CMap 给出「码点 → CID」映射，同一字形池内 CID 相同即同一字形。判定取黑体与宋体的并集。',
+        '每套字体的五份地区CMap给出「码点 → CID」映射，同一字形池内CID相同即同一字形。判定取黑体与宋体的并集。',
       'zh-TW':
-        '每套字體的五份地區 CMap 給出「碼位 → CID」對映，同一字形池內 CID 相同即同一字形。判定取黑體與宋體的聯集。',
+        '每套字體的五份地區CMap給出「碼位 → CID」對映，同一字形池內CID相同即同一字形。判定取黑體與宋體的聯集。',
       'zh-HK':
-        '每套字體的五份地區 CMap 給出「碼點 → CID」對應，同一字形池內 CID 相同即同一字形。判定取黑體與宋體的並集。',
+        '每套字體的五份地區CMap給出「碼點 → CID」對應，同一字形池內CID相同即同一字形。判定取黑體與宋體的並集。',
       'ja-JP':
         '各書体の5地域向けCMapには「コードポイント → CID」の対応があり、同じ字形プール内でCIDが同じなら同一字形です。判定にはゴシック体と明朝体の和集合を使います。',
       'ko-KR':
@@ -70,6 +73,9 @@ export const SOURCES: Source[] = [
     },
     name: 'Noto Sans / Noto Serif（含 CJK）',
     localizedName: {
+      'zh-CN': 'Noto Sans / Noto Serif（含CJK）',
+      'zh-TW': 'Noto Sans / Noto Serif（含CJK）',
+      'zh-HK': 'Noto Sans / Noto Serif（含CJK）',
       'ja-JP': 'Noto Sans / Noto Serif（CJK対応）',
       'ko-KR': 'Noto Sans / Noto Serif(CJK 지원)',
     },
@@ -78,11 +84,11 @@ export const SOURCES: Source[] = [
     licenseUrl: 'https://openfontlicense.org/',
     note: {
       'zh-CN':
-        '汉字取自 CJK 版本，拉丁字母与数字取自拉丁版本，都按应用内用字子集化后自托管，OFL 声明随附于 /notices/noto-ofl.txt。',
+        '汉字取自CJK版本，拉丁字母与数字取自拉丁版本，都按应用内用字子集化后自托管，OFL声明随附于 /notices/noto-ofl.txt。',
       'zh-TW':
-        '漢字取自 CJK 版本，拉丁字母與數字取自拉丁版本，都按應用內用字子集化後自行託管，OFL 聲明隨附於 /notices/noto-ofl.txt。',
+        '漢字取自CJK版本，拉丁字母與數字取自拉丁版本，都按應用內用字子集化後自行託管，OFL聲明隨附於 /notices/noto-ofl.txt。',
       'zh-HK':
-        '漢字取自 CJK 版本，拉丁字母與數字取自拉丁版本，都按應用內用字子集化後自行託管，OFL 聲明隨附於 /notices/noto-ofl.txt。',
+        '漢字取自CJK版本，拉丁字母與數字取自拉丁版本，都按應用內用字子集化後自行託管，OFL聲明隨附於 /notices/noto-ofl.txt。',
       'ja-JP':
         '漢字はCJK版、ラテン文字と数字はラテン版を使用し、アプリ内で使う文字だけにサブセット化してセルフホストしています。OFLの表記は/notices/noto-ofl.txtに同梱しています。',
       'ko-KR':
@@ -155,6 +161,9 @@ export const SOURCES: Source[] = [
     },
     name: 'OpenCC 开放中文转换',
     localizedName: {
+      'zh-CN': 'OpenCC开放中文转换',
+      'zh-TW': 'OpenCC開放中文轉換',
+      'zh-HK': 'OpenCC開放中文轉換',
       'ja-JP': 'OpenCC（Open Chinese Convert）',
       'ko-KR': 'OpenCC(Open Chinese Convert)',
     },
