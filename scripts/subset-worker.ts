@@ -13,6 +13,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { parentPort } from 'node:worker_threads'
 import subsetFont from 'subset-font'
+import { renameSfnt, type SfntNames } from './sfnt.ts'
 import { FONT_DIR, RAW_DIR } from './sources.ts'
 import type { Buffer } from 'node:buffer'
 
@@ -22,6 +23,8 @@ export interface SubsetJob {
   font: string
   text: string
   file: string
+  /** Replace Reserved Font Names before publishing a modified web subset. */
+  names?: SfntNames
 }
 
 export interface SubsetDone {
@@ -34,16 +37,18 @@ export interface SubsetDone {
  * The queue hands out jobs in order, so every worker is somewhere in the same
  * run of chunks and holding one source covers a long stretch of them.
  */
-let loadedName: string | undefined
+let loadedKey: string | undefined
 let loadedFont: Buffer | undefined
 
 const port = parentPort!
 
 port.on('message', async (job: SubsetJob) => {
   try {
-    if (loadedName !== job.font) {
-      loadedFont = await readFile(join(RAW_DIR, job.font))
-      loadedName = job.font
+    const key = `${job.font}\u{0}${JSON.stringify(job.names)}`
+    if (loadedKey !== key) {
+      const source = await readFile(join(RAW_DIR, job.font))
+      loadedFont = job.names ? renameSfnt(source, job.names) : source
+      loadedKey = key
     }
     const subset = await subsetFont(loadedFont!, job.text, {
       targetFormat: 'woff2',

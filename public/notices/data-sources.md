@@ -16,6 +16,20 @@ Hanji 的程序代码采用 MIT 许可；来源数据及其派生字段仍须遵
 - 许可：SIL OFL 1.1 (https://openfontlicense.org/)
 - 备注：汉字取自 CJK 版本，拉丁字母与数字取自拉丁版本，都按应用内用字子集化后自托管，OFL 声明随附于 /notices/noto-ofl.txt。
 
+## Plangothic P1
+
+- 用途：补充Noto未收录的黑体字形
+- 来源：https://github.com/Fitzgerald-Porthmouth-Koenigsegg/Plangothic_Project
+- 许可：SIL OFL 1.1 (https://github.com/Fitzgerald-Porthmouth-Koenigsegg/Plangothic_Project/blob/main/LICENSE-OFL.txt)
+- 备注：按当前数据中Noto未收录但需要显示的码点，动态生成重命名后的网页字体子集；这些字形不参与地区差异判定。OFL声明随附于/notices/plangothic-ofl.txt。
+
+## WenJin Mincho P2
+
+- 用途：补充Noto未收录的宋体字形
+- 来源：https://github.com/takushun-wu/WenJinMincho
+- 许可：SIL OFL 1.1 (https://github.com/takushun-wu/WenJinMincho/blob/main/LICENSE.md)
+- 备注：按当前数据中Noto未收录但需要显示的码点，动态生成重命名后的网页字体子集；这些字形不参与地区差异判定。OFL声明随附于/notices/wenjin-mincho-ofl.md。
+
 ## OpenCC 开放中文转换
 
 - 用途：简繁、港台异体、日本新旧字体对应

@@ -65,7 +65,7 @@ const cells = computed(() =>
       >
       <span
         v-if="showCodePoint"
-        class="tabular hidden text-[0.625rem] text-mute font-mono sm:block"
+        class="tabular text-[0.625rem] text-mute font-mono"
         >{{ cell.codePoint }}</span
       >
       <span

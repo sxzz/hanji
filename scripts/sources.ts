@@ -59,6 +59,9 @@ const noto = (style: 'Sans' | 'Serif', region: string) =>
     `${style}/OTF/${NOTO_DIR[region]}/Noto${style}CJK${region}-Regular.otf`,
   )
 
+const latestGitHubRelease = (repo: string, file: string) =>
+  `https://github.com/${repo}/releases/latest/download/${file}`
+
 /**
  * Cache path -> moving upstream URL. `pnpm update:sources` resolves these refs
  * to immutable versions and writes their checksums to SOURCE_LOCK_PATH. Builds
@@ -127,6 +130,26 @@ export const ASSET_URLS: Record<string, string> = {
   'font/NotoSerifCJKtc-Regular.otf': noto('Serif', 'tc'),
   'font/NotoSerifCJKjp-Regular.otf': noto('Serif', 'jp'),
   'font/NotoSerifCJKkr-Regular.otf': noto('Serif', 'kr'),
+
+  'font/PlangothicP1-Regular.ttf': latestGitHubRelease(
+    'Fitzgerald-Porthmouth-Koenigsegg/Plangothic_Project',
+    'PlangothicP1-Regular.ttf',
+  ),
+  'font/Plangothic-OFL.txt': gh(
+    'Fitzgerald-Porthmouth-Koenigsegg/Plangothic_Project',
+    'main',
+    'LICENSE-OFL.txt',
+  ),
+  'font/WenJinMinchoP2-Regular.otf': gh(
+    'takushun-wu/WenJinMincho',
+    'main',
+    'otf/WenJinMinchoP2-Regular.otf',
+  ),
+  'font/WenJinMincho-OFL.md': gh(
+    'takushun-wu/WenJinMincho',
+    'main',
+    'LICENSE.md',
+  ),
 
   // Latin, digits and punctuation for the interface, plus the tone marks the
   // readings carry. Cut from faces designed for Latin rather than from the

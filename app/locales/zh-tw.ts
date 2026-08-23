@@ -196,7 +196,7 @@ export const zhTW: typeof zhCN = {
     limit5:
       'OpenCC與各地規範字表衝突時以規範字表為準。它的異體表裡混著「同字異形」和「一字代用另一字」；某地區的字表分開收錄兩者時就不合併。若只有一個地區提供證據，而候選還屬於另一字組，則保守拆分，並在詳情頁用雙向「關係未確認」連結提示。',
     limit6:
-      '每個地區格會區分字表主條目、括注異體和未收錄回退。未收錄格仍顯示傳承參考字形；這些狀態只在詳情頁說明，不在列表頁增加角標。',
+      '每個地區格會區分字表主條目、括注異體和未收錄回退。未收錄格仍顯示傳承參考字形；這些狀態只在詳情頁說明，不在列表頁增加角標。若明確對應到Noto未涵蓋的碼位，頁面仍會顯示該碼位，並分別使用Plangothic P1（黑體）和WenJin Mincho P2（宋體）的專案內建子集補全；這些補充字形不參與地區差異判定。',
     notice1:
       '本應用是依據公開資料製作的字形對照工具，不是各地的規範、辭典或教學材料。頁面呈現的是本應用採用的資料與自動規則所得結果，不能據此斷定某個字在當地只有這一種「正確」形式。',
     notice2:
@@ -206,7 +206,7 @@ export const zhTW: typeof zhCN = {
     notice4: '漢字數量龐大，出錯難免。發現資料有誤，請透過{issues}回報。',
     data1: '本應用的字表資料以JSON提供，可直接取用：',
     thanks:
-      '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粵典、國家教育研究院、scriptin/kanji-frequency、Adobe Source Han與Noto CJK的維護者。逐字對照工具{tofu}是本專案的先行者，同樣用Noto系列區分地區字形。',
+      '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粵典、國家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic與WenJin Mincho的維護者。逐字對照工具{tofu}是本專案的先行者，同樣用Noto系列區分地區字形。',
   },
   footer: {
     sources: '資料來源',
