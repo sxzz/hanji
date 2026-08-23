@@ -5,7 +5,6 @@ import {
   LOCALE_KEY,
   OUTLINE_KEY,
   RESTORING_ATTRIBUTE,
-  VISIBILITY_VERSION_KEY,
 } from '../app/utils/preference-restore.ts'
 import { COLUMNS, DEFAULT_HIDDEN_COLUMNS, REGIONS } from '../shared/types.ts'
 
@@ -30,7 +29,7 @@ if(a.indexOf(l)>=0)w=l;else{var n=navigator.languages||[navigator.language||''];
 var p=!!w&&w!==${JSON.stringify(DEFAULT_LOCALE)};
 if(g(${JSON.stringify(FLAGS_KEY)})==='true'||g(${JSON.stringify(OUTLINE_KEY)})==='true')p=true;
 var h,r=localStorage.getItem(${JSON.stringify(HIDDEN_KEY)});try{h=r===null?${JSON.stringify(DEFAULT_HIDDEN_COLUMNS)}:JSON.parse(r)}catch(e){h=${JSON.stringify(DEFAULT_HIDDEN_COLUMNS)}}if(!Array.isArray(h))h=${JSON.stringify(DEFAULT_HIDDEN_COLUMNS)};
-var v=g(${JSON.stringify(VISIBILITY_VERSION_KEY)})==='true',c=${JSON.stringify(COLUMNS)};h=c.filter(function(k){return !v&&k==='kr'||h.indexOf(k)>=0});
+var c=${JSON.stringify(COLUMNS)};h=c.filter(function(k){return h.indexOf(k)>=0});
 if(${JSON.stringify(REGIONS)}.every(function(k){return h.indexOf(k)>=0}))h=${JSON.stringify(DEFAULT_HIDDEN_COLUMNS)};
 if(h.length!==${DEFAULT_HIDDEN_COLUMNS.length}||h.some(function(k,i){return k!==${JSON.stringify(DEFAULT_HIDDEN_COLUMNS)}[i]}))p=true;
 if(p){if(w)d.lang=w;d.setAttribute(${JSON.stringify(RESTORING_ATTRIBUTE)},'');setTimeout(function(){if(d.hasAttribute(${JSON.stringify(RESTORING_ATTRIBUTE)})){d.lang=o;d.removeAttribute(${JSON.stringify(RESTORING_ATTRIBUTE)})}},${RESTORE_TIMEOUT_MS})}
