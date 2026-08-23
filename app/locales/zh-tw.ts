@@ -168,6 +168,7 @@ export const zhTW: typeof zhCN = {
     noticeTitle: '聲明',
     thanksTitle: '鳴謝',
     dataTitle: '取用資料',
+    licenseTitle: '授權與名稱',
     use: '用途',
     source: '來源',
     license: '授權',
@@ -204,7 +205,16 @@ export const zhTW: typeof zhCN = {
     notice3:
       '頁面中的「同形」或「不同」只在上述資料、字體與規則內成立；地區的排列與分組只為方便對照，不表示優劣或立場。正式場合請以原始規範與辭典為準；每個字的詳情頁都列有相應地區的字典連結。',
     notice4: '漢字數量龐大，出錯難免。發現資料有誤，請透過{issues}回報。',
-    data1: '本應用的字表資料以JSON提供，可直接取用：',
+    data1:
+      '本應用的字表資料以JSON提供，並已開放CORS跨來源存取；在遵守下列授權與第三方條款的前提下，可透過fetch、XHR、直接連結等方式自由取用：',
+    licenseCode:
+      '本專案的程式碼、介面實作與專案原創文件採用{mit}授權；完整的授權範圍與名稱使用規則見{licenseFile}。',
+    licenseData:
+      '除另有註明外，由漢智原創的資料庫結構、資料選擇與編排及原創中繼資料採用{cc}授權。',
+    licenseThirdParty:
+      '第三方資料及其衍生欄位、字體與筆順資料仍適用下方列出的各自授權；漢智的授權不涵蓋本專案無權再授權的內容。',
+    licenseBrand:
+      '「漢智」「Hanji」及官方Logo與品牌識別不包含在上述授權中。未經許可，公開發布的修改版本、Fork或獨立部署不得將其用作專案、產品、網站或應用的名稱與品牌；可以如實註明「基於漢智開發」，但不得暗示其為官方版本或受到官方認可。',
     thanks:
       '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粵典、國家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic與WenJin Mincho的維護者。逐字對照工具{tofu}是本專案的先行者，同樣用Noto系列區分地區字形。',
   },

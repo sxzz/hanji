@@ -167,6 +167,7 @@ export const zhCN = {
     noticeTitle: '声明',
     thanksTitle: '鸣谢',
     dataTitle: '取用数据',
+    licenseTitle: '许可与名称',
     use: '用途',
     source: '来源',
     license: '许可',
@@ -203,7 +204,16 @@ export const zhCN = {
     notice3:
       '页面中的「同形」或「不同」只在上述资料、字体与规则内成立；地区的排列与分组只为方便对照，不表示优劣或立场。正式场合请以原始规范与词典为准；每个字的详情页都列有相应地区的字典链接。',
     notice4: '汉字数量巨大，出错难免。发现数据有误，请通过{issues}反馈。',
-    data1: '本应用的字表数据以JSON提供，可直接取用：',
+    data1:
+      '本应用的字表数据以JSON提供，并已开放CORS跨域访问；在遵守下列许可与第三方条款的前提下，可通过fetch、XHR、直接链接等方式自由取用：',
+    licenseCode:
+      '本项目的程序代码、界面实现与项目原创文档采用{mit}许可；完整的授权范围和名称使用规则见{licenseFile}。',
+    licenseData:
+      '除另有注明外，由汉智原创的数据库结构、数据选择与编排及原创元数据采用{cc}许可。',
+    licenseThirdParty:
+      '第三方数据及其派生字段、字体与笔顺数据仍适用下方列出的各自许可；汉智的许可不覆盖本项目无权再授权的内容。',
+    licenseBrand:
+      '「汉智」「Hanji」及官方Logo和品牌标识不包含在上述许可中。未经许可，公开发布的修改版本、Fork或独立部署不得将其用作项目、产品、网站或应用的名称与品牌；可以如实注明「基于汉智开发」，但不得暗示其为官方版本或受到官方认可。',
     thanks:
       '感谢OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粤典、国家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic与WenJin Mincho的维护者。逐字对照工具{tofu}是本项目的先行者，同样用Noto系列区分地区字形。',
   },

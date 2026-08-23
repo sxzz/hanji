@@ -19,3 +19,55 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+Additional licensing terms and scope
+====================================
+
+Software
+--------
+
+The MIT License above applies to Hanji's software source code, user interface
+implementation, and project-authored documentation, unless a file states
+otherwise.
+
+Hanji-authored data
+-------------------
+
+Except where otherwise noted, the original database structure, selection and
+arrangement, and Hanji-authored metadata in the generated character dataset
+are licensed under the Creative Commons Attribution 4.0 International License
+(CC BY 4.0):
+
+https://creativecommons.org/licenses/by/4.0/
+
+This grant applies only to copyright and database rights held by Kevin Deng.
+It does not relicense third-party source data or fields derived from those
+sources. Preferred attribution is:
+
+Hanji data by Kevin Deng, CC BY 4.0, https://github.com/sxzz/hanji
+
+Third-party materials
+---------------------
+
+Third-party data, derived fields, fonts, stroke-order data, and other assets
+remain subject to their respective licenses and attribution requirements. The
+applicable sources, transformations, and terms are listed in
+public/notices/data-sources.md and the accompanying notice files.
+
+Project names and branding
+--------------------------
+
+The names "汉智" and "Hanji", and the project's official logos and branding
+assets, are not included in the MIT or CC BY 4.0 grants above.
+
+Without prior written permission, modified versions, forks, and independently
+operated deployments may not use those names or assets as the name or branding
+of a project, product, website, service, or application, and may not imply that
+they are official, affiliated with, sponsored by, or endorsed by Hanji.
+
+Truthful plain-text statements such as "based on Hanji" are permitted when
+they do not serve as the modified work's branding and clearly identify the
+work as unofficial and unaffiliated. These branding terms apply only to the
+project names, logos, and branding assets; they do not limit the permissions
+granted for the software or Hanji-authored data above.
