@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ISSUES_URL } from '~~/shared/links.ts'
+import { ISSUES_URL, REPO_URL } from '~~/shared/links.ts'
 import charsDataUrl from '~/assets/data/chars.json?url&no-inline'
 import { stats } from '~/composables/chars.ts'
 
 const { t } = useT()
+const LICENSE_URL = `${REPO_URL}/blob/main/LICENSE`
+const CC_BY_URL = 'https://creativecommons.org/licenses/by/4.0/'
 
 const numbers = computed(() => ({
   rows: stats.rows.toLocaleString(),
@@ -71,6 +73,23 @@ useSeoMeta({
           <a href="/notices/data-sources.md">data-sources.md</a>
         </li>
       </ul>
+
+      <h2>{{ t('about.licenseTitle') }}</h2>
+      <I18nText :template="t('about.licenseCode')">
+        <template #mit>
+          <a :href="LICENSE_URL" target="_blank" rel="noreferrer">MIT</a>
+        </template>
+        <template #licenseFile>
+          <a :href="LICENSE_URL" target="_blank" rel="noreferrer">LICENSE</a>
+        </template>
+      </I18nText>
+      <I18nText :template="t('about.licenseData')">
+        <template #cc>
+          <a :href="CC_BY_URL" target="_blank" rel="noreferrer">CC BY 4.0</a>
+        </template>
+      </I18nText>
+      <p>{{ t('about.licenseThirdParty') }}</p>
+      <p>{{ t('about.licenseBrand') }}</p>
 
       <h2>{{ t('about.sourcesTitle') }}</h2>
     </div>

@@ -74,7 +74,7 @@ NUXT_SITE_URL=https://example.com pnpm generate # 静态应用
 
 每一行的地址是它的行名（`/char/着`）。五地展示形、`aka` 和 `alternatives` 也可作为地址，由客户端跳到所属的行——例如 `/char/国`、`/char/郞`、`/char/缐`，页面用 `rel=canonical` 指回行名地址；未确认关系不是地址别名。
 
-字表 `app/assets/data/chars.json` 由 `pnpm build:dataset` 生成，**不提交**；应用直接导入它，Vite 也会输出带内容哈希的下载地址。静态生成结束后，字表会额外复制到固定的 `/data/chars.json` 供外部网站引用，“关于”页链接的也是这个地址；它缓存 1 小时，过期后可在后台重新验证期间继续使用旧版本 1 天。来源与许可元数据直接维护在 `shared/sources.ts`，由页面和构建脚本共同导入，不再生成 `sources.json`。约 12MB 的字体子集生成到 `app/assets/fonts/`，同样不提交；字表、笔顺、字体和旗帜都进入 Vite 资源图，由 `/_nuxt/*` 的长期 immutable 缓存安全复用。会变动而又需要稳定 URL 的 NOTICE 与 license 文本单独放在 `public/notices/`，每次使用前必须重新验证。构建前需先运行 `pnpm build:data`。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`、`strokes/`），已 gitignore；构建会清理从旧缓存恢复、但已不在当前来源清单中的文件。
+字表 `app/assets/data/chars.json` 由 `pnpm build:dataset` 生成，**不提交**；应用直接导入它，Vite 也会输出带内容哈希的下载地址。静态生成结束后，字表会额外复制到固定的 `/data/chars.json` 供外部网站引用，“关于”页链接的也是这个地址。该地址已设置 `Access-Control-Allow-Origin: *`，可在遵守下文许可与第三方条款的前提下，通过 `fetch`、XHR 或直接链接跨域取用。它缓存 1 小时，过期后可在后台重新验证期间继续使用旧版本 1 天。来源与许可元数据直接维护在 `shared/sources.ts`，由页面和构建脚本共同导入，不再生成 `sources.json`。约 12MB 的字体子集生成到 `app/assets/fonts/`，同样不提交；字表、笔顺、字体和旗帜都进入 Vite 资源图，由 `/_nuxt/*` 的长期 immutable 缓存安全复用。会变动而又需要稳定 URL 的 NOTICE 与 license 文本单独放在 `public/notices/`，每次使用前必须重新验证。构建前需先运行 `pnpm build:data`。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`、`strokes/`），已 gitignore；构建会清理从旧缓存恢复、但已不在当前来源清单中的文件。
 
 ## 部署
 
@@ -139,4 +139,9 @@ pnpm deploy
 
 ## License
 
-[MIT](LICENSE) © [Kevin Deng](https://github.com/sxzz)
+- 程序代码、UI 实现与项目原创文档：[MIT](LICENSE)。
+- 除另有注明外，由汉智原创的数据库结构、数据选择与编排及原创元数据：[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)。
+- 第三方数据及其派生字段、字体与笔顺数据：继续适用上方列出的各自许可。
+- “汉智”“Hanji”及官方 Logo 和品牌标识不属于上述授权；未经许可，公开发布的修改版本、Fork 或独立部署不得将其用作名称或品牌。可以如实说明“基于汉智开发”，但不得暗示其为官方版本或受到官方认可。
+
+完整的授权范围、第三方例外与名称使用规则见 [LICENSE](LICENSE)。© [Kevin Deng](https://github.com/sxzz)

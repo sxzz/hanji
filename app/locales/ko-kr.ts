@@ -173,6 +173,7 @@ export const koKR: typeof zhCN = {
     noticeTitle: '유의 사항',
     thanksTitle: '감사의 말',
     dataTitle: '데이터 이용',
+    licenseTitle: '라이선스와 이름',
     use: '용도',
     source: '출처',
     license: '라이선스',
@@ -210,7 +211,16 @@ export const koKR: typeof zhCN = {
       '페이지의 ‘같은 자형’ 또는 ‘다른 자형’ 표시는 위 자료·글꼴·규칙의 범위 안에서만 성립합니다. 지역의 나열과 그룹화는 비교를 편리하게 하기 위한 것으로, 우열이나 특정한 입장을 나타내지 않습니다. 공식적인 용도에는 원래 규범이나 사전을 참고하세요. 각 한자의 상세 페이지에는 해당 지역 사전으로 가는 링크가 있습니다.',
     notice4:
       '한자는 수가 방대해 오류를 완전히 피하기 어렵습니다. 데이터 오류를 발견하면 {issues}로 알려 주세요.',
-    data1: '이 앱의 한자표 데이터는 JSON 형식으로 공개합니다:',
+    data1:
+      '이 앱의 한자표 데이터는 JSON 형식으로 공개하며 CORS 교차 출처 접근을 허용합니다. 아래 라이선스와 제3자 조건을 준수하면 fetch, XHR, 직접 링크 등으로 자유롭게 이용할 수 있습니다:',
+    licenseCode:
+      '이 프로젝트의 소스 코드, UI 구현, 프로젝트 고유 문서는 {mit} 라이선스로 제공합니다. 전체 적용 범위와 이름 사용 규칙은 {licenseFile}을 참고하세요.',
+    licenseData:
+      '별도로 표시한 경우를 제외하고 Hanji가 독자적으로 작성한 데이터베이스 구조, 데이터 선택·배열, 고유 메타데이터는 {cc} 라이선스로 제공합니다.',
+    licenseThirdParty:
+      '제3자 데이터와 그 파생 필드, 글꼴, 필순 데이터에는 아래에 나열한 각 라이선스가 계속 적용됩니다. Hanji 라이선스는 이 프로젝트가 재허가할 권리가 없는 내용을 포함하지 않습니다.',
+    licenseBrand:
+      '‘漢智’, ‘Hanji’, 공식 Logo와 브랜드 식별 요소는 위 라이선스에 포함되지 않습니다. 허가 없이 공개하는 수정판, 포크, 독립 배포판은 이를 프로젝트·제품·웹사이트·앱의 이름이나 브랜드로 사용할 수 없습니다. ‘漢智를 기반으로 개발’처럼 사실을 알리는 표현은 가능하지만, 공식 버전이거나 공식 인증을 받았다고 암시해서는 안 됩니다.',
     thanks:
       'OpenCC, Unicode Unihan, zispace/hanzi-chars, Jun Da, words.hk, 국가교육연구원, scriptin/kanji-frequency, Adobe Source Han, Noto CJK, Plangothic, WenJin Mincho 유지 관리자 여러분께 감사드립니다. 한 글자씩 비교할 수 있는 {tofu}는 이 프로젝트에 앞서 같은 방식으로 Noto 계열을 사용해 지역별 자형을 구분한 도구입니다.',
   },
