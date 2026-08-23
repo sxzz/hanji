@@ -12,6 +12,8 @@ const props = defineProps<{
   /** Columns sharing the lit form, in display order. */
   columns: readonly Column[]
   group: number
+  /** Match a stack whose row rotates the overprint palette. */
+  color?: string
 }>()
 
 const { t } = useT()
@@ -28,7 +30,10 @@ const marks = computed(() =>
 </script>
 
 <template>
-  <span class="lit-regions eyebrow" :style="{ color: groupColor(group) }">
+  <span
+    class="lit-regions eyebrow"
+    :style="{ color: color ?? groupColor(group) }"
+  >
     <span v-for="mark in marks" :key="mark.column" class="lit-region">
       <RegionLabel v-if="mark.region" :flag="flagsOn" :region="mark.region" />
       <template v-if="mark.old">{{ mark.old }}</template>
