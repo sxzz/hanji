@@ -9,12 +9,9 @@
  * five accents cover the six columns a row can offer, and the accents carry
  * only departures from the baseline form.
  *
- * Which is what calibrates them. The overprint blend keeps the darker mark on
- * light and the lighter one on dark, so every accent has to lose that contest
- * against ink: comfortably lighter than ink here, comfortably darker than the
- * near-white ink under html.dark. Both sets therefore sit around the middle of
- * the lightness range, far enough from the baseline that no overlap of them
- * can be mistaken for it, and far enough from the paper to be legible alone.
+ * These accents continue the proof-sheet language in bars and filters. The
+ * overprint itself has a separate equal-strength plate palette below: no one
+ * region is promoted to the ink baseline there.
  */
 :root {
   --c-ink: #16151a; /* ink, softer and slightly cooler than black */
@@ -31,15 +28,19 @@
   --c-g5: #1f8d81; /* verdigris */
 
   /*
-   * Overprint: at every point the strongest mark on the page wins -- darkest
-   * here, lightest on a dark ground. Against the baseline an accent always
-   * loses, so it shows itself exactly where it departs and nowhere else.
-   *
-   * This used to accumulate instead, multiply over ink. Two accents crossing
-   * compounded past the baseline's own weight, and the darkest thing in the
-   * picture was then a place where the baseline had no stroke at all -- the
-   * stack at its loudest exactly where it had least to say. Taking the extreme
-   * rather than the product bounds every overlap by its own layers.
+   * Five fixed, equal-strength overprint inks. Low chroma keeps dense strokes
+   * legible; wide hue spacing still separates the outlines without making a
+   * region's plate brighter or darker than its peers.
+   */
+  --c-o1: oklch(0.5 0.065 24);
+  --c-o2: oklch(0.5 0.065 247);
+  --c-o3: oklch(0.5 0.065 104);
+  --c-o4: oklch(0.5 0.065 315);
+  --c-o5: oklch(0.5 0.065 175);
+
+  /*
+   * Keep overlaps bounded: a fourth plate should reveal another form, not
+   * compound the shared strokes into an opaque block.
    */
   --overprint-blend: darken;
 
@@ -125,20 +126,19 @@ html.dark {
   --c-paper-sunk: #1b1b1f;
   --c-rule: #2f2f35;
 
-  /* Held down rather than lifted: on a dark ground the baseline is the
-     near-white layer, so an accent has to stay well below it to lose the
-     blend where the two agree. Accents bright enough to rival it washed the
-     whole stack into the same undifferentiated glare. */
+  /* The proof-sheet accents keep their identities on dark paper. */
   --c-g1: #d2604f;
   --c-g2: #5d8fd4;
   --c-g3: #c08f33;
   --c-g4: #9d79c9;
   --c-g5: #3da294;
 
-  --overprint-blend: lighten;
+  --c-o1: oklch(0.68 0.055 24);
+  --c-o2: oklch(0.68 0.055 247);
+  --c-o3: oklch(0.68 0.055 104);
+  --c-o4: oklch(0.68 0.055 315);
+  --c-o5: oklch(0.68 0.055 175);
 
-  /* Brought down to about the accents' own lightness, so a departure crossing
-     the baseline still registers instead of being erased by it. On paper the
-     baseline is ink against a light ground and needs no such help. */
-  --overprint-baseline: 0.62;
+  /* The lightest visible plate wins on dark paper without accumulating glare. */
+  --overprint-blend: lighten;
 }

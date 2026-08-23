@@ -11,6 +11,7 @@ import {
   useMorphingKey,
   useMorphTo,
 } from '~/composables/chars.ts'
+import { overprintColor, overprintOpacity } from '~/utils/overprint.ts'
 
 const { t, list, locale } = useT()
 const { flagsOn, outlineOn, visibleRegions, regionIndices } = usePrefs()
@@ -93,6 +94,20 @@ const forms = computed(() =>
 const groupCount = computed(
   () => new Set(forms.value.map((form) => form.group)).size,
 )
+
+/**
+ * A uniform character needs no color encoding and remains ordinary ink. Once
+ * forms differ, every distinct shape takes an equal color from the same fixed
+ * five-ink sequence; dense rows lower all plates together rather than
+ * favoring one of them.
+ */
+const plateOpacity = computed(() =>
+  groupCount.value === 1
+    ? 1
+    : overprintOpacity(shown.value, visibleRegions.value),
+)
+const plateColor = (group: number) =>
+  groupCount.value === 1 ? 'var(--c-ink)' : overprintColor(group)
 
 /**
  * Walking the forms is the stacked view answering "how many are in here". Once
@@ -223,7 +238,7 @@ async function openFromField(event: KeyboardEvent) {
 <template>
   <section
     class="hero grid gap-8 sm:grid-cols-[auto_minmax(0,1fr)] sm:items-center"
-    :class="{ split, outlined: outlineOn }"
+    :class="{ split }"
     :style="{ '--n': forms.length }"
   >
     <div class="hero-stage">
@@ -236,11 +251,13 @@ async function openFromField(event: KeyboardEvent) {
         <div
           class="hero-plane overprint"
           :class="{
+            outlined: outlineOn,
             fanned: cycle.hovering.value,
             scrubbing: cycle.scrubbing.value,
           }"
           :style="{
             '--fan-step': cycle.fan.value,
+            '--overprint-opacity': plateOpacity,
             viewTransitionName: morph,
           }"
           :aria-label="label"
@@ -254,13 +271,12 @@ async function openFromField(event: KeyboardEvent) {
             class="hero-form overprint-layer"
             :class="{
               duplicate: !form.lead,
-              baseline: form.group === 0,
               dimmed:
                 cycle.lit.value !== undefined && form.group !== cycle.lit.value,
             }"
             :style="{
               '--i': index,
-              '--layer-color': groupColor(form.group),
+              '--layer-color': plateColor(form.group),
               '--arrival-delay': `${index * 90}ms`,
             }"
             aria-hidden="true"
@@ -319,6 +335,7 @@ async function openFromField(event: KeyboardEvent) {
           v-if="litRegions.length"
           :columns="litRegions"
           :group="cycle.lit.value!"
+          :color="plateColor(cycle.lit.value!)"
         />
         <template v-else-if="missing">{{
           t('hero.missing', { char: missing })
@@ -618,9 +635,9 @@ async function openFromField(event: KeyboardEvent) {
   transition-delay: 140ms;
 }
 
-.hero.outlined:not(.split) .hero-glyph {
+.hero:not(.split) .hero-plane.outlined .hero-glyph {
   color: transparent;
-  -webkit-text-stroke: max(0.6px, 0.014em) var(--layer-color);
+  -webkit-text-stroke: clamp(0.65px, 0.009em, 1.35px) var(--layer-color);
 }
 
 @keyframes hero-blink {

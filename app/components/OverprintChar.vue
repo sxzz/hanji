@@ -11,6 +11,7 @@ import {
   type Column,
   type Region,
 } from '~~/shared/types.ts'
+import { overprintColor, overprintOpacity } from '~/utils/overprint.ts'
 
 const props = withDefaults(
   defineProps<{
@@ -67,6 +68,10 @@ const groups = computed(() =>
   ),
 )
 
+const drawnColumns = computed(() =>
+  basis.value.filter((column) => !props.only || props.only.includes(column)),
+)
+
 /**
  * One layer per group, not per region. Regions in a group draw the identical
  * shape, so stacking them twice would just make that group darker than the
@@ -93,6 +98,14 @@ const layers = computed(() => {
   }
   return [...seen.values()]
 })
+
+/** One shared opacity for every visible shape; dense rows get more air. */
+const plateOpacity = computed(() =>
+  layers.value.length === 1
+    ? 1
+    : overprintOpacity(props.row, drawnColumns.value),
+)
+
 /**
  * Read aloud in place of the stack, so the forms are enumerated for a locale
  * rather than punctuated by hand.
@@ -110,12 +123,11 @@ const label = computed(() =>
 )
 
 /**
- * Color encodes which group a layer belongs to; groupColor() gives the first
- * one ink and the rest an accent. With a single group there is no grouping to
- * encode, and it is already the first -- so a uniform character is drawn in
- * ink either way.
+ * Color encodes shapes within this stack in one fixed five-ink sequence. A
+ * uniform character has nothing to distinguish and remains ordinary ink.
  */
-const colorOf = (group: number) => groupColor(group)
+const colorOf = (group: number) =>
+  layers.value.length === 1 ? 'var(--c-ink)' : overprintColor(group)
 
 const cycle = useOverprintCycle(
   () => layers.value.map((layer) => layer.group),
@@ -157,10 +169,9 @@ const activeFocus = computed(() =>
 <template>
   <!--
     isolation keeps the layers blending with each other rather than with the
-    row behind them: the baseline lands on a transparent backdrop and comes
-    through as itself, and only later layers blend into what is already there.
-    So "the baseline stays ink, departures show color" holds on any background
-    -- including the tinted one a row takes under the pointer.
+    row behind them. Equal translucent plates therefore accumulate into one
+    neutral shared form while their departures keep their own color, including
+    above the tinted background a row takes under the pointer.
   -->
   <span
     class="overprint"
@@ -174,6 +185,7 @@ const activeFocus = computed(() =>
       '--size': typeof size === 'number' ? `${size}px` : size,
       '--n': layers.length,
       '--fan-step': cycle.fan.value,
+      '--overprint-opacity': plateOpacity,
       viewTransitionName: morph && morphWhole ? morph : undefined,
     }"
     :aria-label="label"
@@ -187,7 +199,6 @@ const activeFocus = computed(() =>
       :class="[
         `hanji-${layer.region}`,
         {
-          baseline: layer.group === 0,
           dimmed: activeFocus !== undefined && layer.group !== activeFocus,
         },
       ]"
@@ -209,6 +220,7 @@ const activeFocus = computed(() =>
       class="lit"
       :columns="litColumns"
       :group="cycle.lit.value!"
+      :color="colorOf(cycle.lit.value!)"
       aria-hidden="true"
     />
   </span>
@@ -251,6 +263,6 @@ const activeFocus = computed(() =>
    the stroke visible on the row thumbnails, where an em is only 32px. */
 .outlined .layer {
   color: transparent;
-  -webkit-text-stroke: max(0.6px, 0.014em) var(--layer-color);
+  -webkit-text-stroke: clamp(0.65px, 0.009em, 1.35px) var(--layer-color);
 }
 </style>

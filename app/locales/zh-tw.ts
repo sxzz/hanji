@@ -60,7 +60,8 @@ export const zhTW: typeof zhCN = {
     flags: '用旗幟顯示地區',
     flagsHint: '把「中日港臺韓」換成對應的旗幟符號。',
     outline: '疊印用空心字',
-    outlineHint: '把疊在一起的字形改成描邊，筆畫不再糊成一團，分歧處更清楚。',
+    outlineHint:
+      '移除疊印字形的半透明填色，只保留各層輪廓，複雜字的重疊關係更容易分辨。',
     columns: '對照範圍',
     columnsHint: '關掉的一列不再出現，其餘字形重新分組。',
     columnsLast: '至少要留一個地區。',

@@ -5,7 +5,7 @@
  * things that make a stack recognizably the same object everywhere live here.
  *
  * See useOverprintCycle() for the behavior these classes are the appearance
- * of, and groupColor() for why one layer is ink and the rest are accents.
+ * of, and utils/overprint.ts for the equal plate colors and density response.
  */
 
 .overprint {
@@ -21,6 +21,12 @@
      so the layers spring back to whichever of these applies. */
   --fan-step: 0px;
 
+  /* Every distinct form is an equal plate. Components lower this value for
+     dense glyphs; hollow mode then lifts the outlines without changing their
+     balance against one another. */
+  --overprint-opacity: 0.54;
+  --overprint-active-opacity: var(--overprint-opacity);
+
   /* Positioned so the layers have something to sit in, and so a stack being
      scrubbed can be raised above the copy it fans across. */
   position: relative;
@@ -33,6 +39,10 @@
    */
   -webkit-user-select: none;
   user-select: none;
+}
+
+.overprint.outlined {
+  --overprint-active-opacity: 0.82;
 }
 
 /*
@@ -81,6 +91,7 @@
 
   color: var(--layer-color);
   mix-blend-mode: var(--overprint-blend);
+  opacity: var(--overprint-active-opacity);
   translate: var(--fan) calc(var(--fan) * 0.42);
 
   /*
@@ -104,25 +115,22 @@
 }
 
 /*
- * An accent annotates the baseline rather than standing beside it as an equal
- * plate. Held a little short of solid it is still perfectly legible alone,
- * while the places where two of them cross settle further back again -- which
- * is where a stack of four gets busiest, and where it has the least to say.
+ * Filled plates keep a hairline registration edge. The translucent interior
+ * preserves the overprint mass, while the firmer contour prevents several
+ * related forms (里 / 裏 / 裡 is the hard case) from collapsing into one dark
+ * block. Hollow mode remains the stronger, edge-only treatment below each
+ * component's scoped styles.
  */
-.overprint-layer:not(.baseline) {
-  opacity: 0.78;
-}
-
-/*
- * On a dark ground the baseline is the near-white layer, and near-white wins
- * the blend against everything: the accents survived only where they reached
- * outside it, so a form differing from the baseline somewhere inside its own
- * strokes had nothing to show for it. Held back far enough that the accents
- * carry across it, while it stays the largest and most solid shape and so
- * still the one the character is read from.
- */
-.overprint-layer.baseline {
-  opacity: var(--overprint-baseline, 1);
+.overprint:where(:not(.outlined)) .overprint-layer {
+  color: color-mix(
+    in oklch,
+    var(--layer-color) calc(var(--overprint-active-opacity) * 100%),
+    transparent
+  );
+  -webkit-text-stroke: clamp(0.4px, 0.006em, 0.9px)
+    color-mix(in oklch, var(--layer-color) 76%, transparent);
+  opacity: 1;
+  paint-order: stroke fill;
 }
 
 /*
@@ -131,13 +139,4 @@
  */
 .overprint-layer.dimmed {
   opacity: 0.12;
-}
-
-/*
- * The baseline keeps more of itself than the others. Lighting an accent form
- * is a question about where it departs, and the answer needs the form it
- * departs from still faintly on the page to be read against.
- */
-.overprint-layer.dimmed.baseline {
-  opacity: 0.3;
 }

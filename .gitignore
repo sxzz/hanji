@@ -9,6 +9,9 @@ dist
 .DS_Store
 .eslintcache
 
+# Local Impeccable live-design session state.
+.impeccable/live/
+
 # Cached downloads of external sources, verified against data/sources.lock.json
 data/raw/
 

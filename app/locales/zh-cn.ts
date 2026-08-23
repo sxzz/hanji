@@ -59,7 +59,8 @@ export const zhCN = {
     flags: '用旗帜显示地区',
     flagsHint: '把「中日港台韩」换成对应的旗帜符号。',
     outline: '叠印用空心字',
-    outlineHint: '把叠在一起的字形改成描边，笔画不再糊成一团，分歧处更清楚。',
+    outlineHint:
+      '去掉叠印字形的半透明填充，只保留各层轮廓，复杂字的重叠关系更容易分辨。',
     columns: '对照范围',
     columnsHint: '关掉的一列不再出现，其余字形重新分组。',
     columnsLast: '至少要留一个地区。',
