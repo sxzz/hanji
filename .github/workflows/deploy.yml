@@ -68,58 +68,6 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: versions upload --preview-alias=pr-${{ github.event.pull_request.number }}
 
-      - name: Publish GitHub preview deployment
-        if: github.event_name == 'pull_request'
-        env:
-          GH_TOKEN: ${{ github.token }}
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          VERSION_PREVIEW_URL: ${{ steps.deploy_preview.outputs.deployment-url }}
-        run: |
-          version_host="${VERSION_PREVIEW_URL#https://}"
-          preview_host="${version_host#*-}"
-          test "$preview_host" != "$version_host"
-
-          preview_url="https://pr-$PR_NUMBER-$preview_host"
-
-          environment="preview"
-          deployment_id="$(
-            jq -n \
-              --arg ref "$PR_HEAD_SHA" \
-              --arg environment "$environment" \
-              '{
-                ref: $ref,
-                environment: $environment,
-                auto_merge: false,
-                required_contexts: [],
-                transient_environment: true,
-                production_environment: false,
-                description: "Cloudflare Workers preview"
-              }' |
-              gh api \
-                --method POST \
-                "repos/${GITHUB_REPOSITORY}/deployments" \
-                --input - \
-                --jq '.id'
-          )"
-
-          jq -n \
-            --arg environment "$environment" \
-            --arg environment_url "$preview_url" \
-            --arg log_url "$RUN_URL" \
-            '{
-              state: "success",
-              environment: $environment,
-              environment_url: $environment_url,
-              log_url: $log_url,
-              description: "Cloudflare Workers preview is ready"
-            }' |
-            gh api \
-              --method POST \
-              "repos/${GITHUB_REPOSITORY}/deployments/${deployment_id}/statuses" \
-              --input -
-
       - name: Deploy to Cloudflare Workers
         if: github.event_name == 'push'
         id: deploy_production
@@ -129,27 +77,34 @@ jobs:
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: deploy
 
-      - name: Publish GitHub production deployment
-        if: github.event_name == 'push'
+      - name: Publish GitHub deployment
         env:
-          DEPLOYED_SHA: ${{ github.sha }}
+          DEPLOYED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          DEPLOYMENT_ENVIRONMENT: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
+          DEPLOYMENT_URL: ${{ steps.deploy_preview.outputs.deployment-url || 'https://hanji.sxzz.moe' }}
           GH_TOKEN: ${{ github.token }}
-          PRODUCTION_URL: https://hanji.sxzz.moe
+          PR_NUMBER: ${{ github.event.pull_request.number }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          environment="production"
+          if test "$DEPLOYMENT_ENVIRONMENT" = "preview"; then
+            version_host="${DEPLOYMENT_URL#https://}"
+            preview_host="${version_host#*-}"
+            test "$preview_host" != "$version_host"
+            DEPLOYMENT_URL="https://pr-$PR_NUMBER-$preview_host"
+          fi
+
           deployment_id="$(
             jq -n \
               --arg ref "$DEPLOYED_SHA" \
-              --arg environment "$environment" \
+              --arg environment "$DEPLOYMENT_ENVIRONMENT" \
               '{
                 ref: $ref,
                 environment: $environment,
                 auto_merge: false,
                 required_contexts: [],
-                transient_environment: false,
-                production_environment: true,
-                description: "Cloudflare Workers production"
+                transient_environment: ($environment == "preview"),
+                production_environment: ($environment == "production"),
+                description: "Cloudflare Workers \($environment)"
               }' |
               gh api \
                 --method POST \
@@ -159,15 +114,15 @@ jobs:
           )"
 
           jq -n \
-            --arg environment "$environment" \
-            --arg environment_url "$PRODUCTION_URL" \
+            --arg environment "$DEPLOYMENT_ENVIRONMENT" \
+            --arg environment_url "$DEPLOYMENT_URL" \
             --arg log_url "$RUN_URL" \
             '{
               state: "success",
               environment: $environment,
               environment_url: $environment_url,
               log_url: $log_url,
-              description: "Cloudflare Workers production is ready"
+              description: "Cloudflare Workers \($environment) is ready"
             }' |
             gh api \
               --method POST \
