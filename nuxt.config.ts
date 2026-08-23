@@ -36,11 +36,18 @@ const publicCharsPath = path.resolve(
   '.output/public/data/chars.json',
 )
 
-const PRERENDERED_CHARS = existsSync(charsPath)
-  ? (JSON.parse(readFileSync(charsPath, 'utf8')) as CharsData).rows.map((row) =>
-      charPath(row.key),
+const CHAR_KEYS = existsSync(charsPath)
+  ? (JSON.parse(readFileSync(charsPath, 'utf8')) as CharsData).rows.map(
+      (row) => row.key,
     )
   : []
+const PRERENDERED_CHARS = CHAR_KEYS.map(charPath)
+const PRERENDER_ROUTES = ['/', '/about', ...PRERENDERED_CHARS]
+const SITEMAP_ROUTES = [
+  '/',
+  '/about',
+  ...CHAR_KEYS.map((key) => `/char/${key}`),
+]
 
 // A clean install prepares Nuxt before generated fonts exist. Include the
 // eager sans styles as soon as build:fonts has produced them; generate/dev
@@ -53,7 +60,28 @@ const generatedFontStyles = ['fonts-ui.css', 'fonts-sans.css']
 
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default {
-  modules: ['@unocss/nuxt', '@vueuse/nuxt'],
+  modules: [
+    '@nuxtjs/sitemap',
+    '@nuxtjs/robots',
+    '@unocss/nuxt',
+    '@vueuse/nuxt',
+  ],
+
+  sitemap: {
+    // These are already the exact canonical routes emitted below. Supplying
+    // them directly avoids treating the dynamic page pattern or fallbacks as
+    // indexable pages, while the module owns encoding and XML generation.
+    excludeAppSources: true,
+    urls: SITEMAP_ROUTES,
+    discoverImages: false,
+    discoverVideos: false,
+    xsl: false,
+    zeroRuntime: true,
+  },
+
+  robots: {
+    sitemap: '/sitemap.xml',
+  },
 
   vue: {
     optionsApi: false,
@@ -89,7 +117,7 @@ export default {
       // indexes would first redirect the non-ASCII URL to /char/學/, and the
       // client-facing routes deliberately have no trailing slash.
       autoSubfolderIndex: false,
-      routes: ['/', '/about', ...PRERENDERED_CHARS],
+      routes: PRERENDER_ROUTES,
     },
   },
 

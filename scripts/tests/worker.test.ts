@@ -58,6 +58,12 @@ describe('Workers Static Assets configuration', () => {
     expect(headers).toMatch(
       /\/data\/chars\.json[\s\S]*Access-Control-Allow-Origin: \*[\s\S]*Cache-Control: public, max-age=3600, stale-while-revalidate=86400/,
     )
+    expect(headers).toMatch(
+      /\/sitemap\.xml[\s\S]*Cache-Control: public, no-cache/,
+    )
+    expect(headers).toMatch(
+      /\/robots\.txt[\s\S]*Cache-Control: public, no-cache/,
+    )
     expect(headers).not.toMatch(/\/(?:fonts|flags|strokes)\//)
   })
 })

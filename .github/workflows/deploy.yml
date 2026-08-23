@@ -57,6 +57,14 @@ jobs:
         continue-on-error: ${{ github.event_name == 'pull_request' }}
 
       - name: Generate site
+        env:
+          # Keep the canonical origin out of source. Forks can set the
+          # NUXT_SITE_URL repository variable, otherwise use the homepage
+          # configured in the repository's About panel.
+          NUXT_SITE_URL: ${{ vars.NUXT_SITE_URL || github.event.repository.homepage }}
+          # The robots module blocks PR previews while production stays
+          # indexable.
+          NUXT_SITE_ENV: ${{ github.event_name == 'push' && 'production' || 'preview' }}
         run: pnpm generate
 
       - name: Upload Cloudflare Workers preview

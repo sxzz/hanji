@@ -15,3 +15,10 @@
 /data/chars.json
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=3600, stale-while-revalidate=86400
+
+# Search engines should revalidate the stable discovery files after a deploy.
+/sitemap.xml
+  Cache-Control: public, no-cache
+
+/robots.txt
+  Cache-Control: public, no-cache

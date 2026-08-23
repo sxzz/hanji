@@ -2,6 +2,8 @@ catalog:
   '@iconify-json/ooui': ^1.2.21
   '@iconify-json/ri': ^1.2.10
   '@iconify-json/simple-icons': ^1.2.93
+  '@nuxtjs/robots': ^6.2.0
+  '@nuxtjs/sitemap': ^8.5.0
   '@sxzz/eslint-config': ^8.5.0
   '@sxzz/prettier-config': ^2.3.2
   '@types/fontkit': ^2.0.9
@@ -16,6 +18,7 @@ catalog:
   fflate: ^0.8.3
   fontkit: ^2.0.4
   nuxt: ^4.5.2
+  nuxt-site-config: ^4.2.3
   prettier: ^3.9.6
   subset-font: ^2.5.0
   typescript: ~6.0.3
