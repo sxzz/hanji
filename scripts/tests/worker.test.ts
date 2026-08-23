@@ -56,6 +56,9 @@ describe('Workers Static Assets configuration', () => {
       /\/notices\/\*[\s\S]*Access-Control-Allow-Origin: \*[\s\S]*Cache-Control: public, no-cache/,
     )
     expect(headers).toMatch(
+      /\/notices\/\*\.md[\s\S]*Content-Type: text\/markdown; charset=utf-8/,
+    )
+    expect(headers).toMatch(
       /\/data\/chars\.json[\s\S]*Access-Control-Allow-Origin: \*[\s\S]*Cache-Control: public, max-age=3600, stale-while-revalidate=86400/,
     )
     expect(headers).toMatch(

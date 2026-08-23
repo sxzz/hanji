@@ -69,7 +69,7 @@ pnpm build:data   # 字表とフォントサブセットを生成。初回は約
 pnpm update:sources # サードパーティデータの更新を確認して固定。変更があればダウンロードして再生成
 pnpm dev
 pnpm test
-NUXT_SITE_URL=https://example.com pnpm generate # 静的Webアプリ
+pnpm generate # 静的Webアプリ
 ```
 
 各行のURLには行名を使います（`/char/着`）。5地域の表示字形、`aka`、`alternatives` もURLとして利用でき、クライアント側で対応する行へ移動します。たとえば `/char/国`、`/char/郞`、`/char/缐` です。ページの `rel=canonical` は行名のURLを指します。未確認関係はURL別名にはなりません。
@@ -94,7 +94,7 @@ Cloudflareの **Settings → Domains & Routes** でproductionドメインを接�
 
 ページビューとWeb Vitalsが必要な場合は、実際のドメインを所有するアカウントの **Web Analytics → Add a site** でCloudflareによりプロキシされているhostnameを選び、automatic setupを使用してください。Cloudflareがエッジでbeaconを自動挿入します。
 
-各字群の詳細ページはそれぞれ独立したHTMLとして生成されます。ページデータはローカルbundleに含まれるため、ルートごとの追加 `_payload.json` を生成するpayload extractionは無効にしています。地域異体字の別名については、リダイレクト専用ページを生成しません。Static Assetsがまず `404.html` とHTTP 404を返し、その後Nuxtのクライアントミドルウェアが対応する行へ移動します。これにより、検索エンジンが別名を成功ページとして重複登録することを避けます。実際に存在しないURLはHTTP 404のままです。`@nuxtjs/sitemap` は静的生成時にすべてのcanonicalページを `/sitemap.xml` へ書き出し、`@nuxtjs/robots` は `/robots.txt` を生成してsitemapの場所を通知します。両方の絶対URLには `NUXT_SITE_URL` を使用します。GitHub Actionsは同名のリポジトリ変数を優先し、未設定の場合はリポジトリのhomepageを使用します。他の環境では `pnpm generate` の実行時に設定する必要があります。PRプレビューのビルドでは `NUXT_SITE_ENV=preview` によりインデックス登録を禁止します。`public/_headers` では、内容ハッシュ付きの `_nuxt/*` に長期immutableキャッシュを設定し、安定した `/notices/*`、sitemap、robotsのURLには `no-cache`、`/data/chars.json` には1時間の `max-age` と1日の `stale-while-revalidate` を指定します。
+各字群の詳細ページはそれぞれ独立したHTMLとして生成されます。ページデータはローカルbundleに含まれるため、ルートごとの追加 `_payload.json` を生成するpayload extractionは無効にしています。地域異体字の別名については、リダイレクト専用ページを生成しません。Static Assetsがまず `404.html` とHTTP 404を返し、その後Nuxtのクライアントミドルウェアが対応する行へ移動します。これにより、検索エンジンが別名を成功ページとして重複登録することを避けます。実際に存在しないURLはHTTP 404のままです。`@nuxtjs/sitemap` は静的生成時にすべてのcanonicalページを `/sitemap.xml` へ書き出し、`@nuxtjs/robots` は `/robots.txt` を生成してsitemapの場所を通知します。両方の絶対URLには既定で `https://hanji.sxzz.moe` を使用し、`NUXT_SITE_URL` で上書きできます。GitHub Actionsは同名のリポジトリ変数を優先し、未設定の場合はリポジトリのhomepageを使用します。PRプレビューのビルドでは `NUXT_SITE_ENV=preview` によりインデックス登録を禁止します。`public/_headers` では、内容ハッシュ付きの `_nuxt/*` に長期immutableキャッシュを設定し、安定した `/notices/*`、sitemap、robotsのURLには `no-cache`、`/data/chars.json` には1時間の `max-age` と1日の `stale-while-revalidate` を指定します。
 
 サードパーティ資産の具体的なcommit、GitHub release tag、公式添付ファイル識別子、SHA-256は `data/sources.lock.json` に記録しています。更新時には `pnpm update:sources` を実行します。GitHubブランチ、最新release、Unicodeバージョンを解決し、バージョンのない公式直リンクについては改めて検証します。内容が変わっていればlockfileを更新してデータを再生成し、まったく変わっていなければ生成をスキップします。ビルド時の `pnpm build:data` はlockfileに従い、約 **302 MiB** の元データをダウンロードして検証します。このうち195 MiBは10個のNoto CJKフォントで、約40 MiBは2個の補充フォントです。明示的な更新を行っていない直リンクの内容が変わった場合は、チェックサム不一致として失敗し、黙ってデータに取り込むことはありません。Actionsでは元データのダウンロードと生成フォントを別々にキャッシュします。前者はlockfileだけで決まり、後者はlockfile、実際の生成スクリプト、関連依存関係、locale、字表から決まります。フォント入力が完全に同じ場合は、データ生成を省略します。
 
@@ -104,7 +104,7 @@ Cloudflareの **Settings → Domains & Routes** でproductionドメインを接�
 
 ```bash
 pnpm build:data
-NUXT_SITE_URL=https://example.com pnpm generate
+pnpm generate
 pnpm preview:worker # http://localhost:8787
 pnpm deploy
 ```

@@ -58,9 +58,9 @@ jobs:
 
       - name: Generate site
         env:
-          # Keep the canonical origin out of source. Forks can set the
-          # NUXT_SITE_URL repository variable, otherwise use the homepage
-          # configured in the repository's About panel.
+          # Forks can override the source default through the NUXT_SITE_URL
+          # repository variable, otherwise use the homepage configured in the
+          # repository's About panel when available.
           NUXT_SITE_URL: ${{ vars.NUXT_SITE_URL || github.event.repository.homepage }}
           # The robots module blocks PR previews while production stays
           # indexable.

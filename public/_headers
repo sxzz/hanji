@@ -10,6 +10,11 @@
   Access-Control-Allow-Origin: *
   Cache-Control: public, no-cache
 
+# Wrangler detects Markdown's media type but does not attach a charset. Without
+# one, Chrome falls back to Windows-1252 instead of decoding these UTF-8 files.
+/notices/*.md
+  Content-Type: text/markdown; charset=utf-8
+
 # External consumers need one stable character-data URL. Keep it fresh for an
 # hour, then allow one day of non-blocking stale responses while revalidating.
 /data/chars.json

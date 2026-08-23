@@ -1,4 +1,5 @@
 import { readFileSync } from 'node:fs'
+import process from 'node:process'
 import { describe, expect, it } from 'vitest'
 import config from '../../nuxt.config.ts'
 import type { CharsData } from '../../shared/types.ts'
@@ -15,6 +16,12 @@ const deployWorkflow = readFileSync(
 )
 
 describe('search engine discovery', () => {
+  it('provides the production origin as the site URL fallback', () => {
+    expect(config.site.url).toBe(
+      process.env.NUXT_SITE_URL || 'https://hanji.sxzz.moe',
+    )
+  })
+
   it('generates a static sitemap with every canonical page', () => {
     expect(config.modules).toEqual(
       expect.arrayContaining(['@nuxtjs/sitemap', '@nuxtjs/robots']),

@@ -48,6 +48,7 @@ const SITEMAP_ROUTES = [
   '/about',
   ...CHAR_KEYS.map((key) => `/char/${key}`),
 ]
+const SITE_URL = process.env.NUXT_SITE_URL || 'https://hanji.sxzz.moe'
 
 // A clean install prepares Nuxt before generated fonts exist. Include the
 // eager sans styles as soon as build:fonts has produced them; generate/dev
@@ -66,6 +67,10 @@ export default {
     '@unocss/nuxt',
     '@vueuse/nuxt',
   ],
+
+  site: {
+    url: SITE_URL,
+  },
 
   sitemap: {
     // These are already the exact canonical routes emitted below. Supplying
