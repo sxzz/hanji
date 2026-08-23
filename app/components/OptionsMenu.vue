@@ -11,9 +11,23 @@ const {
   toggleColumn,
 } = usePrefs()
 
-const regionColumns = COLUMNS.filter((column) => column !== 'old')
 const oldDescriptionId = useId()
 const oldFormWikipedia = computed(() => LOCALE_OLD_FORM_WIKIPEDIA[locale.value])
+
+/*
+ * What the kyujitai column holds is worth a sentence, and a pointer can ask for
+ * it by hovering. A touch screen has nothing to hover with, so the tap that
+ * toggles the column opens the note as well, and a tap anywhere else in the
+ * panel puts it away. Hover therefore drives this flag rather than a :hover
+ * rule of its own -- a touch browser leaves :hover on whatever was tapped last,
+ * which would strand the note open over the panel.
+ */
+const oldHelp = ref(false)
+
+function toggleOldColumn() {
+  toggleColumn('old')
+  oldHelp.value = true
+}
 
 /** Reader preferences, each labeled by `options.<key>` and `<key>Hint`. */
 const options = [
@@ -25,6 +39,9 @@ const open = ref(false)
 const root = ref<HTMLElement>()
 onClickOutside(root, () => (open.value = false))
 onKeyStroke('Escape', () => (open.value = false))
+watch(open, (shown) => {
+  if (!shown) oldHelp.value = false
+})
 </script>
 
 <template>
@@ -43,7 +60,8 @@ onKeyStroke('Escape', () => (open.value = false))
     <Transition name="pop">
       <div
         v-if="open"
-        class="absolute left-0 right-0 top-full z-20 mt-1 w-auto border border-rule rounded-lg bg-paper p-3 text-ink shadow-black/5 shadow-lg md:left-auto md:right-0 md:mt-2 md:w-64"
+        class="absolute left-0 right-0 top-full z-20 mt-1 w-auto border border-rule rounded-lg bg-paper p-3 text-ink shadow-black/5 shadow-lg md:left-auto md:right-0 md:mt-2 md:w-80"
+        @pointerdown="oldHelp = false"
       >
         <h2 class="mb-2 eyebrow">{{ t('options.title') }}</h2>
         <label
@@ -68,9 +86,10 @@ onKeyStroke('Escape', () => (open.value = false))
           </span>
         </label>
 
-        <!-- One track per region keeps the five as a single row. Every region
-             control shares RegionOption's edge-and-key selected state; the
-             kyujitai is not a place and takes the full-width row underneath. -->
+        <!-- One track per column, in the order the table itself draws them,
+             kyujitai included: what the row switches off is exactly what stops
+             appearing, in the same places. Every control shares RegionOption's
+             edge-and-key selected state. -->
         <div class="mt-3 border-t border-rule pt-3">
           <span class="text-sm text-ink font-medium">{{
             t('options.columns')
@@ -78,51 +97,62 @@ onKeyStroke('Escape', () => (open.value = false))
           <span class="mt-1 block text-xs text-soft">{{
             t('options.columnsHint')
           }}</span>
-          <div class="grid grid-cols-5 mt-2 gap-1.5">
-            <RegionOption
-              v-for="column in regionColumns"
-              :key="column"
-              class="w-full"
-              :active="columnShown(column)"
-              :disabled="columnLocked(column)"
-              :label="t(`region.${column}.full`)"
-              :parts="[{ region: column }]"
-              :title="
-                columnLocked(column)
-                  ? t('options.columnsLast')
-                  : t(`region.${column}.full`)
-              "
-              @select="toggleColumn(column)"
-            />
-
-            <div class="old-column">
-              <RegionOption
-                class="w-full"
-                :active="columnShown('old')"
-                :aria-describedby="oldDescriptionId"
-                :label="t('region.old.full')"
-                :native-title="false"
-                :parts="[{ suffix: t('region.old.short') }]"
-                @select="toggleColumn('old')"
-              />
-              <div class="old-tooltip">
-                <p :id="oldDescriptionId">
-                  {{ t('region.old.description') }}
-                </p>
-                <a
-                  :href="oldFormWikipedia"
-                  class="old-tooltip-link focus-ring"
-                  target="_blank"
-                  rel="noopener noreferrer"
+          <div class="column-row grid grid-cols-6 mt-2 gap-1.5">
+            <template v-for="column in COLUMNS" :key="column">
+              <div
+                v-if="column === 'old'"
+                class="old-column"
+                @mouseenter="oldHelp = true"
+                @mouseleave="oldHelp = false"
+                @focusin="oldHelp = true"
+                @focusout="oldHelp = false"
+                @pointerdown.stop
+              >
+                <RegionOption
+                  class="w-full"
+                  :active="columnShown('old')"
+                  :aria-describedby="oldDescriptionId"
+                  :label="t('region.old.full')"
+                  :native-title="false"
+                  :parts="[{ suffix: t('region.old.short') }]"
+                  @select="toggleOldColumn()"
+                />
+                <div
+                  class="old-tooltip"
+                  :class="{ 'old-tooltip-open': oldHelp }"
                 >
-                  <span>{{ t('region.old.wikipedia') }}</span>
-                  <span
-                    class="i-ri-external-link-line block shrink-0"
-                    aria-hidden="true"
-                  />
-                </a>
+                  <p :id="oldDescriptionId">
+                    {{ t('region.old.description') }}
+                  </p>
+                  <a
+                    :href="oldFormWikipedia"
+                    class="old-tooltip-link focus-ring"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span>{{ t('region.old.wikipedia') }}</span>
+                    <span
+                      class="i-ri-external-link-line block shrink-0"
+                      aria-hidden="true"
+                    />
+                  </a>
+                </div>
               </div>
-            </div>
+              <RegionOption
+                v-else
+                class="w-full"
+                :active="columnShown(column)"
+                :disabled="columnLocked(column)"
+                :label="t(`region.${column}.full`)"
+                :parts="[{ region: column }]"
+                :title="
+                  columnLocked(column)
+                    ? t('options.columnsLast')
+                    : t(`region.${column}.full`)
+                "
+                @select="toggleColumn(column)"
+              />
+            </template>
           </div>
         </div>
       </div>
@@ -143,9 +173,13 @@ onKeyStroke('Escape', () => (open.value = false))
   transform: translateY(-4px);
 }
 
-.old-column {
+/*
+ * The note hangs off the row, not off the cell: one track of six is nowhere
+ * near wide enough to set a sentence in, so the cell is left unpositioned and
+ * the row becomes the containing block the note is measured against.
+ */
+.column-row {
   position: relative;
-  grid-column: 1 / -1;
 }
 
 .old-tooltip {
@@ -159,6 +193,7 @@ onKeyStroke('Escape', () => (open.value = false))
   border-radius: 6px;
   visibility: hidden;
   background: var(--c-paper);
+  box-shadow: 0 8px 20px rgb(0 0 0 / 0.06);
   color: var(--c-ink-soft);
   font-size: 0.75rem;
   line-height: 1.5;
@@ -171,18 +206,23 @@ onKeyStroke('Escape', () => (open.value = false))
     visibility 0s linear 120ms;
 }
 
-/* Keep the hover path continuous across the small visual gap. */
+/*
+ * Keep the hover path continuous across the small visual gap -- exactly the gap
+ * and no more, so the bridge never lies over the chips in the row. The note
+ * stays directly above its own chip for this reason: parked beside the panel it
+ * was unreachable, because the pointer had to cross the two chips between the
+ * kyujitai and the panel's edge and left the hover path on the first of them.
+ */
 .old-tooltip::after {
   position: absolute;
   top: 100%;
   left: 0;
   width: 100%;
-  height: 0.5rem;
+  height: 0.375rem;
   content: '';
 }
 
-.old-column:hover .old-tooltip,
-.old-column:focus-within .old-tooltip {
+.old-tooltip-open {
   visibility: visible;
   opacity: 1;
   pointer-events: auto;
@@ -203,28 +243,5 @@ onKeyStroke('Escape', () => (open.value = false))
 
 .old-tooltip-link:hover {
   text-decoration-color: currentColor;
-}
-
-@media (min-width: 768px) {
-  .old-tooltip {
-    right: calc(100% + 0.5rem);
-    bottom: 0;
-    left: auto;
-    width: 14.375rem;
-    transform: translateX(0.25rem);
-  }
-
-  .old-tooltip::after {
-    top: 0;
-    right: -0.5rem;
-    left: auto;
-    width: 0.5rem;
-    height: 100%;
-  }
-
-  .old-column:hover .old-tooltip,
-  .old-column:focus-within .old-tooltip {
-    transform: translateX(0);
-  }
 }
 </style>

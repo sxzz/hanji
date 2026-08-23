@@ -118,16 +118,35 @@ const iconOnly = computed(
   gap: 0.375rem;
 }
 
-.region-option-resting:hover:not(:disabled) {
-  border-color: var(--c-ink-mute);
-  background: var(--c-paper);
-  color: var(--c-ink-soft);
-}
-
+/*
+ * The edge stays a hairline in every state; what separates them is how dark it
+ * is. Selected takes soft ink, a charcoal nowhere near any gray the resting
+ * range can reach, so the two never meet in the middle.
+ */
 .region-option-active {
-  border-color: color-mix(in srgb, var(--c-ink-soft) 75%, var(--c-ink-mute));
+  border-color: var(--c-ink-soft);
   background: var(--c-paper);
   color: var(--c-ink);
+}
+
+/*
+ * Hover stays inside the range its own state already owns: a resting option
+ * lifts its ink but keeps a pale edge, well short of the selected one, because
+ * a border darkened all the way to ink-mute used to read as selected on its
+ * own. Gated behind a real pointer because a touch browser leaves :hover on
+ * whatever was tapped last -- the column you just switched off would otherwise
+ * keep wearing the hover look until you tapped somewhere else, which is exactly
+ * when the two states were hardest to tell apart.
+ */
+@media (hover: hover) {
+  .region-option-resting:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--c-ink-mute) 45%, var(--c-rule));
+    color: var(--c-ink-soft);
+  }
+
+  .region-option-active:hover:not(:disabled) {
+    border-color: var(--c-ink);
+  }
 }
 
 .region-option-resting :deep(.region-flag) {
