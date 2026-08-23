@@ -4,10 +4,12 @@ catalog:
   '@iconify-json/simple-icons': ^1.2.93
   '@nuxtjs/robots': ^6.2.0
   '@nuxtjs/sitemap': ^8.5.0
+  '@resvg/resvg-js': ^2.6.2
   '@sxzz/eslint-config': ^8.5.0
   '@sxzz/prettier-config': ^2.3.2
   '@types/fontkit': ^2.0.9
   '@types/node': ^26.2.0
+  '@types/subset-font': ^2.3.0
   '@unocss/eslint-plugin': ^66.8.0
   '@unocss/nuxt': ^66.8.0
   '@unocss/reset': ^66.8.0
@@ -20,7 +22,10 @@ catalog:
   nuxt: ^4.5.2
   nuxt-site-config: ^4.2.3
   prettier: ^3.9.6
+  satori: ^0.33.3
+  sharp: ^0.35.3
   subset-font: ^2.5.0
+  svgo: ^4.0.2
   typescript: ~6.0.3
   unocss: ^66.8.0
   vitest: ^4.1.11

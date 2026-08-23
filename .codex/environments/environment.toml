@@ -3,4 +3,4 @@ version = 1
 name = "hanji"
 
 [setup]
-script = "./codex-setup.sh"
+script = "./scripts/codex-setup.sh"

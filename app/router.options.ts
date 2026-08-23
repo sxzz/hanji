@@ -26,6 +26,16 @@ const config: RouterConfig = {
 
     if (savedPosition) return savedPosition
 
+    // Hash navigation is an explicit destination, including when only the
+    // hash changes on the current page. Leave one text line below the sticky
+    // header so the target heading is visible rather than pinned underneath
+    // it. The header is measured because --nav-h changes at the md breakpoint.
+    if (to.hash) {
+      const headerHeight =
+        document.querySelector<HTMLElement>('header')?.offsetHeight ?? 0
+      return { el: to.hash, top: headerHeight + 16 }
+    }
+
     // Only on the way back from a character page. Adjusting a filter can land
     // on that very URL again -- which is the reader arriving there anew, not
     // returning to it.

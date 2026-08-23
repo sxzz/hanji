@@ -4,8 +4,9 @@ export const zhHK: typeof zhCN = {
   meta: {
     title: '漢智',
     name: 'Hanji',
+    slogan: '一字之間，照見五地字形',
     description:
-      '中國大陸、香港、台灣、日本、韓國五地常用漢字的印刷字形對照。同一個字，在各地可能呈現不同字形。',
+      '把同一個漢字並排、疊印，照見中國大陸、香港、台灣、日本與韓國之間細微而真實的字形差異。',
   },
   region: {
     cn: { short: '中', full: '中國大陸' },
@@ -43,6 +44,15 @@ export const zhHK: typeof zhCN = {
     theme: '切換深淺色',
     back: '返回字表',
     options: '顯示選項',
+    logoMenu: 'Logo選單',
+    logoMenuHint: '右鍵開啟Logo選單',
+    copyLogo: '複製Logo',
+    copyingLogo: '正在複製…',
+    logoCopied: '已複製Logo',
+    copyLogoFailed: '複製失敗，請重試',
+    logoFormat: '向量SVG',
+    downloadLogo: '下載SVG',
+    brandCopyright: '版權與鳴謝',
   },
   error: {
     notFoundTitle: '這一頁不在字表裏',
@@ -170,6 +180,7 @@ export const zhHK: typeof zhCN = {
     thanksTitle: '鳴謝',
     dataTitle: '取用數據',
     licenseTitle: '授權與名稱',
+    brandAssetsTitle: 'Logo與品牌素材',
     use: '用途',
     source: '來源',
     license: '授權',
@@ -216,8 +227,10 @@ export const zhHK: typeof zhCN = {
       '第三方數據及其衍生欄位、字體與筆順數據仍適用下方列出的各自授權；漢智的授權不涵蓋本項目無權再授權的內容。',
     licenseBrand:
       '「漢智」「Hanji」及官方Logo與品牌識別不包含在上述授權中。未經許可，公開發布的修改版本、Fork或獨立部署不得將其用作項目、產品、網站或應用的名稱與品牌；可以如實註明「基於漢智開發」，但不得暗示其為官方版本或受到官方認可。',
+    brandAssets:
+      '「漢智」「Hanji」的官方Logo、字標、圖標及其他品牌素材，其版權及相關權利均予保留，不在本項目的MIT或CC BY 4.0授權範圍內。可在非商業的開源項目、資源清單、社群文章及其他一般技術內容中使用，例如與其他開源技術標誌並列展示；亦可用於如實介紹或連結漢智官方項目。不得用於商業用途，亦不得用於複製、仿製漢智，或用於可能令人誤以為是漢智官方版本或獲其認可的項目、產品、網站或應用。Logo由{designer}設計，謹此致謝。',
     thanks:
-      '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粵典、國家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic與WenJin Mincho的維護者。逐字對照工具{tofu}是本項目的先行者，同樣用Noto系列區分地區字形。',
+      '感謝OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粵典、國家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic與WenJin Mincho的維護者。逐字對照工具{tofu}是本項目的先行者，同樣用Noto系列區分地區字形。亦感謝{innei}為本項目設計Logo，以及{oliver}與{antfu}對項目Logo的探索與協助。',
   },
   footer: {
     sources: '數據來源',

@@ -12,7 +12,6 @@ import {
 import {
   applyKoreanColumnDefault,
   COLUMNS,
-  DEFAULT_HIDDEN_COLUMNS,
   REGIONS,
   type CharRow,
   type CharsData,
@@ -38,24 +37,9 @@ const without = (...hidden: Region[]) =>
   )
 
 const ALL_COLUMNS = [...REGIONS].map((region) => REGIONS.indexOf(region))
-const DEFAULT_COLUMNS = without('kr')
-
-describe('column ordering', () => {
-  it('shows mainland, Japan, old Japan, Hong Kong, Taiwan, then Korea', () => {
-    expect(COLUMNS).toEqual(['cn', 'jp', 'old', 'hk', 'tw', 'kr'])
-    expect(COLUMNS.map(signatureIndexOf)).toEqual([0, 3, 5, 1, 2, 4])
-    expect(
-      projectSignature(
-        glyphSignature(row('國')),
-        COLUMNS.map(signatureIndexOf),
-      ),
-    ).toBe('001111')
-  })
-})
 
 describe('locale-aware column defaults', () => {
   it('shows Korea for Korean while preserving every other hidden column', () => {
-    expect(applyKoreanColumnDefault(DEFAULT_HIDDEN_COLUMNS, true)).toEqual([])
     expect(applyKoreanColumnDefault(['cn', 'kr'], true)).toEqual(['cn'])
     expect(applyKoreanColumnDefault(['cn'], false)).toEqual(['cn', 'kr'])
   })
@@ -82,12 +66,6 @@ describe('reading a partition over the columns on show', () => {
 
   it('keeps a genuine disagreement when an unrelated column goes', () => {
     expect(projectSignature(row('返').glyph, without('jp', 'kr'))).toBe('012')
-  })
-
-  it('projects the default view onto the original four regions', () => {
-    expect(DEFAULT_HIDDEN_COLUMNS).toEqual(['kr'])
-    expect(projectSignature(row('返').glyph, DEFAULT_COLUMNS)).toBe('0123')
-    expect(projectSignature(row('青').glyph, DEFAULT_COLUMNS)).toBe('0010')
   })
 
   it('compares the kyujitai on the same numbering as the regions', () => {

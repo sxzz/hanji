@@ -1,15 +1,26 @@
-import { REGIONS, type CharRow, type Column } from '~~/shared/types.ts'
-
-/** Five fixed, equal-strength inks shared by every stack in the product. */
-const PLATE_COUNT = 5
+import { REGIONS, type CharRow, type Column } from './types.ts'
 
 /**
- * Keep the same group order for every character so changing the row never
- * reshuffles its colors. A rare sixth distinct form reuses the first ink
- * rather than expanding the deliberately limited palette.
+ * sRGB equivalents of the light-paper overprint inks in vars.css. Resvg does
+ * not understand OKLCH, so non-CSS renderers use these measured fallbacks.
  */
+export const OVERPRINT_PLATE_SRGB = [
+  '#855451',
+  '#446787',
+  '#696538',
+  '#71587d',
+  '#366f61',
+] as const
+
+/** Keep every stack on the same fixed five-ink sequence. */
+export function overprintPlateIndex(group: number): number {
+  const count = OVERPRINT_PLATE_SRGB.length
+  return ((group % count) + count) % count
+}
+
+/** CSS color for a plate; a rare sixth form deliberately reuses the first. */
 export function overprintColor(group: number): string {
-  return `var(--c-o${(group % PLATE_COUNT) + 1})`
+  return `var(--c-o${overprintPlateIndex(group) + 1})`
 }
 
 /**

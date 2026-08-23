@@ -5,7 +5,7 @@
  * things that make a stack recognizably the same object everywhere live here.
  *
  * See useOverprintCycle() for the behavior these classes are the appearance
- * of, and utils/overprint.ts for the equal plate colors and density response.
+ * of, and shared/overprint.ts for the equal plate colors and density response.
  */
 
 .overprint {

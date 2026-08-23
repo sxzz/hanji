@@ -1,9 +1,11 @@
+import { BRAND_DESCRIPTION, BRAND_SLOGAN } from '../../shared/brand.ts'
+
 export const zhCN = {
   meta: {
     title: '汉智',
     name: 'Hanji',
-    description:
-      '中国大陆、香港、台湾、日本、韩国五地常用汉字的印刷字形对照。同一个字，在各地可能呈现不同字形。',
+    slogan: BRAND_SLOGAN,
+    description: BRAND_DESCRIPTION,
   },
   region: {
     cn: { short: '中', full: '中国大陆' },
@@ -42,6 +44,15 @@ export const zhCN = {
     theme: '切换深浅色',
     back: '返回字表',
     options: '显示选项',
+    logoMenu: 'Logo菜单',
+    logoMenuHint: '右键打开Logo菜单',
+    copyLogo: '复制Logo',
+    copyingLogo: '正在复制…',
+    logoCopied: '已复制Logo',
+    copyLogoFailed: '复制失败，请重试',
+    logoFormat: '矢量SVG',
+    downloadLogo: '下载SVG',
+    brandCopyright: '版权与鸣谢',
   },
   error: {
     notFoundTitle: '这一页不在字表里',
@@ -169,6 +180,7 @@ export const zhCN = {
     thanksTitle: '鸣谢',
     dataTitle: '取用数据',
     licenseTitle: '许可与名称',
+    brandAssetsTitle: 'Logo与品牌素材',
     use: '用途',
     source: '来源',
     license: '许可',
@@ -215,8 +227,10 @@ export const zhCN = {
       '第三方数据及其派生字段、字体与笔顺数据仍适用下方列出的各自许可；汉智的许可不覆盖本项目无权再授权的内容。',
     licenseBrand:
       '「汉智」「Hanji」及官方Logo和品牌标识不包含在上述许可中。未经许可，公开发布的修改版本、Fork或独立部署不得将其用作项目、产品、网站或应用的名称与品牌；可以如实注明「基于汉智开发」，但不得暗示其为官方版本或受到官方认可。',
+    brandAssets:
+      '「汉智」「Hanji」的官方Logo、字标、图标及其他品牌素材，其版权及相关权利均予保留，不在本项目的MIT或CC BY 4.0许可范围内。可在非商业的开源项目、资源列表、社区文章及其他一般性技术内容中使用，例如与其他开源技术标识并列展示；也可用于如实介绍或链接汉智官方项目。不得用于商业用途，也不得用于复制、仿制汉智，或用于可能使人误认为汉智官方版本或受其认可的项目、产品、网站或应用。Logo由{designer}设计，谨此致谢。',
     thanks:
-      '感谢OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粤典、国家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic与WenJin Mincho的维护者。逐字对照工具{tofu}是本项目的先行者，同样用Noto系列区分地区字形。',
+      '感谢OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粤典、国家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic与WenJin Mincho的维护者。逐字对照工具{tofu}是本项目的先行者，同样用Noto系列区分地区字形。同时感谢{innei}为本项目设计Logo，以及{oliver}与{antfu}对项目Logo的探索和帮助。',
   },
   footer: {
     sources: '数据来源',

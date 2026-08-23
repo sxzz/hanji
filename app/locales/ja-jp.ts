@@ -4,8 +4,9 @@ export const jaJP: typeof zhCN = {
   meta: {
     title: '漢智',
     name: 'Hanji',
+    slogan: '一字のあいだに、五地域の字形が見える',
     description:
-      '中国大陸、香港、台湾、日本、韓国の5地域で常用される漢字の印刷字形を比較します。同じ漢字でも、地域によって字形が異なることがあります。',
+      '一つの漢字を並べて重ね、中国大陸、香港、台湾、日本、韓国のあいだにある、細やかで確かな字形の違いを映し出します。',
   },
   region: {
     cn: { short: '中', full: '中国大陸' },
@@ -43,6 +44,15 @@ export const jaJP: typeof zhCN = {
     theme: '表示テーマを切り替える',
     back: '漢字表に戻る',
     options: '表示設定',
+    logoMenu: 'ロゴメニュー',
+    logoMenuHint: '右クリックでロゴメニューを開く',
+    copyLogo: 'ロゴをコピー',
+    copyingLogo: 'コピー中…',
+    logoCopied: 'ロゴをコピーしました',
+    copyLogoFailed: 'コピーできませんでした',
+    logoFormat: 'ベクターSVG',
+    downloadLogo: 'SVGをダウンロード',
+    brandCopyright: '著作権とクレジット',
   },
   error: {
     notFoundTitle: 'このページは漢字表にありません',
@@ -174,6 +184,7 @@ export const jaJP: typeof zhCN = {
     thanksTitle: '謝辞',
     dataTitle: 'データの利用',
     licenseTitle: 'ライセンスと名称',
+    brandAssetsTitle: 'ロゴとブランド素材',
     use: '用途',
     source: '出典',
     license: 'ライセンス',
@@ -221,8 +232,10 @@ export const jaJP: typeof zhCN = {
       '第三者データとその派生フィールド、フォント、筆順データには、下記の個別ライセンスが引き続き適用されます。Hanjiのライセンスは、本プロジェクトが再ライセンスできない内容を対象としません。',
     licenseBrand:
       '「漢智」「Hanji」、公式Logo、およびブランド識別子は上記ライセンスに含まれません。許可なく公開する改変版、フォーク、または独自運用版で、これらをプロジェクト、製品、Webサイト、アプリの名称やブランドに使用することはできません。「漢智をベースに開発」といった事実に即した記述は可能ですが、公式版であることや公式の承認を得ていることを示唆してはなりません。',
+    brandAssets:
+      '「漢智」「Hanji」の公式ロゴ、ワードマーク、アイコン、その他のブランド素材に関する著作権その他の権利は留保され、MITおよびCC BY 4.0ライセンスの対象外です。非商用のオープンソースプロジェクト、リソース一覧、コミュニティ記事、その他の一般的な技術コンテンツで、他のオープンソース技術のロゴと並べて表示する場合などに使用できます。Hanjiの公式プロジェクトを正確に紹介またはリンクする目的でも使用できます。商用利用、Hanjiの複製・模倣、またはHanjiの公式版もしくは公認と誤認されるおそれのあるプロジェクト、製品、Webサイト、アプリでの使用は禁止します。ロゴは{designer}氏がデザインしました。ここに感謝申し上げます。',
     thanks:
-      'OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、words.hk、国家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic、WenJin Minchoのメンテナーの皆さまに感謝します。一字ずつ比較できる{tofu}は本プロジェクトの先駆けであり、同じくNotoシリーズを使って地域別字形を区別しています。',
+      'OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、words.hk、国家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic、WenJin Minchoのメンテナーの皆さまに感謝します。一字ずつ比較できる{tofu}は本プロジェクトの先駆けであり、同じくNotoシリーズを使って地域別字形を区別しています。また、本プロジェクトのロゴをデザインした{innei}氏と、ロゴの探究と支援に協力した{oliver}氏、{antfu}氏に感謝します。',
   },
   footer: {
     sources: 'データソース',

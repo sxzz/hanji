@@ -14,17 +14,7 @@ const { t } = useT()
       <!-- Positioned for the options panel, which drops to the full width of
            this row on a narrow screen. -->
       <div class="relative h-[var(--nav-h)] flex items-center">
-        <NuxtLink
-          to="/"
-          class="focus-ring mr-auto flex shrink-0 items-baseline gap-2"
-        >
-          <h1 class="whitespace-nowrap text-base font-medium">
-            {{ t('meta.title') }}
-          </h1>
-          <span class="hidden whitespace-nowrap text-sm text-mute xs:inline">{{
-            t('meta.name')
-          }}</span>
-        </NuxtLink>
+        <BrandMenu />
 
         <!--
           One row, two readings of it. On a phone “关于” is an icon and joins

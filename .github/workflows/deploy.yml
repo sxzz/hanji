@@ -67,6 +67,19 @@ jobs:
           NUXT_SITE_ENV: ${{ github.event_name == 'push' && 'production' || 'preview' }}
         run: pnpm generate
 
+      - name: Restore generated OG images
+        id: og-cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .output/public/og
+          # Use an exact key: an old image is worse than a cold render. The
+          # generated dataset exists here because Build dataset runs first.
+          key: og-v1-${{ runner.os }}-${{ hashFiles('data/sources.lock.json', 'package.json', 'pnpm-lock.yaml', 'scripts/build-og-images.ts', 'scripts/sources.ts', 'shared/brand.ts', 'shared/row.ts', 'shared/types.ts', 'public/logo.svg', 'app/assets/data/chars.json') }}
+
+      - name: Build OG images
+        if: steps.og-cache.outputs.cache-hit != 'true'
+        run: pnpm build:og
+
       - name: Upload Cloudflare Workers preview
         if: github.event_name == 'pull_request'
         id: deploy_preview

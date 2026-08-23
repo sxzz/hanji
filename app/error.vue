@@ -84,17 +84,8 @@ function reload(): void {
     <header class="bg-paper">
       <div class="mx-auto max-w-6xl px-4 sm:px-6">
         <div class="h-[var(--nav-h)] flex items-center">
-          <a
-            href="/"
-            class="focus-ring mr-auto flex shrink-0 items-baseline gap-2"
-          >
-            <span class="whitespace-nowrap text-base font-medium">
-              {{ t('meta.title') }}
-            </span>
-            <span
-              class="hidden whitespace-nowrap text-sm text-mute xs:inline"
-              >{{ t('meta.name') }}</span
-            >
+          <a href="/" class="focus-ring mr-auto flex shrink-0 items-center">
+            <HanjiLogo />
           </a>
 
           <nav

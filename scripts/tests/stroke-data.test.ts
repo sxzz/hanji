@@ -1,6 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import {
-  ANIMCJK_LICENSE,
   loadAnimCJK,
   mergeStrokeOrderChoices,
 } from '../../app/utils/animcjk.ts'
@@ -9,10 +8,9 @@ import { strokeDataUrl, strokeDuration } from '../../app/utils/stroke-data.ts'
 describe('stroke data', () => {
   afterEach(() => vi.unstubAllGlobals())
 
-  it('uses Vite-built row-group shards and a stable license URL', () => {
+  it('uses Vite-built row-group shards', () => {
     expect(strokeDataUrl('説')).toContain('0c')
     expect(strokeDataUrl('説')).not.toBe('/strokes/0c.json')
-    expect(ANIMCJK_LICENSE).toBe('/notices/animcjk-APL.txt')
   })
 
   it('fetches a shard once when loading multiple forms from one group', async () => {

@@ -298,8 +298,9 @@ const current = Boolean(
   entries.every(({ name }) => {
     const before = previous.assets[name]
     const after = assetRecord[name]
+    if (!before || !after) return false
     return (
-      before?.url === after?.url &&
+      before.url === after.url &&
       before.sha256 === after.sha256 &&
       before.size === after.size
     )

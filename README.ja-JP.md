@@ -1,8 +1,14 @@
-# 漢智 · hanji
+![Hanji ホームOG](.github/assets/home-og.png)
+
+# 漢智 · Hanji
 
 [简体中文](README.md) | 日本語
 
 <!-- When editing this file, update README.md in the same change. -->
+
+> 一字のあいだに、五地域の字形が見える
+
+一つの漢字を並べて重ね、中国大陸、香港、台湾、日本、韓国のあいだにある、細やかで確かな字形の違いを映し出します。
 
 中国大陸・香港・台湾・日本・韓国の5地域で一般的に使われる漢字をまとめた字表です。本アプリでは、一般的なゴシック体と明朝体における印刷字形を比較します。同じ字でも、地域によって異なる字形で表示されることがあります。5地域の字形を横に並べ、既定ではUIの言語に対応する地域の文字頻度順で表示します。画数順やコードポイント順への並べ替え、差異パターンによる絞り込みも可能です。韓国には文字頻度データがないため、韓国列は既定で非表示ですが、表示オプションから有効にできます。
 
@@ -69,7 +75,8 @@ pnpm build:data   # 字表とフォントサブセットを生成。初回は約
 pnpm update:sources # サードパーティデータの更新を確認して固定。変更があればダウンロードして再生成
 pnpm dev
 pnpm test
-pnpm generate # 静的Webアプリ
+pnpm generate # 静的Webアプリ（OG画像は生成しない）
+pnpm build:og # 任意。完全なOG画像を生成
 ```
 
 各行のURLには行名を使います（`/char/着`）。5地域の表示字形、`aka`、`alternatives` もURLとして利用でき、クライアント側で対応する行へ移動します。たとえば `/char/国`、`/char/郞`、`/char/缐` です。ページの `rel=canonical` は行名のURLを指します。未確認関係はURL別名にはなりません。
@@ -105,9 +112,12 @@ Cloudflareの **Settings → Domains & Routes** でproductionドメインを接�
 ```bash
 pnpm build:data
 pnpm generate
+pnpm build:og # 任意。完全なソーシャル共有用アセットが必要な場合に実行
 pnpm preview:worker # http://localhost:8787
 pnpm deploy
 ```
+
+`pnpm generate` はサイト本体だけを生成し、OG画像はローカルの開発やデプロイを妨げません。ローカルで完全なソーシャル共有用アセットを確認する場合は、静的生成後に `pnpm build:og` を個別に実行してください。本番のGitHub Actionsでは、生成スクリプト、字形とフォントの入力、ブランド文言、Logo、依存関係のlockfileから厳密なハッシュを計算します。ヒット時はOGディレクトリ全体を復元し、ミス時のみ全量生成します。
 
 ## データ出典
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { overprintColor, overprintOpacity } from '~~/shared/overprint.ts'
 import { projectSignature } from '~~/shared/row.ts'
 import { REGIONS, type CharRow } from '~~/shared/types.ts'
 import {
@@ -11,7 +12,6 @@ import {
   useMorphingKey,
   useMorphTo,
 } from '~/composables/chars.ts'
-import { overprintColor, overprintOpacity } from '~/utils/overprint.ts'
 
 const { t, list, locale } = useT()
 const { flagsOn, outlineOn, visibleRegions, regionIndices } = usePrefs()

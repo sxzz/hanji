@@ -4,6 +4,7 @@ import * as path from 'node:path'
 import process from 'node:process'
 import { RESTORE_SCRIPT } from './app/utils/theme.ts'
 import { PREFERENCE_RESTORE_SCRIPT } from './scripts/preference-restore.ts'
+import { BRAND_DESCRIPTION } from './shared/brand.ts'
 import type { CharsData } from './shared/types.ts'
 import type { NuxtConfig } from 'nuxt/schema'
 
@@ -72,6 +73,12 @@ export default {
     url: SITE_URL,
   },
 
+  runtimeConfig: {
+    public: {
+      siteUrl: SITE_URL,
+    },
+  },
+
   sitemap: {
     // These are already the exact canonical routes emitted below. Supplying
     // them directly avoids treating the dynamic page pattern or fallbacks as
@@ -90,6 +97,19 @@ export default {
 
   vue: {
     optionsApi: false,
+  },
+
+  // Keep build tooling inside Nuxt's generated Node project so the root
+  // tsconfig reference checks scripts and config files without a parallel
+  // hand-maintained tsconfig.
+  typescript: {
+    nodeTsConfig: {
+      compilerOptions: {
+        checkJs: true,
+        types: ['node'],
+      },
+      include: ['../scripts/*.ts', '../*.config.*'],
+    },
   },
 
   experimental: {
@@ -148,15 +168,24 @@ export default {
         { innerHTML: PREFERENCE_RESTORE_SCRIPT, tagPosition: 'head' },
       ],
       link: [
-        // Explicitly opt out instead of letting browsers probe /favicon.ico.
-        { rel: 'icon', href: 'data:,' },
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        {
+          rel: 'icon',
+          type: 'image/png',
+          sizes: '32x32',
+          href: '/favicon-32x32.png',
+        },
+        {
+          rel: 'apple-touch-icon',
+          sizes: '180x180',
+          href: '/apple-touch-icon.png',
+        },
       ],
       meta: [
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         {
           name: 'description',
-          content:
-            '同一个汉字，中国大陆、香港、台湾、日本、韩国五地写法常常不同。这里把五地常用字并排列出，可按笔画、常用度排序，按差异模式筛选。',
+          content: BRAND_DESCRIPTION,
         },
       ],
     },

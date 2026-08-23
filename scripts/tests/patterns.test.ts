@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
   applicablePatternChoices,
-  DEFAULT_PATTERN_CHOICES,
   parsePatternChoices,
   patternChoicesMatch,
   serializePatternChoices,
@@ -28,20 +27,16 @@ const FOUR_COLUMN_PATTERNS = [
 ]
 
 describe('broad difference-pattern choices', () => {
-  it('excludes identical rows by default', () => {
-    expect(patternChoicesMatch('0000', DEFAULT_PATTERN_CHOICES)).toBe(false)
-    expect(patternChoicesMatch('0001', DEFAULT_PATTERN_CHOICES)).toBe(true)
-    expect(patternChoicesMatch('0112', DEFAULT_PATTERN_CHOICES)).toBe(true)
-    expect(patternChoicesMatch('0123', DEFAULT_PATTERN_CHOICES)).toBe(true)
-    expect(patternChoicesMatch('01234', DEFAULT_PATTERN_CHOICES)).toBe(true)
+  it('matches a broad choice by its number of distinct forms', () => {
+    expect(patternChoicesMatch('0000', ['v2'])).toBe(false)
+    expect(patternChoicesMatch('0001', ['v2'])).toBe(true)
+    expect(patternChoicesMatch('0112', ['v2'])).toBe(false)
   })
 
   it('lets an exact pattern replace its broad group', () => {
-    expect(toggleExactPatternChoice(DEFAULT_PATTERN_CHOICES, '0001')).toEqual([
+    expect(toggleExactPatternChoice(['v2', 'v3'], '0001')).toEqual([
       '0001',
       'v3',
-      'v4',
-      'v5',
     ])
   })
 
@@ -68,10 +63,6 @@ describe('pattern choices and hidden columns', () => {
 })
 
 describe('pattern choice URL encoding', () => {
-  it('includes five-form rows in the serialized default', () => {
-    expect(serializePatternChoices(DEFAULT_PATTERN_CHOICES)).toBe('v2,v3,v4,v5')
-  })
-
   it('keeps an explicit five-form opt-out in the URL', () => {
     const value = ['v2', 'v3', 'v4']
     expect(serializePatternChoices(value)).toBe('v2,v3,v4')

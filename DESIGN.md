@@ -381,10 +381,21 @@ outline. The hero's character entry is the deliberate exception: a real input
 is visually hidden behind the overprint, with a drawn caret showing where the
 next character lands.
 
+### Brand Mark
+
+The Hanji mark places the simplified `汉` and traditional `漢` in one square,
+split along an anti-diagonal from upper right to lower left. The simplified
+form occupies the Paper upper-left plate, while the traditional form occupies
+the Proof Red lower-right plate. A fine seam and two registration ticks make
+the construction read as a comparison proof rather than a decorative split.
+The outlined Noto Serif CJK forms are fixed brand artwork and do not change
+with the reader's interface-style preference.
+
 ### Navigation
 
 The header is a flat sticky Paper band with no separating shadow. Navigation
-starts muted, becomes Ink on hover or exact-route activation, and uses compact
+begins with the mark and a compact localized-title / Hanji lockup. Other links
+start muted, become Ink on hover or exact-route activation, and use compact
 icon controls for preferences. Floating menus use the only substantial shadow
 in the system and return focus to their trigger when closed by keyboard.
 

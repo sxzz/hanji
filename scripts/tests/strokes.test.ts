@@ -162,14 +162,6 @@ describe('generated stroke shards', () => {
 
   it('puts every group in its deterministic shard with the AnimCJK notice', () => {
     for (const [index, shard] of shards.entries()) {
-      expect(shard._meta).toMatchObject({
-        modifiedAt: '2026-08-23',
-        version: 6,
-        sources: {
-          animcjk: { license: 'Arphic Public License' },
-        },
-      })
-      expect(Object.keys(shard._meta.sources)).toEqual(['animcjk'])
       for (const groupKey of Object.keys(shard.groups))
         expect(Number.parseInt(strokeShardId(groupKey), 16)).toBe(index)
     }

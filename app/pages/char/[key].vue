@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { charOgPath, OG_IMAGE_HEIGHT, OG_IMAGE_WIDTH } from '~~/shared/brand.ts'
 import { dictGroups } from '~~/shared/links.ts'
 import {
   fontRegionOf,
@@ -29,6 +30,7 @@ definePageMeta({ middleware: 'char-alias' })
 const route = useRoute()
 const { t, list, locale } = useT()
 const { flagsOn, visibleColumns, visibleRegions } = usePrefs()
+const siteUrl = useRuntimeConfig().public.siteUrl
 
 const key = computed(() => decodeURIComponent(String(route.params.key)))
 const row = computed(() => rowsByKey.get(key.value))
@@ -353,15 +355,39 @@ useHead({
   link: () => [{ rel: 'canonical', href: charPath(row.value!.key) }],
 })
 
-useSeoMeta({
-  title: () => key.value,
-  description: () =>
+const seoDescription = computed(
+  () =>
     `${key.value} — ${list(
       cells.value.map(
         (c) => `${t(`region.${c.column}.full`)} ${c.char} ${c.codePoint}`,
       ),
       'narrow',
     )}`,
+)
+const pageUrl = computed(() => new URL(charPath(row.value!.key), siteUrl).href)
+const ogImage = computed(
+  () => new URL(charOgPath(row.value!.key), siteUrl).href,
+)
+const seoTitle = computed(() => `${key.value} · ${t('meta.title')}`)
+const ogImageAlt = computed(() => `${key.value} 的中日港台四地字形叠印`)
+
+useSeoMeta({
+  title: () => key.value,
+  description: seoDescription,
+  ogTitle: seoTitle,
+  ogDescription: seoDescription,
+  ogImage,
+  ogImageAlt,
+  ogImageWidth: OG_IMAGE_WIDTH,
+  ogImageHeight: OG_IMAGE_HEIGHT,
+  ogType: 'article',
+  ogUrl: pageUrl,
+  ogSiteName: () => t('meta.title'),
+  twitterCard: 'summary_large_image',
+  twitterTitle: seoTitle,
+  twitterDescription: seoDescription,
+  twitterImage: ogImage,
+  twitterImageAlt: ogImageAlt,
 })
 </script>
 

@@ -4,7 +4,7 @@ set -euo pipefail
 
 : "${CODEX_WORKTREE_PATH:?CODEX_WORKTREE_PATH is not set}"
 
-source_tree="${CODEX_SOURCE_TREE_PATH:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd -P)}"
+source_tree="${CODEX_SOURCE_TREE_PATH:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)}"
 source_assets="$source_tree/app/assets"
 worktree_assets="$CODEX_WORKTREE_PATH/app/assets"
 source_notices="$source_tree/public/notices"

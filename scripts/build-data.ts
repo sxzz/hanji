@@ -86,15 +86,13 @@ const {
   'kr-basic': krBasic,
 } = covers
 
-const [st, ts, twVariants, hkVariants, jpShinjitai] = await Promise.all(
-  [
-    'STCharacters',
-    'TSCharacters',
-    'TWVariants',
-    'HKVariants',
-    'JPShinjitaiCharacters',
-  ].map(dict),
-)
+const [st, ts, twVariants, hkVariants, jpShinjitai] = await Promise.all([
+  dict('STCharacters'),
+  dict('TSCharacters'),
+  dict('TWVariants'),
+  dict('HKVariants'),
+  dict('JPShinjitaiCharacters'),
+])
 
 const CMAP_REGION = ['CN', 'HK', 'TW', 'JP', 'KR'] as const
 const REGION_IDS = ['cn', 'hk', 'tw', 'jp', 'kr'] as const
@@ -462,7 +460,7 @@ function buildRow(
    * A different key and Japanese column alone proves nothing: it can also be
    * a regional substitution or a conservative unlisted fallback.
    */
-  const oldChar = standardToJp.get(key)?.includes(chars[JP_INDEX])
+  const oldChar = standardToJp.get(key)?.includes(chars[JP_INDEX]!)
     ? key
     : undefined
   const oldPoint = oldChar?.codePointAt(0)
@@ -490,8 +488,8 @@ function buildRow(
   const readings = {
     ...unihan.get(codePoints[0])?.readings,
     ...pick(unihan.get(codePoints[1])?.readings, 'cantonese'),
-    ...pick(unihan.get(codePoints[JP_INDEX])?.readings, 'on', 'kun'),
-    ...pick(unihan.get(codePoints[KR_INDEX])?.readings, 'korean'),
+    ...pick(unihan.get(codePoints[JP_INDEX]!)?.readings, 'on', 'kun'),
+    ...pick(unihan.get(codePoints[KR_INDEX]!)?.readings, 'korean'),
   }
   const freq = chars.map(
     (char, region) => frequencyByRegion[region]?.get(char) ?? null,

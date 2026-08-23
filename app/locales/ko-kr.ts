@@ -4,8 +4,9 @@ export const koKR: typeof zhCN = {
   meta: {
     title: '漢智',
     name: 'Hanji',
+    slogan: '한 글자 사이로, 다섯 지역의 자형을 비추다',
     description:
-      '중국 대륙, 홍콩, 대만, 일본, 한국 다섯 지역에서 상용되는 한자의 인쇄 자형을 비교합니다. 같은 한자도 지역에 따라 자형이 다를 수 있습니다.',
+      '한 글자를 나란히 놓고 겹쳐, 중국 대륙·홍콩·대만·일본·한국 사이의 작지만 분명한 자형 차이를 비춥니다.',
   },
   region: {
     cn: { short: '중', full: '중국 대륙' },
@@ -43,6 +44,15 @@ export const koKR: typeof zhCN = {
     theme: '밝은/어두운 테마 전환',
     back: '한자표로 돌아가기',
     options: '표시 설정',
+    logoMenu: '로고 메뉴',
+    logoMenuHint: '마우스 오른쪽 버튼으로 로고 메뉴 열기',
+    copyLogo: '로고 복사',
+    copyingLogo: '복사 중…',
+    logoCopied: '로고를 복사했습니다',
+    copyLogoFailed: '복사하지 못했습니다',
+    logoFormat: '벡터 SVG',
+    downloadLogo: 'SVG 다운로드',
+    brandCopyright: '저작권 및 크레딧',
   },
   error: {
     notFoundTitle: '이 페이지는 한자표에 없습니다',
@@ -174,6 +184,7 @@ export const koKR: typeof zhCN = {
     thanksTitle: '감사의 말',
     dataTitle: '데이터 이용',
     licenseTitle: '라이선스와 이름',
+    brandAssetsTitle: '로고 및 브랜드 자료',
     use: '용도',
     source: '출처',
     license: '라이선스',
@@ -221,8 +232,10 @@ export const koKR: typeof zhCN = {
       '제3자 데이터와 그 파생 필드, 글꼴, 필순 데이터에는 아래에 나열한 각 라이선스가 계속 적용됩니다. Hanji 라이선스는 이 프로젝트가 재허가할 권리가 없는 내용을 포함하지 않습니다.',
     licenseBrand:
       '‘漢智’, ‘Hanji’, 공식 Logo와 브랜드 식별 요소는 위 라이선스에 포함되지 않습니다. 허가 없이 공개하는 수정판, 포크, 독립 배포판은 이를 프로젝트·제품·웹사이트·앱의 이름이나 브랜드로 사용할 수 없습니다. ‘漢智를 기반으로 개발’처럼 사실을 알리는 표현은 가능하지만, 공식 버전이거나 공식 인증을 받았다고 암시해서는 안 됩니다.',
+    brandAssets:
+      '‘漢智’, ‘Hanji’의 공식 로고, 워드마크, 아이콘 및 기타 브랜드 자료에 관한 저작권과 관련 권리는 모두 유보되며 MIT 및 CC BY 4.0 라이선스 대상이 아닙니다. 비상업적 오픈 소스 프로젝트, 리소스 목록, 커뮤니티 글과 기타 일반적인 기술 콘텐츠에서 다른 오픈 소스 기술 로고와 나란히 표시하는 등의 용도로 사용할 수 있습니다. Hanji 공식 프로젝트를 사실대로 소개하거나 링크하는 데도 사용할 수 있습니다. 상업적 이용, Hanji를 복제·모방한 프로젝트, 또는 Hanji 공식 버전이나 공식 승인을 받은 것으로 오인될 수 있는 프로젝트·제품·웹사이트·앱에서의 이용은 금지합니다. 로고는 {designer}가 디자인했습니다. 이에 감사드립니다.',
     thanks:
-      'OpenCC, Unicode Unihan, zispace/hanzi-chars, Jun Da, words.hk, 국가교육연구원, scriptin/kanji-frequency, Adobe Source Han, Noto CJK, Plangothic, WenJin Mincho 유지 관리자 여러분께 감사드립니다. 한 글자씩 비교할 수 있는 {tofu}는 이 프로젝트에 앞서 같은 방식으로 Noto 계열을 사용해 지역별 자형을 구분한 도구입니다.',
+      'OpenCC, Unicode Unihan, zispace/hanzi-chars, Jun Da, words.hk, 국가교육연구원, scriptin/kanji-frequency, Adobe Source Han, Noto CJK, Plangothic, WenJin Mincho 유지 관리자 여러분께 감사드립니다. 한 글자씩 비교할 수 있는 {tofu}는 이 프로젝트에 앞서 같은 방식으로 Noto 계열을 사용해 지역별 자형을 구분한 도구입니다. 또한 이 프로젝트의 로고를 디자인한 {innei}님과 로고 탐구 및 지원에 도움을 준 {oliver}님, {antfu}님께 감사드립니다.',
   },
   footer: {
     sources: '데이터 출처',

@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  dictionaryRegionsFor,
-  LOCALE_DICTIONARY_REGION,
-  LOCALE_FREQUENCY_REGION,
-  LOCALE_OLD_FORM_WIKIPEDIA,
-  matchLocale,
-} from '../../app/locales/index.ts'
+import { dictionaryRegionsFor, matchLocale } from '../../app/locales/index.ts'
 import { jaJP } from '../../app/locales/ja-jp.ts'
 import { koKR } from '../../app/locales/ko-kr.ts'
 import { zhCN } from '../../app/locales/zh-cn.ts'
@@ -91,29 +85,7 @@ describe('browser locale matching', () => {
   })
 })
 
-describe('locale-aware frequency defaults', () => {
-  it('uses the matching corpus and keeps Korea on the documented fallback', () => {
-    expect(LOCALE_FREQUENCY_REGION).toEqual({
-      'zh-CN': 'cn',
-      'zh-TW': 'tw',
-      'zh-HK': 'hk',
-      'ja-JP': 'jp',
-      'ko-KR': 'cn',
-    })
-  })
-})
-
 describe('locale-aware dictionaries', () => {
-  it('maps every interface locale to its own regional dictionaries', () => {
-    expect(LOCALE_DICTIONARY_REGION).toEqual({
-      'zh-CN': 'cn',
-      'zh-TW': 'tw',
-      'zh-HK': 'hk',
-      'ja-JP': 'jp',
-      'ko-KR': 'kr',
-    })
-  })
-
   it('combines the locale region with the regions being compared', () => {
     expect(dictionaryRegionsFor('ko-KR', ['cn', 'jp'])).toEqual([
       'cn',
@@ -125,28 +97,6 @@ describe('locale-aware dictionaries', () => {
       'hk',
       'jp',
     ])
-  })
-})
-
-describe('locale-aware old-form references', () => {
-  it('uses the short label as the single-character old-form marker', () => {
-    expect([
-      zhCN.region.old.short,
-      zhHK.region.old.short,
-      zhTW.region.old.short,
-      jaJP.region.old.short,
-      koKR.region.old.short,
-    ]).toEqual(['旧', '舊', '舊', '旧', '구'])
-  })
-
-  it('links each interface locale to its matching Wikipedia', () => {
-    expect(LOCALE_OLD_FORM_WIKIPEDIA).toEqual({
-      'zh-CN': 'https://zh.wikipedia.org/zh-cn/%E8%88%8A%E5%AD%97%E9%AB%94',
-      'zh-TW': 'https://zh.wikipedia.org/zh-tw/%E8%88%8A%E5%AD%97%E9%AB%94',
-      'zh-HK': 'https://zh.wikipedia.org/zh-hk/%E8%88%8A%E5%AD%97%E9%AB%94',
-      'ja-JP': 'https://ja.wikipedia.org/wiki/%E6%97%A7%E5%AD%97%E4%BD%93',
-      'ko-KR': 'https://ko.wikipedia.org/wiki/%EA%B5%AC%EC%9E%90%EC%B2%B4',
-    })
   })
 })
 

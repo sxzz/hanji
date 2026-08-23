@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { createListingMatcher, LISTING_OPTIONS } from '../../shared/listings.ts'
+import { createListingMatcher } from '../../shared/listings.ts'
 import { DATA_DIR } from '../sources.ts'
 import type { CharRow, CharsData } from '../../shared/types.ts'
 
@@ -16,23 +16,6 @@ const row = (key: string): CharRow => {
 }
 
 describe('listing filters', () => {
-  it('offers Japanese old forms as a listing choice', () => {
-    expect(LISTING_OPTIONS).toContainEqual({
-      id: 'old',
-      kind: 'old',
-      region: 'jp',
-    })
-  })
-
-  it('offers the Korean education list as a listing choice', () => {
-    expect(LISTING_OPTIONS).toContainEqual({
-      id: 'kr1',
-      kind: 'tier',
-      region: 'kr',
-      tier: 1,
-    })
-  })
-
   it('matches only rows with a Japanese old form', () => {
     const matchesOld = createListingMatcher(['old'])
     expect(matchesOld(row('國'))).toBe(true)

@@ -159,6 +159,11 @@ export const ASSET_URLS: Record<string, string> = {
     'main',
     'fonts/NotoSans/unhinted/variable-ttf/NotoSans%5Bwdth,wght%5D.ttf',
   ),
+  'font/NotoSansMono-Regular.ttf': gh(
+    'notofonts/notofonts.github.io',
+    'main',
+    'fonts/NotoSansMono/hinted/ttf/NotoSansMono-Regular.ttf',
+  ),
   'font/NotoSerif-VF.ttf': gh(
     'notofonts/notofonts.github.io',
     'main',

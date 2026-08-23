@@ -1,8 +1,14 @@
-# 汉智 · hanji
+![Hanji 首页 OG](.github/assets/home-og.png)
+
+# 汉智 · Hanji
 
 简体中文 | [日本語](README.ja-JP.md)
 
 <!-- When editing this file, update README.ja-JP.md in the same change. -->
+
+> 一字之间，照见五地字形
+
+把同一个汉字并排、叠印，照见中国大陆、香港、台湾、日本与韩国之间细微而真实的字形差异。
 
 中国大陆、香港、台湾、日本、韩国五地常用汉字的字表。本应用对照的是通用黑体与宋体中的印刷字形：同一个字，在各地可能呈现不同字形。这里把五地字形并排列出，默认按界面语言对应地区的字频排序，也可按笔画或码点排序，并按差异模式筛选。韩国没有字频数据，韩国列默认关闭，可在显示选项中启用。
 
@@ -69,7 +75,8 @@ pnpm build:data   # 生成字表与字体子集，首次会下载约 302 MiB 原
 pnpm update:sources # 检查并锁定新版第三方数据；有变化时下载并重新生成
 pnpm dev
 pnpm test
-pnpm generate # 静态应用
+pnpm generate # 静态应用（不生成 OG 图片）
+pnpm build:og # 可选；生成完整 OG 图片
 ```
 
 每一行的地址是它的行名（`/char/着`）。五地展示形、`aka` 和 `alternatives` 也可作为地址，由客户端跳到所属的行——例如 `/char/国`、`/char/郞`、`/char/缐`，页面用 `rel=canonical` 指回行名地址；未确认关系不是地址别名。
@@ -105,9 +112,12 @@ Cloudflare Worker 名称须为 `hanji`，与 `wrangler.json` 中的 `name` 一�
 ```bash
 pnpm build:data
 pnpm generate
+pnpm build:og # 可选；需要完整社交分享资源时运行
 pnpm preview:worker # http://localhost:8787
 pnpm deploy
 ```
+
+`pnpm generate` 只生成站点主体，OG 图片不会阻断本地开发或部署。需要在本地检查完整社交分享资源时，请在静态生成后单独运行 `pnpm build:og`。线上 GitHub Actions 会根据生成脚本、字形与字体输入、品牌文案、Logo 和依赖锁计算精确哈希；命中时恢复完整 OG 目录，未命中时才执行全量生成。
 
 ## 数据来源
 

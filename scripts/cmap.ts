@@ -23,8 +23,14 @@ const CHAR_ENTRY = /<([\da-f]+)>\s*(\d+)/gi
 export function parseCMap(text: string): Map<number, number> {
   const map = new Map<number, number>()
 
-  for (const [, body] of text.matchAll(RANGE_BLOCK)) {
-    for (const [, loText, hiText, cidText] of body.matchAll(RANGE_ENTRY)) {
+  for (const match of text.matchAll(RANGE_BLOCK)) {
+    const body = match[1]!
+    for (const entry of body.matchAll(RANGE_ENTRY)) {
+      const [loText, hiText, cidText] = entry.slice(1) as [
+        string,
+        string,
+        string,
+      ]
       const lo = Number.parseInt(loText, 16)
       const hi = Number.parseInt(hiText, 16)
       const cid = Number(cidText)
@@ -32,8 +38,10 @@ export function parseCMap(text: string): Map<number, number> {
     }
   }
 
-  for (const [, body] of text.matchAll(CHAR_BLOCK)) {
-    for (const [, cpText, cidText] of body.matchAll(CHAR_ENTRY)) {
+  for (const match of text.matchAll(CHAR_BLOCK)) {
+    const body = match[1]!
+    for (const entry of body.matchAll(CHAR_ENTRY)) {
+      const [cpText, cidText] = entry.slice(1) as [string, string]
       map.set(Number.parseInt(cpText, 16), Number(cidText))
     }
   }

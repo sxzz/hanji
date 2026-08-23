@@ -19,6 +19,8 @@ Hanji is a Nuxt 4/Vue 3 static app. Route components live in `app/pages/`, reusa
 
 Use TypeScript and Vue Composition API with `<script setup lang="ts">`. Follow the existing two-space, single-quote, no-semicolon style and let Prettier resolve formatting. Name Vue components in PascalCase (`CharTable.vue`), composables with a `use` prefix (`useQueryState`), and utility files in kebab-case. Prefer shared types over duplicated shapes, UnoCSS utilities for component styling, and locale entries in `app/locales/` for user-facing text.
 
+Always write the project's English name as `Hanji` in user-facing copy and visual assets. Never style it as `HANJI` or `hanji`; lowercase `hanji` is reserved for technical identifiers such as package names, URLs, CSS classes, filenames, and storage keys.
+
 ## README Localizations
 
 `README.md` is the Simplified Chinese source and `README.ja-JP.md` is its Japanese translation. Whenever either file changes, update the other in the same change. Keep their structure, facts, commands, links, and data-source tables synchronized.

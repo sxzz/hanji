@@ -266,6 +266,11 @@
       "sha256": "511cc04b442ffcc3b24d65c2cc780bdffaf482b20ba0aebdc8f27b37017ff0f5",
       "size": 1581884
     },
+    "font/NotoSansMono-Regular.ttf": {
+      "url": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/3c16704cb6f6e7c02268f7bc0cf86aaee598d16f/fonts/NotoSansMono/hinted/ttf/NotoSansMono-Regular.ttf",
+      "sha256": "65b5e2b2c4a1fba9ae8be1f026cb35b03dcb8886d9b2a4147054fde12f7e767d",
+      "size": 596428
+    },
     "font/NotoSerif-VF.ttf": {
       "url": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/3c16704cb6f6e7c02268f7bc0cf86aaee598d16f/fonts/NotoSerif/unhinted/variable-ttf/NotoSerif%5Bwdth,wght%5D.ttf",
       "sha256": "8918809882ffe61eb32baf3f4b3420fda6c022f2219b1b0272755d70ecabc7de",

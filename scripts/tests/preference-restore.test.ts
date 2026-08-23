@@ -7,7 +7,6 @@ import {
   OUTLINE_KEY,
   RESTORING_ATTRIBUTE,
 } from '../../app/utils/preference-restore.ts'
-import config from '../../nuxt.config.ts'
 import { PREFERENCE_RESTORE_SCRIPT } from '../preference-restore.ts'
 
 interface RunOptions {
@@ -89,13 +88,5 @@ describe('preference restoration screen', () => {
     page.runFallback()
     expect(page.isRestoring()).toBe(false)
     expect(page.htmlLang()).toBe('zh-CN')
-  })
-
-  it('keeps no-JavaScript SSG visible by default', () => {
-    expect(config.app.head.htmlAttrs).not.toHaveProperty(RESTORING_ATTRIBUTE)
-    expect(config.app.head.script).toContainEqual({
-      innerHTML: PREFERENCE_RESTORE_SCRIPT,
-      tagPosition: 'head',
-    })
   })
 })

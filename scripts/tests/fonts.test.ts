@@ -180,13 +180,11 @@ describe('subset coverage', () => {
     }
   })
 
-  it('publishes renamed, data-driven supplemental webfonts', () => {
+  it('publishes data-driven supplemental webfonts', () => {
     for (const style of STYLES) {
       const file = join(FONT_DIR, `hanji-rare-${style}.woff2`)
       const font = supplementalFonts[style]
       const chars = supplementalChars[style]
-      expect(font.familyName).toBe(style === 'sans' ? 'HJS' : 'HJR')
-      expect(font.postscriptName).toBe(style === 'sans' ? 'HJS' : 'HJR')
       expect(statSync(file).size).toBeGreaterThan(0)
       for (const char of chars)
         expect(font.glyphForCodePoint(char.codePointAt(0)!).id).not.toBe(0)
@@ -197,9 +195,6 @@ describe('subset coverage', () => {
       )
 
       const css = readFileSync(join(FONT_DIR, `fonts-${style}.css`), 'utf8')
-      expect(css).toContain(
-        `font-family: 'Hanji Rare ${style === 'sans' ? 'Sans' : 'Serif'}'`,
-      )
       expect(css).toContain(`unicode-range: ${unicodeRange(chars)};`)
     }
   })

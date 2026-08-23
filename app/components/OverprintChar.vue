@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { overprintColor, overprintOpacity } from '~~/shared/overprint.ts'
 import {
   fontRegionOf,
   glyphSignature,
@@ -11,7 +12,6 @@ import {
   type Column,
   type Region,
 } from '~~/shared/types.ts'
-import { overprintColor, overprintOpacity } from '~/utils/overprint.ts'
 
 const props = withDefaults(
   defineProps<{

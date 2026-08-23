@@ -9,3 +9,7 @@ app/generated/
 # Pinned upstream licence notices copied verbatim by the font build.
 public/notices/plangothic-ofl.txt
 public/notices/wenjin-mincho-ofl.md
+
+# Minified by `pnpm optimize:svg`.
+public/favicon.svg
+public/logo.svg
