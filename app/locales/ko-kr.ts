@@ -172,6 +172,7 @@ export const koKR: typeof zhCN = {
   },
   about: {
     title: '앱 소개',
+    buildLabel: '빌드',
     nameTitle: '이름의 유래',
     name1:
       '“Hanji”는 지역별 한자의 이름과 각각 알파벳 한 글자씩 다릅니다. 중국어 병음 hanzi와는 j/z, 일본어 kanji와는 h/k, 한국어 hanja와는 i/a가 다릅니다. 같은 것이라도 지역마다 조금씩 달라진다는 점이 바로 이 앱의 주제입니다.',

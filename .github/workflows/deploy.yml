@@ -58,6 +58,9 @@ jobs:
 
       - name: Generate site
         env:
+          # Match the revision shown on the About page to the source revision
+          # recorded by the GitHub deployment below, including PR previews.
+          HANJI_BUILD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
           # Forks can override the source default through the NUXT_SITE_URL
           # repository variable, otherwise use the homepage configured in the
           # repository's About panel when available.

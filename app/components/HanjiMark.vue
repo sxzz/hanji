@@ -1,3 +1,10 @@
+<script setup lang="ts">
+const instanceId = useId()
+const tileClipId = `hanji-mark-tile-${instanceId}`
+const simplifiedClipId = `hanji-mark-simplified-${instanceId}`
+const traditionalClipId = `hanji-mark-traditional-${instanceId}`
+</script>
+
 <template>
   <!--
     The two regional forms share one footprint, then the anti-diagonal cut
@@ -11,21 +18,21 @@
     class="block shrink-0"
   >
     <defs>
-      <clipPath id="hanji-mark-tile" clipPathUnits="userSpaceOnUse">
+      <clipPath :id="tileClipId" clipPathUnits="userSpaceOnUse">
         <rect width="100" height="100" rx="23.5" />
       </clipPath>
-      <clipPath id="hanji-mark-simplified" clipPathUnits="userSpaceOnUse">
+      <clipPath :id="simplifiedClipId" clipPathUnits="userSpaceOnUse">
         <path d="M0 0h100L0 100Z" />
       </clipPath>
-      <clipPath id="hanji-mark-traditional" clipPathUnits="userSpaceOnUse">
+      <clipPath :id="traditionalClipId" clipPathUnits="userSpaceOnUse">
         <path d="M100 0v100H0Z" />
       </clipPath>
     </defs>
 
     <rect class="mark-tile" width="100" height="100" rx="23.5" />
 
-    <g clip-path="url(#hanji-mark-tile)">
-      <g clip-path="url(#hanji-mark-simplified)">
+    <g :clip-path="`url(#${tileClipId})`">
+      <g :clip-path="`url(#${simplifiedClipId})`">
         <path
           class="mark-simplified"
           transform="translate(15 76.5) scale(0.07 -0.07)"
@@ -33,7 +40,7 @@
         />
       </g>
 
-      <g clip-path="url(#hanji-mark-traditional)">
+      <g :clip-path="`url(#${traditionalClipId})`">
         <path
           class="mark-traditional"
           transform="translate(15 76.5) scale(0.07 -0.07)"

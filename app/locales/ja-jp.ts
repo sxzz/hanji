@@ -172,6 +172,7 @@ export const jaJP: typeof zhCN = {
   },
   about: {
     title: 'アプリについて',
+    buildLabel: 'ビルド',
     nameTitle: '名前の由来',
     name1:
       '「Hanji」は、各地における漢字の呼び名と、それぞれ一文字ずつ異なります。中国語ピンインのhanziとは「j/z」、日本語のkanjiとは「h/k」、韓国語のhanjaとは「i/a」が違います。同じものでも地域ごとに少しずつ変わる――それこそが、このアプリが扱うテーマです。',

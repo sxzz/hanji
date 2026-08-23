@@ -1,3 +1,4 @@
+import { execFileSync } from 'node:child_process'
 import { existsSync, readFileSync } from 'node:fs'
 import { copyFile, mkdir } from 'node:fs/promises'
 import * as path from 'node:path'
@@ -51,6 +52,33 @@ const SITEMAP_ROUTES = [
 ]
 const SITE_URL = process.env.NUXT_SITE_URL || 'https://hanji.sxzz.moe'
 
+function resolveBuildSha(): string {
+  const explicitSha = process.env.HANJI_BUILD_SHA?.trim()
+  if (explicitSha && /^[\da-f]{40}$/i.test(explicitSha))
+    return explicitSha.toLowerCase()
+
+  try {
+    const gitSha = execFileSync(
+      'git',
+      ['rev-parse', '--verify', 'HEAD^{commit}'],
+      {
+        cwd: import.meta.dirname,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'ignore'],
+      },
+    ).trim()
+    return /^[\da-f]{40}$/i.test(gitSha) ? gitSha.toLowerCase() : ''
+  } catch {
+    // Source archives may not carry Git metadata. They still remain buildable.
+    return ''
+  }
+}
+
+const BUILD_INFO = {
+  builtAt: new Date().toISOString(),
+  sha: resolveBuildSha(),
+}
+
 // A clean install prepares Nuxt before generated fonts exist. Include the
 // eager sans styles as soon as build:fonts has produced them; generate/dev
 // still fail later on the explicit serif import if the build is incomplete.
@@ -77,6 +105,10 @@ export default {
     public: {
       siteUrl: SITE_URL,
     },
+  },
+
+  appConfig: {
+    buildInfo: BUILD_INFO,
   },
 
   sitemap: {

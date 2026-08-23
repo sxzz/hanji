@@ -5,8 +5,12 @@ import charsDataUrl from '~/assets/data/chars.json?url&no-inline'
 import { stats } from '~/composables/chars.ts'
 
 const { t } = useT()
+const { buildInfo } = useAppConfig()
 const LICENSE_URL = `${REPO_URL}/blob/main/LICENSE`
 const CC_BY_URL = 'https://creativecommons.org/licenses/by/4.0/'
+const buildTimeLabel = `${buildInfo.builtAt.slice(0, 16).replace('T', ' ')} UTC`
+const shortBuildSha = buildInfo.sha.slice(0, 7)
+const buildCommitUrl = `${REPO_URL}/commit/${buildInfo.sha}`
 
 const numbers = computed(() => ({
   rows: stats.rows.toLocaleString(),
@@ -28,7 +32,10 @@ usePageSeo({
 <template>
   <article class="pb-8">
     <div class="prose-page max-w-2xl">
-      <h1 class="mb-8 text-2xl">{{ t('about.title') }}</h1>
+      <header class="mb-10 flex flex-col items-start gap-6 pt-6 sm:pt-8">
+        <HanjiMark class="size-32 sm:size-40" />
+        <h1 class="text-2xl">{{ t('about.title') }}</h1>
+      </header>
 
       <h2>{{ t('about.nameTitle') }}</h2>
       <p>{{ t('about.name1') }}</p>
@@ -147,6 +154,28 @@ usePageSeo({
         </template>
       </I18nText>
     </div>
+
+    <footer class="mt-16 max-w-2xl border-t border-rule py-6">
+      <p
+        class="tabular flex flex-wrap items-baseline gap-x-3 gap-y-1 text-xs text-mute"
+      >
+        <span class="inline-flex items-baseline gap-1.5">
+          <span>{{ t('about.buildLabel') }}</span>
+          <time class="font-mono" :datetime="buildInfo.builtAt">{{
+            buildTimeLabel
+          }}</time>
+        </span>
+        <a
+          v-if="buildInfo.sha"
+          :href="buildCommitUrl"
+          :title="buildInfo.sha"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="focus-ring rule-link font-mono"
+          >SHA {{ shortBuildSha }}</a
+        >
+      </p>
+    </footer>
   </article>
 </template>
 

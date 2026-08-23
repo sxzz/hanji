@@ -168,6 +168,7 @@ export const zhTW: typeof zhCN = {
   },
   about: {
     title: '關於',
+    buildLabel: '建置於',
     nameTitle: '名字的由來',
     name1:
       '「Hanji」跟漢字在各地的叫法各差一個字母：漢語拼音的hanzi差一個z，日語的kanji差一個k，韓語的hanja差一個a。同一件東西，每個地方都改掉一點點——這正是這個應用在講的事。',
