@@ -5,7 +5,10 @@ import { copyFile, mkdir } from 'node:fs/promises'
 import * as path from 'node:path'
 import process from 'node:process'
 import { LOCALES, messages } from './app/locales/all.ts'
-import { PWA_INSTALL_CAPTURE_SCRIPT } from './app/utils/pwa-install.ts'
+import {
+  PWA_INSTALL_CAPTURE_SCRIPT,
+  PWA_INSTALL_DISMISSED_KEY,
+} from './app/utils/pwa-install.ts'
 import { RESTORE_SCRIPT } from './app/utils/theme.ts'
 import { PREFERENCE_RESTORE_SCRIPT } from './scripts/preference-restore.ts'
 import { BRAND_DESCRIPTION } from './shared/brand.ts'
@@ -154,7 +157,6 @@ export default {
 
   appConfig: {
     buildInfo: BUILD_INFO,
-    pwaDev: PWA_DEV,
   },
 
   pwa: {
@@ -171,7 +173,7 @@ export default {
     // the service worker after prerendering.
     includeManifestIcons: false,
     client: {
-      installPrompt: 'hanji:pwa-install-dismissed',
+      installPrompt: PWA_INSTALL_DISMISSED_KEY,
       periodicSyncForUpdates: 60 * 60,
     },
     manifest: {

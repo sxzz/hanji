@@ -1,22 +1,30 @@
 <script setup lang="ts">
 import {
   detectPwaInstallMode,
-  PWA_INSTALL_DISMISSED_KEY,
   PWA_INSTALL_PROMPT_READY_EVENT,
 } from '~/utils/pwa-install.ts'
 
+const props = withDefaults(
+  defineProps<{
+    variant?: 'nav' | 'hero'
+  }>(),
+  {
+    variant: 'nav',
+  },
+)
+
 const { t } = useT()
 const { $pwa } = useNuxtApp()
-const { pwaDev } = useAppConfig()
-const dismissed = useLocalStorage(PWA_INSTALL_DISMISSED_KEY, false)
 const displayStandalone = useMediaQuery('(display-mode: standalone)')
-const deferredPrompt = shallowRef<BeforeInstallPromptEvent | null>(null)
-const appInstalled = ref(false)
-const dismissedThisSession = ref(false)
+const deferredPrompt = useState<BeforeInstallPromptEvent | null>(
+  'pwa-install-prompt',
+  () => null,
+)
+const appInstalled = useState('pwa-app-installed', () => false)
 const mounted = ref(false)
 
 interface BeforeInstallPromptEvent extends Event {
-  prompt: () => void
+  prompt: () => Promise<void> | void
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed'; platform: string }>
 }
 
@@ -25,16 +33,20 @@ type PwaWindow = Window & {
 }
 
 const pwaWindow = window as PwaWindow
-deferredPrompt.value = pwaWindow.__hanjiPwaInstallPrompt ?? null
+deferredPrompt.value = pwaWindow.__hanjiPwaInstallPrompt
+  ? markRaw(pwaWindow.__hanjiPwaInstallPrompt)
+  : null
 
 // Keep a component-level listener as a fallback, while the static head
 // listener above preserves an event fired before Vue finished hydrating.
 useEventListener(window, 'beforeinstallprompt', (event) => {
   event.preventDefault()
-  deferredPrompt.value = event as BeforeInstallPromptEvent
+  deferredPrompt.value = markRaw(event as BeforeInstallPromptEvent)
 })
 useEventListener(window, PWA_INSTALL_PROMPT_READY_EVENT, () => {
-  deferredPrompt.value = pwaWindow.__hanjiPwaInstallPrompt ?? null
+  deferredPrompt.value = pwaWindow.__hanjiPwaInstallPrompt
+    ? markRaw(pwaWindow.__hanjiPwaInstallPrompt)
+    : null
 })
 
 useEventListener(window, 'appinstalled', () => {
@@ -48,13 +60,7 @@ onMounted(() => {
 })
 
 const mode = computed(() => {
-  if (
-    !mounted.value ||
-    dismissedThisSession.value ||
-    (!pwaDev && dismissed.value) ||
-    appInstalled.value
-  )
-    return null
+  if (!mounted.value || appInstalled.value) return null
 
   const navigatorWithStandalone = navigator as Navigator & {
     standalone?: boolean
@@ -70,14 +76,14 @@ const mode = computed(() => {
   })
 })
 
-const description = computed(() =>
-  mode.value === 'native'
-    ? t('pwa.description')
-    : mode.value
-      ? t(`pwa.instructions.${mode.value}`)
-      : '',
+const manualInstruction = computed(() =>
+  mode.value && mode.value !== 'native' ? t(`pwa.manual.${mode.value}`) : '',
 )
-const title = computed(() => t('meta.title'))
+const fullInstruction = computed(() =>
+  mode.value && mode.value !== 'native'
+    ? t(`pwa.instructions.${mode.value}`)
+    : '',
+)
 
 async function install(): Promise<void> {
   // Prefer the module's copy when both listeners captured the same event: it
@@ -97,81 +103,44 @@ async function install(): Promise<void> {
   await prompt.prompt()
   await prompt.userChoice
 }
-
-function dismiss(): void {
-  pwaWindow.__hanjiPwaInstallPrompt = null
-  deferredPrompt.value = null
-  dismissedThisSession.value = true
-  if (!pwaDev) {
-    dismissed.value = true
-    $pwa?.cancelInstall()
-  }
-}
 </script>
 
 <template>
-  <Transition name="pwa-install">
-    <aside
-      v-if="mode"
-      class="pwa-install fixed z-50 border border-rule rounded-lg bg-paper p-3 shadow-black/5 shadow-lg"
-      role="region"
-      :aria-label="title"
+  <span v-if="mode" class="shrink-0 items-center text-$c-g1">
+    <button
+      v-if="mode === 'native'"
+      type="button"
+      class="pwa-install-control focus-ring inline-flex items-center"
+      :class="
+        props.variant === 'hero'
+          ? 'gap-1.5 btn-ghost px-3 py-1.5 text-sm'
+          : 'h-8 gap-1 rounded-md px-1.5 transition-colors duration-150 hover:bg-sunk'
+      "
+      :title="t('pwa.description')"
+      @click="install"
     >
-      <div class="flex items-start gap-2.5">
-        <HanjiMark class="mt-0.5 size-9" />
+      <span class="i-ri-download-2-line block text-sm" aria-hidden="true" />
+      <span class="whitespace-nowrap">{{ t('pwa.install') }}</span>
+    </button>
 
-        <div class="min-w-0 flex-1">
-          <p class="text-sm font-medium leading-5">{{ title }}</p>
-          <p class="mt-0.5 text-sm text-soft leading-5">{{ description }}</p>
-
-          <button
-            v-if="mode === 'native'"
-            type="button"
-            class="focus-ring mt-2 h-9 inline-flex items-center gap-2 rounded-md bg-ink px-3.5 text-sm text-paper transition-opacity duration-150 hover:opacity-85"
-            @click="install"
-          >
-            <span class="i-ri-download-2-line" aria-hidden="true" />
-            {{ t('pwa.install') }}
-          </button>
-        </div>
-
-        <button
-          type="button"
-          class="focus-ring icon-btn shrink-0 -mr-1 -mt-1"
-          :aria-label="t('pwa.dismiss')"
-          @click="dismiss"
-        >
-          <span class="i-ri-close-line text-base" aria-hidden="true" />
-        </button>
-      </div>
-    </aside>
-  </Transition>
+    <span
+      v-else
+      class="pwa-install-control inline-flex items-center"
+      :class="
+        props.variant === 'hero'
+          ? 'gap-1.5 border border-rule rounded-md px-3 py-1.5 text-sm'
+          : 'h-8 gap-1 px-1.5'
+      "
+      :title="fullInstruction"
+    >
+      <span class="i-ri-download-2-line block text-sm" aria-hidden="true" />
+      <span class="whitespace-nowrap">{{ manualInstruction }}</span>
+    </span>
+  </span>
 </template>
 
 <style scoped>
-.pwa-install {
-  top: calc(var(--nav-h) + 0.75rem);
-  right: max(1rem, env(safe-area-inset-right));
-  width: min(22rem, calc(100vw - 2rem));
-}
-
-.pwa-install-enter-active,
-.pwa-install-leave-active {
-  transition:
-    opacity 180ms ease,
-    transform 180ms ease;
-}
-
-.pwa-install-enter-from,
-.pwa-install-leave-to {
-  opacity: 0;
-  transform: translateY(-0.5rem);
-}
-
-@media (min-width: 640px) {
-  .pwa-install {
-    right: max(1.5rem, env(safe-area-inset-right));
-    width: min(22rem, calc(100vw - 3rem));
-  }
+.pwa-install-control {
+  color: var(--c-g1);
 }
 </style>

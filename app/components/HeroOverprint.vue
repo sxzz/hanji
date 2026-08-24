@@ -376,6 +376,10 @@ async function openFromField(event: KeyboardEvent) {
           <span class="i-ri-arrow-right-line block" />
           {{ t('hero.detail') }}
         </NuxtLink>
+
+        <ClientOnly>
+          <PwaInstallPrompt variant="hero" class="inline-flex sm:hidden" />
+        </ClientOnly>
       </div>
     </div>
   </section>

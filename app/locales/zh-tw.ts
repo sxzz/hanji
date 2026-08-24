@@ -236,8 +236,12 @@ export const zhTW: typeof zhCN = {
   },
   pwa: {
     description: '安裝後可離線查看字表、字形與筆順。',
-    install: '安裝',
-    dismiss: '關閉安裝提示',
+    install: '安裝漢智',
+    manual: {
+      ios: '分享 → 加入主畫面',
+      android: '選單 → 安裝應用程式',
+      'macos-safari': '檔案 → 加入Dock',
+    },
     instructions: {
       ios: '點一下瀏覽器的「分享」按鈕，再選擇「加入主畫面」。',
       android: '開啟瀏覽器選單，再選擇「安裝應用程式」或「加到主畫面」。',

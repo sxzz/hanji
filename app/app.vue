@@ -77,9 +77,5 @@ useHead({
         </p>
       </footer>
     </div>
-
-    <ClientOnly>
-      <PwaInstallPrompt />
-    </ClientOnly>
   </div>
 </template>

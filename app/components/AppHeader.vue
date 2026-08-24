@@ -16,13 +16,15 @@ const { t } = useT()
       <div class="relative h-[var(--nav-h)] flex items-center">
         <BrandMenu />
 
-        <!--
-          One row, two readings of it. On a phone “关于” is an icon and joins
-          the other icons at the end; from md it becomes a word and leads,
-          because a row that opens with a link and closes with icons is the
-          shape a desktop nav is read in.
-        -->
+        <!-- Once the nav has room, the install action precedes “关于”; only a
+             narrow phone keeps it beside the hero's character-details link. -->
         <nav class="flex items-center gap-1 text-sm text-mute md:gap-3">
+          <ClientOnly>
+            <PwaInstallPrompt
+              class="order-3 hidden md:order-0 sm:inline-flex"
+            />
+          </ClientOnly>
+
           <NuxtLink
             to="/about"
             class="nav-link focus-ring order-3 h-8 w-8 flex-center rounded-md md:order-1 md:h-auto md:w-auto"

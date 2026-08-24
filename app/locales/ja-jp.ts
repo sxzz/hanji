@@ -242,8 +242,12 @@ export const jaJP: typeof zhCN = {
   pwa: {
     description:
       'インストールすると、字表・字形・筆順をオフラインでも利用できます。',
-    install: 'インストール',
-    dismiss: 'インストール案内を閉じる',
+    install: '漢智をインストール',
+    manual: {
+      ios: '共有 → ホーム画面に追加',
+      android: 'メニュー → アプリをインストール',
+      'macos-safari': 'ファイル → Dockに追加',
+    },
     instructions: {
       ios: 'ブラウザの共有ボタンをタップして、「ホーム画面に追加」を選択します。',
       android:

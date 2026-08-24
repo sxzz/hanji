@@ -241,8 +241,12 @@ export const koKR: typeof zhCN = {
   },
   pwa: {
     description: '설치하면 한자표·자형·필순을 오프라인에서도 볼 수 있습니다.',
-    install: '설치',
-    dismiss: '설치 안내 닫기',
+    install: '漢智 설치',
+    manual: {
+      ios: '공유 → 홈 화면에 추가',
+      android: '메뉴 → 앱 설치',
+      'macos-safari': '파일 → Dock에 추가',
+    },
     instructions: {
       ios: '브라우저의 공유 버튼을 누른 다음 ‘홈 화면에 추가’를 선택하세요.',
       android:
