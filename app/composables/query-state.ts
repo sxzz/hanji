@@ -56,10 +56,14 @@ export function asOneOf<T extends string>(options: readonly T[]) {
 
 export const asRange = {
   parse: (raw: string): [number, number] => {
-    const [lo, hi] = raw.split('-').map(Number)
-    if (lo === undefined || hi === undefined) throw new Error('bad range')
+    const parts = raw.split('-').map(Number)
+    // A shared URL must fail closed: a reversed range would otherwise read as
+    // a legitimate empty result, and a third segment would be silently dropped.
+    if (parts.length !== 2) throw new Error('bad range')
+    const [lo, hi] = parts
     if (!Number.isFinite(lo) || !Number.isFinite(hi))
       throw new Error('bad range')
+    if (lo > hi) throw new Error('bad range')
     return [lo, hi]
   },
   serialize: ([lo, hi]: [number, number]) => `${lo}-${hi}`,
