@@ -234,6 +234,20 @@ export const zhCN = {
     thanks:
       '感谢OpenCC、Unicode Unihan、zispace/hanzi-chars、Jun Da、粤典、国家教育研究院、scriptin/kanji-frequency、Adobe Source Han、Noto CJK、Plangothic与WenJin Mincho的维护者。逐字对照工具{tofu}是本项目的先行者，同样用Noto系列区分地区字形。同时感谢{innei}为本项目设计Logo，以及{oliver}与{antfu}对项目Logo的探索和帮助。',
   },
+  pwa: {
+    description: '安装后可离线查看字表、字形与笔顺。',
+    install: '安装汉智',
+    manual: {
+      ios: '分享 → 添加到主屏幕',
+      android: '菜单 → 安装应用',
+      'macos-safari': '文件 → 添加到程序坞',
+    },
+    instructions: {
+      ios: '点按浏览器的“分享”按钮，然后选择“添加到主屏幕”。',
+      android: '打开浏览器菜单，然后选择“安装应用”或“添加到主屏幕”。',
+      'macos-safari': '在Safari菜单栏中选择“文件”→“添加到程序坞”。',
+    },
+  },
   footer: {
     sources: '数据来源',
     detail: '完整说明与鸣谢',

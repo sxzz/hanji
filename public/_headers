@@ -4,6 +4,16 @@
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=31536000, immutable
 
+# The browser checks these stable PWA entry points for every release. Keeping
+# their response URLs stable while forcing validation lets Cloudflare's ETag
+# avoid a download when the bytes are unchanged without pinning an old worker.
+/sw.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/manifest.webmanifest
+  Content-Type: application/manifest+json; charset=utf-8
+  Cache-Control: public, max-age=0, must-revalidate
+
 # Notices and license texts deliberately keep stable URLs. They may change
 # independently of the Vite asset graph, so every reuse must be revalidated.
 /notices/*

@@ -45,6 +45,10 @@ useHead({
     title ? `${title} \u00B7 ${t('meta.title')}` : t('meta.title'),
   link: () =>
     serifWanted.value ? [{ rel: 'stylesheet', href: serifStylesheetUrl }] : [],
+  meta: () => [
+    { name: 'application-name', content: t('meta.title') },
+    { name: 'apple-mobile-web-app-title', content: t('meta.title') },
+  ],
 })
 </script>
 

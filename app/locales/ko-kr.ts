@@ -239,6 +239,22 @@ export const koKR: typeof zhCN = {
     thanks:
       'OpenCC, Unicode Unihan, zispace/hanzi-chars, Jun Da, words.hk, 국가교육연구원, scriptin/kanji-frequency, Adobe Source Han, Noto CJK, Plangothic, WenJin Mincho 유지 관리자 여러분께 감사드립니다. 한 글자씩 비교할 수 있는 {tofu}는 이 프로젝트에 앞서 같은 방식으로 Noto 계열을 사용해 지역별 자형을 구분한 도구입니다. 또한 이 프로젝트의 로고를 디자인한 {innei}님과 로고 탐구 및 지원에 도움을 준 {oliver}님, {antfu}님께 감사드립니다.',
   },
+  pwa: {
+    description: '설치하면 한자표·자형·필순을 오프라인에서도 볼 수 있습니다.',
+    install: '漢智 설치',
+    manual: {
+      ios: '공유 → 홈 화면에 추가',
+      android: '메뉴 → 앱 설치',
+      'macos-safari': '파일 → Dock에 추가',
+    },
+    instructions: {
+      ios: '브라우저의 공유 버튼을 누른 다음 ‘홈 화면에 추가’를 선택하세요.',
+      android:
+        '브라우저 메뉴를 열고 ‘앱 설치’ 또는 ‘홈 화면에 추가’를 선택하세요.',
+      'macos-safari':
+        'Safari 메뉴 막대에서 ‘파일’ → ‘Dock에 추가’를 선택하세요.',
+    },
+  },
   footer: {
     sources: '데이터 출처',
     detail: '자세한 설명과 감사의 말',

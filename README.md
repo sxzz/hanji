@@ -74,10 +74,13 @@ pnpm install
 pnpm build:data   # 生成字表与字体子集，首次会下载约 302 MiB 原始数据，之后走缓存
 pnpm update:sources # 检查并锁定新版第三方数据；有变化时下载并重新生成
 pnpm dev
+pnpm dev:pwa # 启用开发用 Service Worker，测试安装弹窗、Manifest 与 standalone 模式
 pnpm test
 pnpm generate # 静态应用（不生成 OG 图片）
 pnpm build:og # 可选；生成完整 OG 图片
 ```
+
+需要调试 PWA 安装体验时，用 `pnpm dev:pwa` 启动后在 Chromium 中打开 `http://localhost:3000`。开发 Service Worker 使用 Network Only 导航且不下载生产环境的完整离线缓存，因此不会干扰 HMR；完整离线行为仍应使用 `pnpm generate` 后的产物验证。安装入口不会自动弹出：桌面端位于导航栏“关于”左侧，手机端位于首页“查看详情”右侧。若浏览器仍控制着修改前的开发 Service Worker，请在 DevTools 的 Application 面板更新或注销它，再刷新一次。
 
 每一行的地址是它的行名（`/char/着`）。五地展示形、`aka` 和 `alternatives` 也可作为地址，由客户端跳到所属的行——例如 `/char/国`、`/char/郞`、`/char/缐`，页面用 `rel=canonical` 指回行名地址；未确认关系不是地址别名。
 
