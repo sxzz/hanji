@@ -237,16 +237,6 @@ export const zhCN = {
   pwa: {
     description: '安装后可离线查看字表、字形与笔顺。',
     install: '安装汉智',
-    manual: {
-      ios: '分享 → 添加到主屏幕',
-      android: '菜单 → 安装应用',
-      'macos-safari': '文件 → 添加到程序坞',
-    },
-    instructions: {
-      ios: '点按浏览器的“分享”按钮，然后选择“添加到主屏幕”。',
-      android: '打开浏览器菜单，然后选择“安装应用”或“添加到主屏幕”。',
-      'macos-safari': '在Safari菜单栏中选择“文件”→“添加到程序坞”。',
-    },
   },
   footer: {
     sources: '数据来源',

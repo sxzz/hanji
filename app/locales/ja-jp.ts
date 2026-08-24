@@ -243,18 +243,6 @@ export const jaJP: typeof zhCN = {
     description:
       'インストールすると、字表・字形・筆順をオフラインでも利用できます。',
     install: '漢智をインストール',
-    manual: {
-      ios: '共有 → ホーム画面に追加',
-      android: 'メニュー → アプリをインストール',
-      'macos-safari': 'ファイル → Dockに追加',
-    },
-    instructions: {
-      ios: 'ブラウザの共有ボタンをタップして、「ホーム画面に追加」を選択します。',
-      android:
-        'ブラウザのメニューを開き、「アプリをインストール」または「ホーム画面に追加」を選択します。',
-      'macos-safari':
-        'Safariのメニューバーで「ファイル」→「Dockに追加」を選択します。',
-    },
   },
   footer: {
     sources: 'データソース',

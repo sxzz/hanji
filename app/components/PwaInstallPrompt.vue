@@ -76,15 +76,6 @@ const mode = computed(() => {
   })
 })
 
-const manualInstruction = computed(() =>
-  mode.value && mode.value !== 'native' ? t(`pwa.manual.${mode.value}`) : '',
-)
-const fullInstruction = computed(() =>
-  mode.value && mode.value !== 'native'
-    ? t(`pwa.instructions.${mode.value}`)
-    : '',
-)
-
 async function install(): Promise<void> {
   // Prefer the module's copy when both listeners captured the same event: it
   // also clears its own reactive state after the native dialog opens.
@@ -106,9 +97,8 @@ async function install(): Promise<void> {
 </script>
 
 <template>
-  <span v-if="mode" class="shrink-0 items-center text-$c-g1">
+  <span v-if="mode === 'native'" class="shrink-0 items-center text-$c-g1">
     <button
-      v-if="mode === 'native'"
       type="button"
       class="pwa-install-control focus-ring inline-flex items-center"
       :class="
@@ -122,20 +112,6 @@ async function install(): Promise<void> {
       <span class="i-ri-download-2-line block text-sm" aria-hidden="true" />
       <span class="whitespace-nowrap">{{ t('pwa.install') }}</span>
     </button>
-
-    <span
-      v-else
-      class="pwa-install-control inline-flex items-center"
-      :class="
-        props.variant === 'hero'
-          ? 'gap-1.5 border border-rule rounded-md px-3 py-1.5 text-sm'
-          : 'h-8 gap-1 px-1.5'
-      "
-      :title="fullInstruction"
-    >
-      <span class="i-ri-download-2-line block text-sm" aria-hidden="true" />
-      <span class="whitespace-nowrap">{{ manualInstruction }}</span>
-    </span>
   </span>
 </template>
 

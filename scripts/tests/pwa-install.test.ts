@@ -24,61 +24,57 @@ describe('PWA installation mode', () => {
     expect(mode({ promptAvailable: true })).toBe('native')
   })
 
-  it.each([
+  it.each<[string, Partial<PwaInstallEnvironment>]>([
     [
       'iPhone',
-      'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1',
-      'iPhone',
-      5,
+      {
+        userAgent:
+          'Mozilla/5.0 (iPhone; CPU iPhone OS 18_6 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1',
+        platform: 'iPhone',
+        maxTouchPoints: 5,
+      },
     ],
     [
       'iPad',
-      'Mozilla/5.0 (iPad; CPU OS 18_6 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1',
-      'iPad',
-      5,
+      {
+        userAgent:
+          'Mozilla/5.0 (iPad; CPU OS 18_6 like Mac OS X) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1',
+        platform: 'iPad',
+        maxTouchPoints: 5,
+      },
     ],
     [
       'iPadOS desktop user agent',
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1',
-      'MacIntel',
-      5,
+      {
+        userAgent:
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15) AppleWebKit/605.1.15 Version/18.0 Mobile/15E148 Safari/604.1',
+        platform: 'MacIntel',
+        maxTouchPoints: 5,
+      },
     ],
-  ])(
-    'shows iOS instructions on %s',
-    (_, userAgent, platform, maxTouchPoints) => {
-      expect(mode({ userAgent, platform, maxTouchPoints })).toBe('ios')
-    },
-  )
-
-  it('shows browser-menu instructions when Android has no native event', () => {
-    expect(
-      mode({
+    [
+      'Android without a native event',
+      {
         userAgent:
           'Mozilla/5.0 (Linux; Android 16; Pixel 10) AppleWebKit/537.36 Chrome/140.0 Mobile Safari/537.36',
         platform: 'Linux armv8l',
         maxTouchPoints: 5,
-      }),
-    ).toBe('android')
-  })
-
-  it('shows Add to Dock instructions for modern macOS Safari', () => {
-    expect(
-      mode({
+      },
+    ],
+    [
+      'modern macOS Safari',
+      {
         userAgent:
           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/18.6 Safari/605.1.15',
-      }),
-    ).toBe('macos-safari')
-  })
-
-  it.each([
-    ['ordinary Mac Chrome', base.userAgent],
-    [
-      'old macOS Safari',
-      'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 Version/16.6 Safari/605.1.15',
+      },
     ],
-  ])('does not invent an install path for %s', (_, userAgent) => {
-    expect(mode({ userAgent })).toBeNull()
-  })
+    ['ordinary Mac Chrome', {}],
+  ])(
+    'hides the install action on %s without a native event',
+    (_, overrides) => {
+      expect(mode(overrides)).toBeNull()
+    },
+  )
 
   it('hides every installation path in standalone mode', () => {
     expect(mode({ promptAvailable: true, standalone: true })).toBeNull()
