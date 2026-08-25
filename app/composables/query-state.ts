@@ -56,14 +56,8 @@ export function asOneOf<T extends string>(options: readonly T[]) {
 
 export const asRange = {
   parse: (raw: string): [number, number] => {
-    const [loRaw, hiRaw, ...rest] = raw.split('-')
-    if (
-      loRaw === undefined ||
-      hiRaw === undefined ||
-      rest.length > 0 ||
-      loRaw.trim() === '' ||
-      hiRaw.trim() === ''
-    )
+    const [loRaw, hiRaw, extra] = raw.split('-', 3)
+    if (!loRaw?.trim() || !hiRaw?.trim() || extra !== undefined)
       throw new Error('bad range')
 
     const lo = Number(loRaw)
