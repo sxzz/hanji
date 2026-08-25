@@ -11,6 +11,17 @@ const { t } = useT()
  */
 const isDark = useDark({ storageKey: COLOR_KEY })
 const toggleDark = useToggle(isDark)
+
+function toggleDarkClick() {
+  if (!document.startViewTransition) {
+    toggleDark()
+    return
+  }
+
+  document.startViewTransition(() => {
+    toggleDark()
+  })
+}
 </script>
 
 <template>
@@ -25,7 +36,7 @@ const toggleDark = useToggle(isDark)
     class="focus-ring icon-btn"
     :title="t('nav.theme')"
     :aria-label="t('nav.theme')"
-    @click="toggleDark()"
+    @click="toggleDarkClick()"
   >
     <span class="i-ri-moon-line theme-icon theme-icon-light" />
     <span class="i-ri-sun-line theme-icon theme-icon-dark" />
