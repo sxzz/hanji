@@ -13,6 +13,11 @@ const isDark = useDark({ storageKey: COLOR_KEY })
 const toggleDark = useToggle(isDark)
 
 function toggleDarkClick() {
+  if (!document.startViewTransition) {
+    toggleDark()
+    return
+  }
+
   document.startViewTransition(() => {
     toggleDark()
   })
