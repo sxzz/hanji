@@ -1,5 +1,11 @@
 import { frequencyRankOf } from '~~/shared/frequency.ts'
-import { createListingMatcher, listingOptionsFor } from '~~/shared/listings.ts'
+import {
+  createListingMatcher,
+  LIST_PAGE_SIZE,
+  LIST_PAGE_SIZES,
+  listingOptionsFor,
+  parseListPageSize,
+} from '~~/shared/listings.ts'
 import {
   applicablePatternChoices,
   DEFAULT_PATTERN_CHOICES,
@@ -18,7 +24,6 @@ import {
   type CharsData,
   type Region,
 } from '~~/shared/types.ts'
-import charsRaw from '~/assets/data/chars.json?raw'
 import {
   LOCALE_DICTIONARY_REGION,
   LOCALE_FREQUENCY_REGION,
@@ -34,7 +39,26 @@ import {
 } from './query-state.ts'
 import { useStyle } from './style.ts'
 
-const data: CharsData = JSON.parse(charsRaw)
+async function loadCharsData(): Promise<CharsData> {
+  if (import.meta.server || import.meta.dev) {
+    const { default: raw } = await import('~/assets/data/chars.json?raw')
+    return JSON.parse(raw) as CharsData
+  }
+
+  // The first page is already in SSR HTML. Keep this hydration-only dataset
+  // behind the CSS and fonts that determine the first visible paint.
+  const response = await fetch('/data/chars.json', { priority: 'low' })
+  if (!response.ok)
+    throw new Error(`character data returned ${response.status}`)
+  return (await response.json()) as CharsData
+}
+
+/**
+ * Keep the 3 MiB dataset out of the production JavaScript parser. SSR and the
+ * dev client read the Vite-managed source; production browsers reuse the
+ * separately cached public JSON.
+ */
+const data = await loadCharsData()
 
 export const stats = data.stats
 
@@ -47,8 +71,9 @@ export type SortKey = (typeof SORT_KEYS)[number]
 export const ORDERS = ['asc', 'desc'] as const
 export type Order = (typeof ORDERS)[number]
 
-/** Rows per page. The list is rendered in full, so this bounds the DOM. */
-export const PAGE_SIZE = 100
+/** Rows per page. The list is rendered in full, so this bounds HTML and DOM. */
+export const PAGE_SIZE = LIST_PAGE_SIZE
+export const PAGE_SIZES = LIST_PAGE_SIZES
 
 /** Below this many results the whole list can be rendered in one go. */
 export const SHOW_ALL_LIMIT = 2000
@@ -125,9 +150,6 @@ export const rowsByKey = new Map(data.rows.map((row) => [row.key, row]))
 const strokeCount = (row: CharRow, region: Region): number =>
   row.strokes[REGIONS.indexOf(region)]!
 
-/** The /char path for a row key, encoded once so callers cannot forget to. */
-export const charPath = (key: string) => `/char/${encodeURIComponent(key)}`
-
 /**
  * Characters that appear in a row without being its key: the mainland 国 under
  * the row keyed 國, or 著 under 着. Each is a URL of its own that redirects to
@@ -150,62 +172,14 @@ export const aliasTarget = ((): Map<string, string> => {
 export const rowsNaming = (char: string): CharRow[] =>
   (charIndex.get(char) ?? []).map((index) => data.rows[index]!)
 
-/** The two stacks on the home page a character can be opened from. */
-export type MorphSource = 'row' | 'hero'
+export const charDetailForKey = (key: string) => {
+  const row = rowsByKey.get(key)
+  if (!row) return null
 
-export interface Morphing {
-  key: string
-  /**
-   * Which stack was clicked. The hero and a row can be showing the same
-   * character at once, and a view-transition-name may only be held by one
-   * element in the document -- naming both would leave the browser with an
-   * ambiguous pair and no transition at all. So each stack asks whether the
-   * click was its own, rather than only whether the key matches.
-   */
-  from: MorphSource
-}
-
-/**
- * The character a reader is opening, so the stack they clicked can carry a
- * view-transition-name and morph into the one on the detail page.
- *
- * Exactly one element may hold a given name at a time, which is why this is a
- * single record rather than a name on every row.
- */
-export function useMorphingKey() {
-  return useState<Morphing | null>('morphing', () => null)
-}
-
-/** A view-transition-name has to be a valid CSS identifier. */
-export const morphName = (key: string) =>
-  `char-${key.codePointAt(0)!.toString(16)}`
-
-/**
- * A click the browser should be left to handle itself: a new tab or window, or
- * anything but the primary button. There is nothing on the other side to morph
- * into, and the reader keeps their place in whatever they were reading.
- */
-export const opensElsewhere = (event: MouseEvent) =>
-  event.metaKey ||
-  event.ctrlKey ||
-  event.shiftKey ||
-  event.altKey ||
-  (event.button !== undefined && event.button !== 0)
-
-/**
- * Open a character with the stack that was clicked morphing into the one on
- * its page.
- *
- * The name has to be on the element before the navigation starts, so the
- * browser has something to match against when it takes the outgoing snapshot;
- * hence the tick between naming it and leaving.
- */
-export function useMorphTo() {
-  const morphing = useMorphingKey()
-  return async function morphTo(key: string, from: MorphSource) {
-    morphing.value = { key, from }
-    await nextTick()
-    await navigateTo(charPath(key))
+  return {
+    row,
+    canonicalKeys: row.chars.filter((char) => rowsByKey.has(char)),
+    namingRows: rowsNaming(row.key),
   }
 }
 
@@ -294,6 +268,7 @@ export function useChars() {
     (raw) => Math.max(1, Math.trunc(Number(raw)) || 1),
     String,
   )
+  const pageSize = useQueryState('size', PAGE_SIZE, parseListPageSize, String)
 
   /** Row indices matching the search, or null when there is no query. */
   const searchHits = computed<Set<number> | null>(() => {
@@ -435,8 +410,20 @@ export function useChars() {
     (value) => (value ? '' : '1'),
   )
   const canShowAll = computed(() => rows.value.length <= SHOW_ALL_LIMIT)
+
+  /** A hand-edited URL must not bypass the rendering safety limit. */
+  watch(
+    [paged, canShowAll],
+    ([isPaged, allowed]) => {
+      if (!isPaged && !allowed) paged.value = true
+    },
+    { immediate: true, flush: 'sync' },
+  )
+
   const pageCount = computed(() =>
-    paged.value ? Math.max(1, Math.ceil(rows.value.length / PAGE_SIZE)) : 1,
+    paged.value
+      ? Math.max(1, Math.ceil(rows.value.length / pageSize.value))
+      : 1,
   )
 
   /** Keep the URL-backed page itself valid, not only the rendered slice. */
@@ -453,8 +440,8 @@ export function useChars() {
   /** Rows on the current page. */
   const pageRows = computed(() => {
     if (!paged.value) return rows.value
-    const start = (page.value - 1) * PAGE_SIZE
-    return rows.value.slice(start, start + PAGE_SIZE)
+    const start = (page.value - 1) * pageSize.value
+    return rows.value.slice(start, start + pageSize.value)
   })
 
   /**
@@ -475,6 +462,7 @@ export function useChars() {
       strokes.value,
       common.value,
       tiers.value,
+      pageSize.value,
     ]),
   )
   /**
@@ -524,6 +512,8 @@ export function useChars() {
     page,
     paged,
     canShowAll,
+    pageSize,
+    pageSizes: PAGE_SIZES,
     style,
     counts,
     patternGroups,

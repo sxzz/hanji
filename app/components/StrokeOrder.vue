@@ -38,8 +38,9 @@ const LOCALE_COLUMN = {
 
 const selected = ref<Column>()
 const status = ref<Status>('loading')
-const isLoading = ref(true)
-const showSkeleton = ref(true)
+const isLoading = ref(false)
+const showSkeleton = ref(false)
+const sectionElement = ref<HTMLElement>()
 const phase = ref<Phase>('idle')
 const displayedChoice = shallowRef<StrokeOrderChoice>()
 const loadedGroup = shallowRef<{
@@ -60,7 +61,7 @@ const storedSpeed = useLocalStorage<number>(STROKE_SPEED_KEY, 1, {
 const pathElements: SVGPathElement[] = []
 const clipPrefix = useId().replaceAll(':', '')
 
-let mounted = false
+let activated = false
 let requestVersion = 0
 let animation: Animation | undefined
 let run = 0
@@ -265,6 +266,15 @@ async function load() {
   }
 }
 
+let stopObserving = () => {}
+const observer = useIntersectionObserver(sectionElement, ([entry]) => {
+  if (!entry?.isIntersecting || activated) return
+  activated = true
+  stopObserving()
+  load()
+})
+stopObserving = observer.stop
+
 async function play() {
   if (phase.value === 'playing') {
     animation?.pause()
@@ -350,15 +360,18 @@ watch(speed, (value) => {
   animation?.updatePlaybackRate(value)
 })
 watch(loadKey, () => {
-  if (mounted) load()
+  if (activated) load()
 })
 onMounted(() => {
-  mounted = true
   if (isStrokeSpeed(storedSpeed.value)) speed.value = storedSpeed.value
-  load()
+  if (!observer.isSupported.value) {
+    activated = true
+    load()
+  }
 })
 onBeforeUnmount(() => {
   requestVersion++
+  stopObserving()
   cancelSkeletonReveal()
   stop()
 })
@@ -367,6 +380,7 @@ onBeforeUnmount(() => {
 <template>
   <section
     v-if="choices.length"
+    ref="sectionElement"
     aria-labelledby="stroke-order-title"
     :aria-busy="isLoading"
   >

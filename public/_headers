@@ -1,5 +1,5 @@
 # Everything under _nuxt carries a content hash in its name, so it can never
-# go stale. This includes Vite-built datasets, stroke shards, fonts and flags.
+# go stale. This includes Vite-built stroke shards and flags.
 /_nuxt/*
   Access-Control-Allow-Origin: *
   Cache-Control: public, max-age=31536000, immutable
@@ -13,6 +13,12 @@
 /manifest.webmanifest
   Content-Type: application/manifest+json; charset=utf-8
   Cache-Control: public, max-age=0, must-revalidate
+
+# Generated font CSS and binaries keep stable URLs so server and client builds
+# cannot disagree about a Vite hash. Revalidate them across deployments.
+/fonts/*
+  Access-Control-Allow-Origin: *
+  Cache-Control: public, no-cache
 
 # Notices and license texts deliberately keep stable URLs. They may change
 # independently of the Vite asset graph, so every reuse must be revalidated.

@@ -22,7 +22,7 @@ export const RAW_DIR = join(ROOT, 'data/raw')
 export const ASSET_DIR = join(ROOT, 'app/assets')
 export const DATA_DIR = join(ASSET_DIR, 'data')
 export const STROKE_DIR = join(ASSET_DIR, 'strokes')
-export const FONT_DIR = join(ASSET_DIR, 'fonts')
+export const FONT_DIR = join(ROOT, 'public/fonts')
 export const NOTICES_DIR = join(ROOT, 'public/notices')
 export const SOURCE_LOCK_PATH = join(ROOT, 'data/sources.lock.json')
 

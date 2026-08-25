@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ABOUT_OG_PATH } from '~~/shared/brand.ts'
 import { ISSUES_URL, REPO_URL } from '~~/shared/links.ts'
-import charsDataUrl from '~/assets/data/chars.json?url&no-inline'
-import { stats } from '~/composables/chars.ts'
 
 const { t } = useT()
-const { buildInfo } = useAppConfig()
+const { buildInfo, datasetStats } = useAppConfig()
 const LICENSE_URL = `${REPO_URL}/blob/main/LICENSE`
 const CC_BY_URL = 'https://creativecommons.org/licenses/by/4.0/'
 const buildTimeLabel = `${buildInfo.builtAt.slice(0, 16).replace('T', ' ')} UTC`
@@ -13,9 +11,9 @@ const shortBuildSha = buildInfo.sha.slice(0, 7)
 const buildCommitUrl = `${REPO_URL}/commit/${buildInfo.sha}`
 
 const numbers = computed(() => ({
-  rows: stats.rows.toLocaleString(),
-  identical: stats.identical.toLocaleString(),
-  allDiffer: stats.allDiffer.toLocaleString(),
+  rows: datasetStats.rows.toLocaleString(),
+  identical: datasetStats.identical.toLocaleString(),
+  allDiffer: datasetStats.allDiffer.toLocaleString(),
 }))
 
 usePageSeo({
@@ -78,9 +76,7 @@ usePageSeo({
       <p>{{ t('about.data1') }}</p>
       <ul>
         <li>
-          <a href="/data/chars.json" :data-versioned-url="charsDataUrl"
-            >/data/chars.json</a
-          >
+          <a href="/data/chars.json">/data/chars.json</a>
         </li>
         <li>
           <a href="/notices/data-sources.md">data-sources.md</a>

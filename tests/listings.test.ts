@@ -2,7 +2,12 @@ import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import { DATA_DIR } from '../scripts/sources.ts'
-import { createListingMatcher } from '../shared/listings.ts'
+import {
+  createListingMatcher,
+  LIST_PAGE_SIZE,
+  LIST_PAGE_SIZES,
+  parseListPageSize,
+} from '../shared/listings.ts'
 import type { CharRow, CharsData } from '../shared/types.ts'
 
 const data: CharsData = JSON.parse(
@@ -14,6 +19,22 @@ const row = (key: string): CharRow => {
   if (!found) throw new Error(`${key} is not listed`)
   return found
 }
+
+describe('list pagination', () => {
+  it('defaults to 20 rows and never offers more than 100', () => {
+    expect(LIST_PAGE_SIZE).toBe(20)
+    expect(LIST_PAGE_SIZES).toEqual([20, 50, 100])
+    expect(Math.max(...LIST_PAGE_SIZES)).toBe(100)
+  })
+
+  it.each(LIST_PAGE_SIZES)('accepts the supported %i-row size', (size) => {
+    expect(parseListPageSize(String(size))).toBe(size)
+  })
+
+  it.each(['10', '21', '101', 'all', ''])('rejects page size %j', (raw) => {
+    expect(() => parseListPageSize(raw)).toThrow()
+  })
+})
 
 describe('listing filters', () => {
   it('matches only rows with a Japanese old form', () => {

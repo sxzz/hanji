@@ -1,3 +1,5 @@
+import { THEME_COLOR_DARK, THEME_COLOR_LIGHT } from '../../shared/brand.ts'
+
 export const STYLE_KEY = 'hanji:style'
 export const COLOR_KEY = 'hanji:color'
 
@@ -15,5 +17,6 @@ try{
 var d=document.documentElement,q=function(k){var v=localStorage.getItem(k);return v?v.replace(/^"|"$/g,''):''};
 var s=q(${JSON.stringify(STYLE_KEY)});if(s==='sans'||s==='serif')d.dataset.style=s;
 var c=q(${JSON.stringify(COLOR_KEY)});
-if(c==='dark'||(c!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches))d.classList.add('dark');
+var x=c==='dark'||(c!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);if(x)d.classList.add('dark');
+var m=document.querySelectorAll('meta[name="theme-color"]'),v=x?${JSON.stringify(THEME_COLOR_DARK)}:${JSON.stringify(THEME_COLOR_LIGHT)};for(var i=0;i<m.length;i++)m[i].content=v;
 }catch(e){}`

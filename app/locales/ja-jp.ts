@@ -6,7 +6,9 @@ export const jaJP: typeof zhCN = {
     name: 'Hanji',
     slogan: '一字のあいだに、五地域の字形が見える',
     description:
-      '一つの漢字を並べて重ね、中国大陸、香港、台湾、日本、韓国のあいだにある、細やかで確かな字形の違いを映し出します。',
+      'Hanji（漢智）は、一つの漢字を並べて重ね、中国大陸・香港・台湾・日本・韓国の字形差を比較できるツールです。Unicodeコードポイント、画数、字頻、読み、字表への収録状況、筆順も確認できます。',
+    charDescription:
+      '「{char}」について、中国大陸・香港・台湾・日本・韓国の字形、Unicodeコードポイント、画数、字頻、読み、字表への収録状況、筆順を比較します。各地域の表記：{forms}。',
     charImageAlt: '{char}の中国大陸・香港・台湾・日本における字形の重ね刷り',
   },
   region: {
@@ -123,6 +125,7 @@ export const jaJP: typeof zhCN = {
     page: '全{total}ページ中{page}ページ',
     prev: '前のページ',
     next: '次のページ',
+    perPage: '1ページあたり',
     showAll: '{n}字をすべて表示',
     paginate: 'ページ分割して表示',
   },

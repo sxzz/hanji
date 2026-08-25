@@ -7,6 +7,8 @@ set -euo pipefail
 source_tree="${CODEX_SOURCE_TREE_PATH:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)}"
 source_assets="$source_tree/app/assets"
 worktree_assets="$CODEX_WORKTREE_PATH/app/assets"
+source_fonts="$source_tree/public/fonts"
+worktree_fonts="$CODEX_WORKTREE_PATH/public/fonts"
 source_notices="$source_tree/public/notices"
 worktree_notices="$CODEX_WORKTREE_PATH/public/notices"
 
@@ -20,8 +22,8 @@ data_files=(
   "$source_assets/data/chars.json"
 )
 stroke_shards=("$source_assets"/strokes/[0-9a-f][0-9a-f].json)
-font_binaries=("$source_assets"/fonts/*.woff2)
-font_stylesheets=("$source_assets"/fonts/fonts-*.css)
+font_binaries=("$source_fonts"/*.woff2)
+font_stylesheets=("$source_fonts"/fonts-*.css)
 notice_files=(
   "$source_notices/data-sources.md"
   "$source_notices/noto-ofl.txt"
@@ -42,7 +44,7 @@ if (
   [[ "$complete" != true ]] ||
     ((${#stroke_shards[@]} != 32)) ||
     ((${#font_binaries[@]} == 0)) ||
-    ((${#font_stylesheets[@]} != 3))
+    ((${#font_stylesheets[@]} != 4))
 ); then
   echo \
     "No complete data build found in $source_tree; run 'pnpm build:data' in the source tree first." \
@@ -53,14 +55,14 @@ fi
 mkdir -p \
   "$worktree_assets/data" \
   "$worktree_assets/strokes" \
-  "$worktree_assets/fonts" \
+  "$worktree_fonts" \
   "$worktree_notices"
 cp -p "${data_files[@]}" "$worktree_assets/data/"
 cp -p "${stroke_shards[@]}" "$worktree_assets/strokes/"
 cp -p \
   "${font_binaries[@]}" \
   "${font_stylesheets[@]}" \
-  "$worktree_assets/fonts/"
+  "$worktree_fonts/"
 cp -p "${notice_files[@]}" "$worktree_notices/"
 cp -p "$face_marks" "$CODEX_WORKTREE_PATH/app/generated/face-marks.ts"
 

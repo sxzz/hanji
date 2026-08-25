@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useStyle } from '~/composables/style.ts'
 import { revealRestoredPreferences } from '~/utils/preference-restore.ts'
-import serifStylesheetUrl from '~/assets/fonts/fonts-serif.css?url'
 
 const { t, meta } = useT()
 const route = useRoute()
@@ -9,6 +8,21 @@ const style = useStyle()
 
 const isHome = computed(() => route.name === 'index')
 const showFooter = computed(() => route.name !== 'about')
+const baseFontStylesheets = [
+  '/fonts/fonts-ui.css',
+  '/fonts/fonts-sans.css',
+] as const
+const criticalFontStylesheet = '/fonts/fonts-critical.css'
+const serifStylesheetUrl = '/fonts/fonts-serif.css'
+const homeFontPreloads = [
+  '/fonts/ui-latin-sans.woff2',
+  '/fonts/ui-sans-zh-CN-0.woff2',
+  '/fonts/ui-sans-zh-CN-1.woff2',
+  '/fonts/hanji-sans-cn-0.woff2',
+  '/fonts/hanji-sans-hk-0.woff2',
+  '/fonts/hanji-sans-tw-0.woff2',
+  '/fonts/hanji-sans-jp-0.woff2',
+] as const
 
 // Picks the reader's language once the client is running; the prerendered
 // HTML is always the default locale. If the head script hid a mismatching
@@ -42,9 +56,42 @@ useHead({
     'data-style': () => style.value,
   },
   titleTemplate: (title) =>
-    title ? `${title} \u00B7 ${t('meta.title')}` : t('meta.title'),
-  link: () =>
-    serifWanted.value ? [{ rel: 'stylesheet', href: serifStylesheetUrl }] : [],
+    title
+      ? `${title} \u00B7 ${t('meta.title')}`
+      : `${t('meta.title')} ${t('meta.name')} \u00B7 ${t('meta.slogan')}`,
+  // Font-face declarations do not style the fallback frame themselves. Fetch
+  // later unicode ranges at high priority without making their CSS block the
+  // first paint; each preload becomes a stylesheet as soon as it arrives. A
+  // small critical sheet discovers the initial fonts before the first paint.
+  link: () => [
+    { rel: 'stylesheet' as const, href: criticalFontStylesheet },
+    ...(isHome.value
+      ? homeFontPreloads.map((href) => ({
+          rel: 'preload' as const,
+          as: 'font' as const,
+          type: 'font/woff2',
+          crossorigin: 'anonymous' as const,
+          fetchpriority: 'high' as const,
+          href,
+        }))
+      : []),
+    ...baseFontStylesheets.map((href) => ({
+      rel: 'preload' as const,
+      as: 'style' as const,
+      href,
+      onload: "this.onload=null;this.rel='stylesheet'",
+    })),
+    ...(serifWanted.value
+      ? [{ rel: 'stylesheet' as const, href: serifStylesheetUrl }]
+      : []),
+  ],
+  noscript: [
+    {
+      innerHTML: baseFontStylesheets
+        .map((href) => `<link rel="stylesheet" href="${href}">`)
+        .join(''),
+    },
+  ],
   meta: () => [
     { name: 'application-name', content: t('meta.title') },
     { name: 'apple-mobile-web-app-title', content: t('meta.title') },
@@ -71,9 +118,9 @@ useHead({
           <DataSources />
         </template>
         <p class="text-xs text-mute" :class="{ 'mt-4': isHome }">
-          <NuxtLink to="/about" class="focus-ring rule-link">{{
-            t('footer.detail')
-          }}</NuxtLink>
+          <NuxtLink to="/about" class="focus-ring rule-link">
+            {{ t('footer.detail') }}
+          </NuxtLink>
         </p>
       </footer>
     </div>

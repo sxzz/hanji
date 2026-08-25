@@ -1,7 +1,9 @@
 import {
+  LOGO_PATH,
   OG_IMAGE_HEIGHT,
   OG_IMAGE_TYPE,
   OG_IMAGE_WIDTH,
+  TWITTER_SITE,
 } from '~~/shared/brand.ts'
 import { schemaOrgPage, type SchemaOrgPageType } from '~~/shared/seo.ts'
 import type { MaybeRefOrGetter } from 'vue'
@@ -25,6 +27,7 @@ export function usePageSeo(options: PageSeoOptions) {
   const imageUrl = computed(
     () => new URL(toValue(options.imagePath), siteUrl).href,
   )
+  const logoUrl = new URL(LOGO_PATH, siteUrl).href
   const description = computed(() => toValue(options.description))
   const imageAlt = computed(() => toValue(options.imageAlt))
   const socialTitle = computed(() => toValue(options.socialTitle))
@@ -47,6 +50,7 @@ export function usePageSeo(options: PageSeoOptions) {
     ogUrl: pageUrl,
     ogSiteName: () => t('meta.title'),
     twitterCard: 'summary_large_image',
+    twitterSite: TWITTER_SITE,
     twitterTitle: socialTitle,
     twitterDescription: description,
     twitterImage: imageUrl,
@@ -71,6 +75,7 @@ export function usePageSeo(options: PageSeoOptions) {
 
   useHead(() => ({
     link: [{ rel: 'canonical', href: pageUrl.value }],
+    meta: [{ property: 'og:logo', content: logoUrl }],
     script: [
       {
         key: 'schema-org',

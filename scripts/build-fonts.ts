@@ -36,9 +36,16 @@ import {
   type Locale,
 } from '../app/locales/index.ts'
 import { dictLinks, formsOf } from '../shared/links.ts'
+import { LIST_PAGE_SIZE } from '../shared/listings.ts'
 import { fontIndexOf, usesSupplementalFont } from '../shared/row.ts'
 import { SOURCES } from '../shared/sources.ts'
-import { REGIONS, STYLES, type CharsData, type Style } from '../shared/types.ts'
+import {
+  FREQUENCY_REGIONS,
+  REGIONS,
+  STYLES,
+  type CharsData,
+  type Style,
+} from '../shared/types.ts'
 import { DATA_DIR, FONT_DIR, NOTICES_DIR, raw, ROOT } from './sources.ts'
 import type { SubsetDone, SubsetJob } from './subset-worker.ts'
 
@@ -64,9 +71,16 @@ const SUPPLEMENTAL_FAMILY: Record<Style, string> = {
   serif: 'Hanji Rare Serif',
 }
 
-/** Characters per chunk. Smaller means a lighter first paint but more
- * @font-face rules and more requests. */
-const CHUNK_SIZE = 400
+/**
+ * The first shard holds the first list page under every frequency corpus,
+ * plus room for their regional forms and the hero. Later shards are requested
+ * only as the reader pages or changes sort order.
+ */
+const DISPLAY_CHUNK_SIZE = LIST_PAGE_SIZE * (FREQUENCY_REGIONS.length + 2)
+
+/** Reading data is sparse on any one detail page, so keep its fallback shards
+ * small without multiplying the route-copy font requests. */
+const UI_READING_CHUNK_SIZE = 200
 
 /**
  * The hero character has to be in every region's first chunk, otherwise the
@@ -260,6 +274,7 @@ async function runQueue(): Promise<number[]> {
 }
 
 const faces: Record<string, string[]> = { sans: [], serif: [], ui: [] }
+const criticalFaces: string[] = []
 
 /** Queue positions of each style's chunks, for the size report. */
 const styleChunks: Record<string, number[]> = { sans: [], serif: [] }
@@ -267,20 +282,27 @@ const styleChunks: Record<string, number[]> = { sans: [], serif: [] }
 for (const style of STYLES) {
   for (const region of REGIONS) {
     const chars = needed[style][region]
-    for (let start = 0, index = 0; start < chars.length; start += CHUNK_SIZE) {
-      const chunk = chars.slice(start, start + CHUNK_SIZE)
+    for (
+      let start = 0, index = 0;
+      start < chars.length;
+      start += DISPLAY_CHUNK_SIZE
+    ) {
+      const chunk = chars.slice(start, start + DISPLAY_CHUNK_SIZE)
       const file = `hanji-${style}-${region}-${index}.woff2`
       styleChunks[style]!.push(
         queue({ font: otf(style, region), text: chunk.join(''), file }),
       )
-      faces[style]!.push(
-        `@font-face {
+      const rule = `@font-face {
   font-family: 'Hanji ${style === 'sans' ? 'Sans' : 'Serif'} ${region.toUpperCase()}';
   src: url('./${file}') format('woff2');
   font-display: swap;
   unicode-range: ${unicodeRange(chunk)};
-}`,
-      )
+}`
+      // Every initially visible home-row/hero glyph lives in shard zero, as
+      // do common detail-page glyphs. Discover those fonts before paint; the
+      // much larger catalog of later shards can arrive asynchronously.
+      if (index === 0) criticalFaces.push(rule)
+      else faces[style]!.push(rule)
       index++
     }
   }
@@ -327,7 +349,7 @@ for (const style of STYLES) {
             },
     }),
   )
-  faces[style]!.push(
+  criticalFaces.push(
     `@font-face {
   font-family: '${SUPPLEMENTAL_FAMILY[style]}';
   src: url('./${file}') format('woff2');
@@ -341,10 +363,10 @@ for (const style of STYLES) {
  * The interface copy gets the same treatment as the table.
  *
  * Google's Noto Sans SC is chunked by codepoint range, so the few hundred Han
- * characters of interface copy would otherwise pull a dozen chunks and several
- * hundred KB. Subsetting the copy to a single file and putting it ahead of the
- * Google family in the stack means those chunks are declared but never
- * fetched. Each locale is cut from its own regional font, which is also what
+ * characters of interface copy would otherwise pull a dozen upstream chunks
+ * and several hundred KB. Local unicode-range chunks keep the first page
+ * small while still putting complete self-hosted coverage ahead of the Google
+ * family. Each locale is cut from its own regional font, which is also what
  * keeps the interface from displaying the wrong regional glyphs.
  */
 const KANA = String.fromCodePoint(
@@ -358,28 +380,6 @@ const KOREAN_READINGS = data.rows
   .flatMap((row) => row.readings?.korean ?? [])
   .join('')
 
-/**
- * Everything the interface can render in body type.
- *
- * Besides the message file this has to cover the attribution table (worded in
- * sources.ts), the dictionary names (in links.ts), kana and Korean readings.
- * Anything missed falls through to Google's Noto Sans SC, which is chunked by
- * codepoint range and will happily fetch a dozen chunks for a handful of
- * characters.
- */
-function uiText(): string {
-  const sample = data.rows[0]!
-  return [
-    ALL_UI_TEXT,
-    JSON.stringify(SOURCES),
-    dictLinks(sample.chars[0]!)
-      .map((link) => link.name)
-      .join(''),
-    KANA,
-    KOREAN_READINGS,
-  ].join('')
-}
-
 const UI_FONT: Record<string, (style: Style) => string> = {
   'zh-CN': (style) => otf(style, 'cn'),
   'zh-TW': (style) => otf(style, 'tw'),
@@ -389,37 +389,102 @@ const UI_FONT: Record<string, (style: Style) => string> = {
 }
 
 /**
- * Every locale's copy goes into every locale's subset. The switcher names the
- * other languages in their own words, and a reader who lands on one of them
- * before its chunk arrives sees the default copy in the meantime -- both need
- * glyphs the active subset would not otherwise carry.
+ * Group interface characters by where they can appear. Unicode ranges within
+ * one family are disjoint, so the home page asks only for shared and home copy
+ * instead of downloading the prose for About, every character-page label,
+ * and hundreds of possible readings. Switching locale changes the family and
+ * naturally requests that locale's matching groups.
  */
-const ALL_UI_TEXT = [
-  JSON.stringify(messages),
-  // The language switcher labels itself from CLDR, not from the copy
-  LOCALES.map(localeName).join(''),
-].join('')
+const sample = data.rows[0]!
+const DICTIONARY_NAMES = dictLinks(sample.chars[0]!)
+  .map((link) => link.name)
+  .join('')
+const LOCALE_NAMES = LOCALES.map(localeName).join('')
+
+const sourceSummary = (locale: Locale): string =>
+  SOURCES.flatMap((source) => [
+    source.use[locale],
+    source.localizedName?.[locale] ?? source.name,
+    source.localizedLicense?.[locale] ?? source.license,
+  ]).join('')
+
+const sourceNotes = (locale: Locale): string =>
+  SOURCES.map((source) => source.note?.[locale] ?? '').join('')
+
+function uiTextGroups(locale: Locale): string[] {
+  const message = messages[locale]
+  return [
+    JSON.stringify({
+      meta: message.meta,
+      region: message.region,
+      nav: message.nav,
+      error: message.error,
+      options: message.options,
+      style: message.style,
+      pwa: message.pwa,
+      footer: message.footer,
+      sourceHeaders: [
+        message.about.use,
+        message.about.source,
+        message.about.license,
+      ],
+    }) + LOCALE_NAMES,
+    JSON.stringify({
+      hero: message.hero,
+      filter: message.filter,
+      sort: message.sort,
+      table: message.table,
+    }) + sourceSummary(locale),
+    JSON.stringify(message.char) + DICTIONARY_NAMES,
+    JSON.stringify(message.about) + sourceNotes(locale),
+    KANA,
+    KOREAN_READINGS,
+  ]
+}
+
+/** Everything that can reach the Latin face, across lazy-loaded locales. */
+const uiText = (): string =>
+  LOCALES.flatMap((locale) => uiTextGroups(locale)).join('')
 
 const uiSubsets: { index: number; file: string; chars: number }[] = []
 
-for (const locale of Object.keys(messages)) {
+for (const locale of Object.keys(messages) as Locale[]) {
   const source = UI_FONT[locale]
   if (!source) continue
-  const chars = [...new Set(uiText())].join('')
+
+  const seen = new Set<string>()
+  const groups = uiTextGroups(locale).flatMap((text, groupIndex) => {
+    const chars = [...new Set(text)].filter((char) => !seen.has(char))
+    for (const char of chars) seen.add(char)
+    if (groupIndex < 4) return chars.length ? [chars] : []
+
+    const chunks: string[][] = []
+    for (let start = 0; start < chars.length; start += UI_READING_CHUNK_SIZE)
+      chunks.push(chars.slice(start, start + UI_READING_CHUNK_SIZE))
+    return chunks
+  })
+
   for (const style of STYLES) {
-    const file = `ui-${style}-${locale}.woff2`
-    uiSubsets.push({
-      index: queue({ font: source(style), text: chars, file }),
-      file,
-      chars: chars.length,
-    })
-    faces.ui!.push(
-      `@font-face {
+    for (const [chunkIndex, chunk] of groups.entries()) {
+      const file = `ui-${style}-${locale}-${chunkIndex}.woff2`
+      uiSubsets.push({
+        index: queue({ font: source(style), text: chunk.join(''), file }),
+        file,
+        chars: chunk.length,
+      })
+      const rule = `@font-face {
   font-family: '${LOCALE_META[locale as Locale].uiFamily} ${style === 'sans' ? 'Sans' : 'Serif'}';
   src: url('./${file}') format('woff2');
-  font-display: swap;
-}`,
-    )
+  font-display: optional;
+  unicode-range: ${unicodeRange(chunk)};
+}`
+      // The default sans copy used by prerendered pages is discovered before
+      // paint. Other languages/styles are optional: slow connections keep a
+      // correctly regional system fallback instead of delaying the page.
+      if (locale === 'zh-CN' && style === 'sans' && chunkIndex < 4)
+        criticalFaces.push(rule)
+      else faces.ui!.push(rule)
+    }
   }
 }
 
@@ -460,14 +525,14 @@ for (const style of STYLES) {
     index: queue({ font: LATIN_SOURCE[style], text: chars, file }),
     file,
   })
-  faces.ui!.push(
-    `@font-face {
+  const rule = `@font-face {
   font-family: 'UI Latin ${style === 'sans' ? 'Sans' : 'Serif'}';
   src: url('./${file}') format('woff2');
   font-weight: 100 900;
-  font-display: swap;
-}`,
-  )
+  font-display: optional;
+}`
+  if (style === 'sans') criticalFaces.push(rule)
+  else faces.ui!.push(rule)
 }
 
 // Everything is queued, so cut it all at once and then report the sizes in
@@ -536,6 +601,11 @@ await writeFile(join(ROOT, 'app/generated/face-marks.ts'), await faceMarks())
 console.error('app/generated/face-marks.ts')
 
 const banners: Record<string, string> = {
+  critical: `/* Generated by scripts/build-fonts.ts -- do not edit.
+ * Paint-critical Noto CJK comparison and default-interface subsets (SIL OFL
+ * 1.1). Remaining unicode ranges and optional faces load asynchronously.
+ * Licence text is served at /notices/noto-ofl.txt.
+ */`,
   ui: `/* Generated by scripts/build-fonts.ts -- do not edit.
  * Noto Sans CJK and Noto Serif CJK (SIL OFL 1.1), subset to the characters
  * this app uses. Licence text is served at /notices/noto-ofl.txt.
@@ -551,9 +621,15 @@ const banners: Record<string, string> = {
  */`,
 }
 
-// Serif ships as its own stylesheet so the ~140KB of @font-face rules only
-// arrive when a reader actually asks for serif.
+// Critical rules are a small blocking sheet. The remaining sans/UI rules load
+// asynchronously, while deferred serif rules wait until a reader asks for it.
 let cssBytes = 0
+const criticalCss = `${banners.critical}\n\n${criticalFaces.join('\n\n')}\n`
+await writeFile(join(FONT_DIR, 'fonts-critical.css'), criticalCss)
+cssBytes += criticalCss.length
+console.error(
+  `fonts-critical.css  ${(criticalCss.length / 1024).toFixed(0)} KB`,
+)
 for (const [name, rules] of Object.entries(faces)) {
   const css = `${banners[name]}\n\n${rules.join('\n\n')}\n`
   await writeFile(join(FONT_DIR, `fonts-${name}.css`), css)

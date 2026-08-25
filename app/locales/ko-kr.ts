@@ -6,7 +6,9 @@ export const koKR: typeof zhCN = {
     name: 'Hanji',
     slogan: '한 글자 사이로, 다섯 지역의 자형을 비추다',
     description:
-      '한 글자를 나란히 놓고 겹쳐, 중국 대륙·홍콩·대만·일본·한국 사이의 작지만 분명한 자형 차이를 비춥니다.',
+      'Hanji(漢智)는 한 글자를 나란히 놓고 겹쳐 중국 대륙·홍콩·대만·일본·한국의 자형 차이를 비교하는 도구입니다. Unicode 코드 포인트, 획수, 글자 빈도, 독음, 자표 수록 여부와 필순도 확인할 수 있습니다.',
+    charDescription:
+      '「{char}」의 중국 대륙·홍콩·대만·일본·한국 자형, Unicode 코드 포인트, 획수, 글자 빈도, 독음, 자표 수록 여부와 필순을 비교합니다. 지역별 표기: {forms}.',
     charImageAlt: '{char}의 중국 대륙·홍콩·대만·일본 자형 겹침 인쇄',
   },
   region: {
@@ -123,6 +125,7 @@ export const koKR: typeof zhCN = {
     page: '{total}페이지 중 {page}페이지',
     prev: '이전 페이지',
     next: '다음 페이지',
+    perPage: '페이지당',
     showAll: '{n}자 모두 보기',
     paginate: '페이지로 나누어 보기',
   },

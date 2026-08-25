@@ -1,5 +1,17 @@
 import { REGIONS, type CharRow, type Column, type Region } from './types.ts'
 
+/** Allowed rows per page; the default is shared with the font subset pipeline. */
+export const LIST_PAGE_SIZES = [20, 50, 100] as const
+export type ListPageSize = (typeof LIST_PAGE_SIZES)[number]
+export const LIST_PAGE_SIZE: ListPageSize = 20
+
+export function parseListPageSize(raw: string): ListPageSize {
+  const value = Number(raw)
+  if (!LIST_PAGE_SIZES.includes(value as ListPageSize))
+    throw new Error(`unsupported page size ${raw}`)
+  return value as ListPageSize
+}
+
 export type ListingOption =
   | { id: string; kind: 'tier'; region: Region; tier: number }
   | { id: 'old'; kind: 'old'; region: 'jp' }

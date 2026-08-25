@@ -3,7 +3,13 @@ export const BRAND_SLOGAN = '一字之间，照见五地字形'
 
 /** The canonical Simplified Chinese project bio. */
 export const BRAND_DESCRIPTION =
-  '把同一个汉字并排、叠印，照见中国大陆、香港、台湾、日本与韩国之间细微而真实的字形差异。'
+  '汉智（Hanji）把同一个汉字并排与叠印，对照中国大陆、香港、台湾、日本和韩国的字形差异，并提供Unicode码点、笔画、字频、读音、字表收录与笔顺信息。'
+
+/** Shared browser and social metadata. */
+export const LOGO_PATH = '/logo.svg'
+export const TWITTER_SITE = '@sanxiaozhizi'
+export const THEME_COLOR_LIGHT = '#fbfaf7'
+export const THEME_COLOR_DARK = '#121215'
 
 export const OG_IMAGE_WIDTH = 1200
 export const OG_IMAGE_HEIGHT = 630
