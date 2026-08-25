@@ -56,10 +56,15 @@ export function asOneOf<T extends string>(options: readonly T[]) {
 
 export const asRange = {
   parse: (raw: string): [number, number] => {
-    const [lo, hi] = raw.split('-').map(Number)
-    if (lo === undefined || hi === undefined) throw new Error('bad range')
-    if (!Number.isFinite(lo) || !Number.isFinite(hi))
+    const [loRaw, hiRaw, extra] = raw.split('-', 3)
+    if (!loRaw?.trim() || !hiRaw?.trim() || extra !== undefined)
       throw new Error('bad range')
+
+    const lo = Number(loRaw)
+    const hi = Number(hiRaw)
+    if (!Number.isFinite(lo) || !Number.isFinite(hi) || lo > hi)
+      throw new Error('bad range')
+
     return [lo, hi]
   },
   serialize: ([lo, hi]: [number, number]) => `${lo}-${hi}`,
