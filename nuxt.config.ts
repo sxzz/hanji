@@ -36,18 +36,14 @@ const fontStylesheetPaths = [
   'fonts-serif.css',
 ].map((name) => path.resolve(import.meta.dirname, 'public/fonts', name))
 
-// A clean install runs `nuxt prepare` before the ignored dataset exists. Type
-// preparation does not prerender or bundle the app, so it can safely use an
-// empty route list. Every command that builds or serves the app still fails
-// with a clear instruction until the real dataset has been generated.
-if (
-  (!existsSync(charsPath) ||
-    fontStylesheetPaths.some((fontPath) => !existsSync(fontPath))) &&
-  process.env.npm_lifecycle_event !== 'postinstall'
-) {
-  throw new Error(
-    'Missing generated character data or fonts; run pnpm build:data first.',
+function assertGeneratedAssets(): void {
+  if (
+    !existsSync(charsPath) ||
+    fontStylesheetPaths.some((fontPath) => !existsSync(fontPath))
   )
+    throw new Error(
+      'Missing generated character data or fonts; run pnpm build:data first.',
+    )
 }
 
 const publicCharsPath = path.resolve(
@@ -122,6 +118,13 @@ const BUILD_INFO = {
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default {
   hooks: {
+    // Nuxt's prepare mode only writes types; it neither prerenders nor bundles
+    // the app and can safely use an empty route list. Commands that build or
+    // serve the app must still have the complete ignored generated assets.
+    ready: (nuxt) => {
+      if (!nuxt.options._prepare) assertGeneratedAssets()
+    },
+
     // Nuxt turns every manifest dynamic import into an eager <link
     // rel="prefetch">. The 32 stroke-shard loaders are only useful after a
     // character's stroke panel enters the viewport, so keep the imports
