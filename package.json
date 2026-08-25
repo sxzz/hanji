@@ -81,10 +81,11 @@
     "wrangler": "catalog:"
   },
   "lint-staged": {
-    "*": [
-      "prettier --ignore-unknown --write",
+    "*.md": [
+      "prettier --write",
       "eslint --cache --fix"
-    ]
+    ],
+    "!(*.md)": "eslint --cache --fix"
   },
   "prettier": "@sxzz/prettier-config"
 }
