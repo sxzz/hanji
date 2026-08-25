@@ -11,10 +11,12 @@ import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import * as fontkit from 'fontkit'
 import { describe, expect, it } from 'vitest'
+import { messages } from '../app/locales/all.ts'
 import { partitionSignature } from '../scripts/cmap.ts'
 import { DATA_DIR, FONT_DIR } from '../scripts/sources.ts'
 import { frequencyRankOf } from '../shared/frequency.ts'
 import { formsOf } from '../shared/links.ts'
+import { LIST_PAGE_SIZE } from '../shared/listings.ts'
 import {
   fontIndexOf,
   fontRegionOf,
@@ -194,7 +196,7 @@ describe('subset coverage', () => {
           .toSorted((left, right) => left - right),
       )
 
-      const css = readFileSync(join(FONT_DIR, `fonts-${style}.css`), 'utf8')
+      const css = readFileSync(join(FONT_DIR, 'fonts-critical.css'), 'utf8')
       expect(css).toContain(`unicode-range: ${unicodeRange(chars)};`)
     }
   })
@@ -215,8 +217,6 @@ describe('subset loading', () => {
   // Stored-region indices in the default presentation order. Korea and the
   // optional old-form cell start hidden.
   const visible = [0, 3, 1, 2] as const
-  const pageSize = 100
-
   function firstFrequencyPage(region: FrequencyRegion) {
     return data.rows
       .filter((row) => varietyOf(projectSignature(row.glyph, visible)) > 1)
@@ -231,7 +231,7 @@ describe('subset loading', () => {
           a.key.codePointAt(0)! - b.key.codePointAt(0)!
         )
       })
-      .slice(0, pageSize)
+      .slice(0, LIST_PAGE_SIZE)
   }
 
   it.each(FREQUENCY_REGIONS)(
@@ -252,6 +252,27 @@ describe('subset loading', () => {
       expect([...shards].toSorted()).toEqual(['cn-0', 'hk-0', 'jp-0', 'tw-0'])
     },
   )
+
+  it('publishes only initial display ranges as critical CSS', () => {
+    const css = readFileSync(join(FONT_DIR, 'fonts-critical.css'), 'utf8')
+    const uiCss = readFileSync(join(FONT_DIR, 'fonts-ui.css'), 'utf8')
+    for (const style of STYLES) {
+      for (const region of REGIONS)
+        expect(css).toContain(`hanji-${style}-${region}-0.woff2`)
+      for (const locale of Object.keys(messages)) {
+        for (let index = 0; index < 4; index++) {
+          const stylesheet =
+            style === 'sans' && locale === 'zh-CN' ? css : uiCss
+          expect(stylesheet).toContain(`ui-${style}-${locale}-${index}.woff2`)
+        }
+        expect(css).not.toContain(`ui-${style}-${locale}-4.woff2`)
+      }
+      expect(style === 'sans' ? css : uiCss).toContain(
+        `ui-latin-${style}.woff2`,
+      )
+    }
+    expect(css).not.toContain('hanji-sans-cn-1.woff2')
+  })
 })
 
 describe('interface subset coverage', () => {
@@ -261,25 +282,33 @@ describe('interface subset coverage', () => {
         data.rows.flatMap((row) => row.readings?.korean ?? []).join(''),
       ),
     ]
-    const uiFonts = readdirSync(FONT_DIR)
-      .filter((name) =>
-        /^ui-sans-(?:zh-CN|zh-TW|zh-HK|ja-JP|ko-KR)\.woff2$/.test(name),
-      )
-      .map(
-        (name) =>
-          [
+    const uiFonts = Object.fromEntries(
+      ['zh-CN', 'zh-TW', 'zh-HK', 'ja-JP', 'ko-KR'].map((locale) => [
+        locale,
+        readdirSync(FONT_DIR)
+          .filter((name) =>
+            new RegExp(String.raw`^ui-sans-${locale}-\d+\.woff2$`).test(name),
+          )
+          .map((name) => ({
             name,
-            fontkit.create(readFileSync(join(FONT_DIR, name))) as fontkit.Font,
-          ] as const,
-      )
+            font: fontkit.create(
+              readFileSync(join(FONT_DIR, name)),
+            ) as fontkit.Font,
+          })),
+      ]),
+    )
 
     expect(hangul.length).toBeGreaterThan(300)
-    expect(uiFonts).toHaveLength(5)
-    for (const [name, font] of uiFonts)
+    expect(Object.keys(uiFonts)).toHaveLength(5)
+    for (const [locale, fonts] of Object.entries(uiFonts)) {
+      expect(fonts.length).toBeGreaterThan(1)
       for (const char of hangul)
         expect(
-          font.glyphForCodePoint(char.codePointAt(0)!).id,
-          `${name} does not carry ${char}`,
-        ).not.toBe(0)
+          fonts.some(
+            ({ font }) => font.glyphForCodePoint(char.codePointAt(0)!).id !== 0,
+          ),
+          `${locale} UI subsets do not carry ${char}`,
+        ).toBe(true)
+    }
   })
 })

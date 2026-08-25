@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { THEME_COLOR_DARK, THEME_COLOR_LIGHT } from '~~/shared/brand.ts'
 import { COLOR_KEY } from '~/utils/theme.ts'
 
 const { t } = useT()
@@ -22,6 +23,19 @@ function toggleDarkClick() {
     toggleDark()
   })
 }
+
+if (import.meta.client)
+  watch(
+    isDark,
+    (dark) => {
+      const color = dark ? THEME_COLOR_DARK : THEME_COLOR_LIGHT
+      for (const meta of document.querySelectorAll<HTMLMetaElement>(
+        'meta[name="theme-color"]',
+      ))
+        meta.content = color
+    },
+    { immediate: true },
+  )
 </script>
 
 <template>

@@ -5,7 +5,7 @@ import {
   opensElsewhere,
   useMorphingKey,
   useMorphTo,
-} from '~/composables/chars.ts'
+} from '~/composables/char-navigation.ts'
 import type { CharRow } from '~~/shared/types.ts'
 
 const props = defineProps<{

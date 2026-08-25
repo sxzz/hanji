@@ -11,7 +11,11 @@ import {
 } from './app/utils/pwa-install.ts'
 import { RESTORE_SCRIPT } from './app/utils/theme.ts'
 import { PREFERENCE_RESTORE_SCRIPT } from './scripts/preference-restore.ts'
-import { BRAND_DESCRIPTION } from './shared/brand.ts'
+import {
+  BRAND_DESCRIPTION,
+  THEME_COLOR_DARK,
+  THEME_COLOR_LIGHT,
+} from './shared/brand.ts'
 import type { CharsData } from './shared/types.ts'
 import type { NuxtConfig } from 'nuxt/schema'
 
@@ -25,17 +29,24 @@ const charsPath = path.resolve(
   import.meta.dirname,
   'app/assets/data/chars.json',
 )
+const fontStylesheetPaths = [
+  'fonts-critical.css',
+  'fonts-ui.css',
+  'fonts-sans.css',
+  'fonts-serif.css',
+].map((name) => path.resolve(import.meta.dirname, 'public/fonts', name))
 
 // A clean install runs `nuxt prepare` before the ignored dataset exists. Type
 // preparation does not prerender or bundle the app, so it can safely use an
 // empty route list. Every command that builds or serves the app still fails
 // with a clear instruction until the real dataset has been generated.
 if (
-  !existsSync(charsPath) &&
+  (!existsSync(charsPath) ||
+    fontStylesheetPaths.some((fontPath) => !existsSync(fontPath))) &&
   process.env.npm_lifecycle_event !== 'postinstall'
 ) {
   throw new Error(
-    'Missing app/assets/data/chars.json; run pnpm build:data first.',
+    'Missing generated character data or fonts; run pnpm build:data first.',
   )
 }
 
@@ -44,13 +55,18 @@ const publicCharsPath = path.resolve(
   '.output/public/data/chars.json',
 )
 
-const CHAR_KEYS = existsSync(charsPath)
-  ? (JSON.parse(readFileSync(charsPath, 'utf8')) as CharsData).rows.map(
-      (row) => row.key,
-    )
-  : []
-const CHARS_REVISION = existsSync(charsPath)
-  ? createHash('sha256').update(readFileSync(charsPath)).digest('hex')
+const CHARS_SOURCE = existsSync(charsPath) ? readFileSync(charsPath) : null
+const CHARS_DATA = CHARS_SOURCE
+  ? (JSON.parse(CHARS_SOURCE.toString()) as CharsData)
+  : null
+const CHAR_KEYS = CHARS_DATA?.rows.map((row) => row.key) ?? []
+const DATASET_STATS = {
+  rows: CHARS_DATA?.stats.rows ?? 0,
+  identical: CHARS_DATA?.stats.identical ?? 0,
+  allDiffer: CHARS_DATA?.stats.allDiffer ?? 0,
+}
+const CHARS_REVISION = CHARS_SOURCE
+  ? createHash('sha256').update(CHARS_SOURCE).digest('hex')
   : 'missing'
 const PRERENDERED_CHARS = CHAR_KEYS.map(charPath)
 const PRERENDER_ROUTES = ['/', '/about', ...PRERENDERED_CHARS]
@@ -103,26 +119,20 @@ const BUILD_INFO = {
   sha: resolveBuildSha(),
 }
 
-// A clean install prepares Nuxt before generated fonts exist. Include the
-// eager sans styles as soon as build:fonts has produced them; generate/dev
-// still fail later on the explicit serif import if the build is incomplete.
-const generatedFontStyles = ['fonts-ui.css', 'fonts-sans.css']
-  .filter((file) =>
-    existsSync(path.resolve(import.meta.dirname, 'app/assets/fonts', file)),
-  )
-  .map((file) => `~/assets/fonts/${file}`)
-
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default {
-  modules: [
-    '@nuxtjs/sitemap',
-    '@nuxtjs/robots',
-    '@unocss/nuxt',
-    '@vueuse/nuxt',
-    '@vite-pwa/nuxt',
-  ],
-
   hooks: {
+    // Nuxt turns every manifest dynamic import into an eager <link
+    // rel="prefetch">. The 32 stroke-shard loaders are only useful after a
+    // character's stroke panel enters the viewport, so keep the imports
+    // themselves but let the browser fetch them on demand.
+    'build:manifest': (manifest) => {
+      for (const chunk of Object.values(manifest) as Array<{
+        dynamicImports?: string[]
+      }>)
+        chunk.dynamicImports = []
+    },
+
     // vite-plugin-pwa appends the manifest to its mutable additional-entry
     // array. Nuxt can regenerate the worker more than once in a static build,
     // so make that hook idempotent before Workbox receives the final list.
@@ -145,6 +155,14 @@ export default {
     },
   },
 
+  modules: [
+    '@nuxtjs/sitemap',
+    '@nuxtjs/robots',
+    '@unocss/nuxt',
+    '@vueuse/nuxt',
+    '@vite-pwa/nuxt',
+  ],
+
   site: {
     url: SITE_URL,
   },
@@ -157,6 +175,7 @@ export default {
 
   appConfig: {
     buildInfo: BUILD_INFO,
+    datasetStats: DATASET_STATS,
   },
 
   pwa: {
@@ -330,8 +349,8 @@ export default {
   },
 
   experimental: {
-    // Page data is bundled locally rather than loaded with useAsyncData, so
-    // the extracted payload for every route is just an empty 69-byte file.
+    // The shared character dataset has its own cached URL rather than route
+    // payloads, so extraction would emit one empty file for every character.
     // Keep hydration state inline and avoid spending one host file per page.
     payloadExtraction: false,
     // Install Nuxt's View Transition integration. app.viewTransition below
@@ -365,7 +384,6 @@ export default {
 
   css: [
     '@unocss/reset/tailwind.css',
-    ...generatedFontStyles,
     '~/styles/vars.css',
     '~/styles/global.css',
     '~/styles/overprint.css',
@@ -408,12 +426,12 @@ export default {
         {
           name: 'theme-color',
           media: '(prefers-color-scheme: light)',
-          content: '#fbfaf7',
+          content: THEME_COLOR_LIGHT,
         },
         {
           name: 'theme-color',
           media: '(prefers-color-scheme: dark)',
-          content: '#121215',
+          content: THEME_COLOR_DARK,
         },
         { name: 'mobile-web-app-capable', content: 'yes' },
         { name: 'apple-mobile-web-app-capable', content: 'yes' },

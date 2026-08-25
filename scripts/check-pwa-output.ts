@@ -39,15 +39,15 @@ assert.deepEqual(manifest.name_localized, {
 assert.deepEqual(manifest.short_name_localized, manifest.name_localized)
 assert.deepEqual(manifest.description_localized, {
   'zh-CN':
-    '把同一个汉字并排、叠印，照见中国大陆、香港、台湾、日本与韩国之间细微而真实的字形差异。',
+    '汉智（Hanji）把同一个汉字并排与叠印，对照中国大陆、香港、台湾、日本和韩国的字形差异，并提供Unicode码点、笔画、字频、读音、字表收录与笔顺信息。',
   'zh-TW':
-    '把同一個漢字並排、疊印，照見中國大陸、香港、臺灣、日本與韓國之間細微而真實的字形差異。',
+    '漢智（Hanji）把同一個漢字並排與疊印，對照中國大陸、香港、臺灣、日本和韓國的字形差異，並提供Unicode碼位、筆畫、字頻、讀音、字表收錄與筆順資訊。',
   'zh-HK':
-    '把同一個漢字並排、疊印，照見中國大陸、香港、台灣、日本與韓國之間細微而真實的字形差異。',
+    '漢智（Hanji）把同一個漢字並排與疊印，對照中國大陸、香港、台灣、日本和韓國的字形差異，並提供Unicode碼位、筆畫、字頻、讀音、字表收錄與筆順資訊。',
   'ja-JP':
-    '一つの漢字を並べて重ね、中国大陸、香港、台湾、日本、韓国のあいだにある、細やかで確かな字形の違いを映し出します。',
+    'Hanji（漢智）は、一つの漢字を並べて重ね、中国大陸・香港・台湾・日本・韓国の字形差を比較できるツールです。Unicodeコードポイント、画数、字頻、読み、字表への収録状況、筆順も確認できます。',
   'ko-KR':
-    '한 글자를 나란히 놓고 겹쳐, 중국 대륙·홍콩·대만·일본·한국 사이의 작지만 분명한 자형 차이를 비춥니다.',
+    'Hanji(漢智)는 한 글자를 나란히 놓고 겹쳐 중국 대륙·홍콩·대만·일본·한국의 자형 차이를 비교하는 도구입니다. Unicode 코드 포인트, 획수, 글자 빈도, 독음, 자표 수록 여부와 필순도 확인할 수 있습니다.',
 })
 assert.equal(manifest.id, '/')
 assert.equal(manifest.start_url, '/')
@@ -106,12 +106,15 @@ assert.equal(
 )
 
 const nuxtAssets = await listFiles(resolve(OUTPUT, '_nuxt'))
+let strokeShardCount = 0
 for (const asset of nuxtAssets) {
   const path = webPath(asset)
   const { size } = await stat(asset)
   assert.ok(size <= 4 * 1024 * 1024, `${path} is larger than the 4 MiB limit.`)
+  if (/^\/_nuxt\/[\da-f]{2}\.[^/]+\.json$/.test(path)) strokeShardCount++
   assert.ok(precache.has(path), `${path} is missing from the precache.`)
 }
+assert.equal(strokeShardCount, 32)
 
 const notices = (await listFiles(resolve(OUTPUT, 'notices'))).map(webPath)
 const requiredStableAssets = [

@@ -89,47 +89,13 @@ function turnTo(page: number) {
     </div>
 
     <nav
-      v-if="
-        chars.rows.value.length &&
-        (chars.pageCount.value > 1 || chars.canShowAll.value)
-      "
+      v-if="chars.rows.value.length"
       class="flex flex-wrap items-center justify-between gap-3 px-3 py-3 text-sm sm:px-5"
     >
-      <template v-if="chars.paged.value">
-        <button
-          type="button"
-          class="focus-ring btn-pager"
-          :disabled="chars.page.value <= 1"
-          @click="turnTo(chars.page.value - 1)"
-        >
-          {{ t('table.prev') }}
-        </button>
-
-        <span class="tabular text-xs text-mute font-mono">
-          {{
-            t('table.page', {
-              page: chars.page.value,
-              total: chars.pageCount.value,
-            })
-          }}
-        </span>
-
-        <button
-          type="button"
-          class="focus-ring btn-pager"
-          :disabled="chars.page.value >= chars.pageCount.value"
-          @click="turnTo(chars.page.value + 1)"
-        >
-          {{ t('table.next') }}
-        </button>
-      </template>
-
-      <!-- Once the result set is small enough to render whole, paging is
-           just friction -->
       <button
         v-if="chars.canShowAll.value"
         type="button"
-        class="focus-ring ml-auto text-xs text-mute underline-offset-4 hover:text-ink hover:underline"
+        class="focus-ring mr-auto text-xs text-mute underline-offset-4 hover:text-ink hover:underline"
         @click="chars.paged.value = !chars.paged.value"
       >
         {{
@@ -138,6 +104,71 @@ function turnTo(page: number) {
             : t('table.paginate')
         }}
       </button>
+
+      <div
+        class="ml-auto w-full flex flex-wrap items-center justify-end gap-3 sm:w-auto"
+      >
+        <div
+          v-if="chars.paged.value"
+          class="grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:flex sm:gap-3"
+        >
+          <button
+            type="button"
+            class="focus-ring whitespace-nowrap btn-pager"
+            :disabled="chars.page.value <= 1"
+            @click="turnTo(chars.page.value - 1)"
+          >
+            {{ t('table.prev') }}
+          </button>
+
+          <span
+            class="tabular text-center text-xs text-mute font-mono"
+            :aria-label="
+              t('table.page', {
+                page: chars.page.value,
+                total: chars.pageCount.value,
+              })
+            "
+          >
+            <span aria-hidden="true" class="sm:hidden">
+              {{ chars.page.value }}/{{ chars.pageCount.value }}
+            </span>
+            <span aria-hidden="true" class="hidden sm:inline">
+              {{
+                t('table.page', {
+                  page: chars.page.value,
+                  total: chars.pageCount.value,
+                })
+              }}
+            </span>
+          </span>
+
+          <button
+            type="button"
+            class="focus-ring whitespace-nowrap btn-pager"
+            :disabled="chars.page.value >= chars.pageCount.value"
+            @click="turnTo(chars.page.value + 1)"
+          >
+            {{ t('table.next') }}
+          </button>
+        </div>
+
+        <label
+          class="h-8 inline-flex items-center gap-1.5 border border-rule rounded-md bg-sunk px-2 text-xs text-mute"
+        >
+          <span>{{ t('table.perPage') }}</span>
+          <select
+            v-model.number="chars.pageSize.value"
+            class="focus-ring min-w-11 cursor-pointer bg-transparent text-right text-xs text-ink font-mono"
+            :aria-label="t('table.perPage')"
+            :title="t('table.perPage')"
+          >
+            <option v-for="size in chars.pageSizes" :key="size" :value="size">
+              {{ size }}
+            </option>
+          </select>
+        </label>
+      </div>
     </nav>
   </div>
 </template>

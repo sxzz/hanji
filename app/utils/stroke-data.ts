@@ -5,20 +5,19 @@ import {
   type PackedStrokeShard,
 } from '#shared/strokes.ts'
 
-const strokeAssetUrls = import.meta.glob<string>('../assets/strokes/*.json', {
-  eager: true,
+const strokeAssetLoaders = import.meta.glob('../assets/strokes/*.json', {
   import: 'default',
   query: '?url&no-inline',
-})
+}) as Record<string, () => Promise<string>>
 
 const shardRequests = new Map<string, Promise<PackedStrokeShard>>()
 
-export function strokeDataUrl(groupKey: string): string {
+export function strokeDataUrl(groupKey: string): Promise<string> {
   const shard = strokeShardId(groupKey)
-  const url = strokeAssetUrls[`../assets/strokes/${shard}.json`]
-  if (!url)
+  const load = strokeAssetLoaders[`../assets/strokes/${shard}.json`]
+  if (!load)
     throw new Error(`missing stroke shard ${shard}; run pnpm build:data first`)
-  return url
+  return load()
 }
 
 function isShard(value: unknown): value is PackedStrokeShard {
@@ -37,11 +36,12 @@ function isShard(value: unknown): value is PackedStrokeShard {
 export async function loadStrokeShard(
   groupKey: string,
 ): Promise<PackedStrokeShard> {
-  const url = strokeDataUrl(groupKey)
-  const existing = shardRequests.get(url)
+  const shard = strokeShardId(groupKey)
+  const existing = shardRequests.get(shard)
   if (existing) return existing
 
   const request = (async () => {
+    const url = await strokeDataUrl(groupKey)
     const response = await fetch(url)
     if (!response.ok)
       throw new Error(`stroke shard returned ${response.status}`)
@@ -49,12 +49,12 @@ export async function loadStrokeShard(
     if (!isShard(shard)) throw new Error('invalid stroke shard')
     return shard
   })()
-  shardRequests.set(url, request)
+  shardRequests.set(shard, request)
 
   try {
     return await request
   } catch (error) {
-    shardRequests.delete(url)
+    shardRequests.delete(shard)
     throw error
   }
 }

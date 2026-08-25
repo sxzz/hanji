@@ -183,6 +183,7 @@ watch(
   <div ref="root" class="relative mr-auto flex shrink-0">
     <NuxtLink
       to="/"
+      :prefetch="false"
       class="focus-ring flex items-center"
       :title="t('nav.logoMenuHint')"
       aria-haspopup="menu"

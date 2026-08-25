@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { useStyle } from '~/composables/style.ts'
 import { revealRestoredPreferences } from '~/utils/preference-restore.ts'
-import serifStylesheetUrl from '~/assets/fonts/fonts-serif.css?url'
 import type { NuxtError } from '#app'
+
+const serifStylesheetUrl = '/fonts/fonts-serif.css'
 
 const props = defineProps<{
   error: NuxtError

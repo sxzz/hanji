@@ -6,7 +6,9 @@ export const zhHK: typeof zhCN = {
     name: 'Hanji',
     slogan: '一字之間，照見五地字形',
     description:
-      '把同一個漢字並排、疊印，照見中國大陸、香港、台灣、日本與韓國之間細微而真實的字形差異。',
+      '漢智（Hanji）把同一個漢字並排與疊印，對照中國大陸、香港、台灣、日本和韓國的字形差異，並提供Unicode碼位、筆畫、字頻、讀音、字表收錄與筆順資訊。',
+    charDescription:
+      '對照「{char}」在中國大陸、香港、台灣、日本與韓國的字形、Unicode碼位、筆畫、字頻、讀音、字表收錄與筆順；各地寫法為：{forms}。',
     charImageAlt: '{char}在中國大陸、香港、台灣和日本的字形疊印',
   },
   region: {
@@ -119,6 +121,7 @@ export const zhHK: typeof zhCN = {
     page: '第{page}/{total}頁',
     prev: '上一頁',
     next: '下一頁',
+    perPage: '每頁',
     showAll: '顯示全部{n}字',
     paginate: '分頁顯示',
   },

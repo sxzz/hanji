@@ -5,9 +5,10 @@ import { strokeDataUrl, strokeDuration } from '../app/utils/stroke-data.ts'
 describe('stroke data', () => {
   afterEach(() => vi.unstubAllGlobals())
 
-  it('uses Vite-built row-group shards', () => {
-    expect(strokeDataUrl('説')).toContain('0c')
-    expect(strokeDataUrl('説')).not.toBe('/strokes/0c.json')
+  it('uses Vite-built row-group shards', async () => {
+    const url = await strokeDataUrl('説')
+    expect(url).toContain('0c')
+    expect(url).not.toBe('/strokes/0c.json')
   })
 
   it('fetches a shard once when loading multiple forms from one group', async () => {
@@ -39,7 +40,7 @@ describe('stroke data', () => {
     expect(chinese?.strokes).toHaveLength(1)
     expect(japanese?.strokes).toHaveLength(1)
     expect(fetcher).toHaveBeenCalledOnce()
-    expect(fetcher).toHaveBeenCalledWith(strokeDataUrl('時'))
+    expect(fetcher).toHaveBeenCalledWith(await strokeDataUrl('時'))
   })
 
   it('merges visible regions that share one geometry variant', () => {

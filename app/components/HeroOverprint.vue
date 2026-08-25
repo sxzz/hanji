@@ -4,14 +4,12 @@ import { projectSignature } from '~~/shared/row.ts'
 import { REGIONS, type CharRow } from '~~/shared/types.ts'
 import {
   charPath,
-  HERO_ROW,
   morphName,
   opensElsewhere,
-  rowsByKey,
-  rowsNaming,
   useMorphingKey,
   useMorphTo,
-} from '~/composables/chars.ts'
+} from '~/composables/char-navigation.ts'
+import { HERO_ROW, rowsByKey, rowsNaming } from '~/composables/chars.ts'
 
 const { t, list, locale } = useT()
 const { flagsOn, outlineOn, visibleRegions, regionIndices } = usePrefs()

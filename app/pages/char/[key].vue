@@ -9,13 +9,12 @@ import {
 } from '~~/shared/row.ts'
 import { strokeDataRef } from '~~/shared/strokes.ts'
 import { REGIONS, type Column, type Region } from '~~/shared/types.ts'
+import { useCharDetail } from '~/composables/char-detail.ts'
 import {
   charPath,
   morphName,
-  rowsByKey,
-  rowsNaming,
   useMorphingKey,
-} from '~/composables/chars.ts'
+} from '~/composables/char-navigation.ts'
 import { dictionaryRegionsFor } from '~/locales/index.ts'
 import {
   mergeStrokeOrderChoices,
@@ -32,7 +31,8 @@ const { t, list, locale } = useT()
 const { flagsOn, visibleColumns, visibleRegions } = usePrefs()
 
 const key = computed(() => decodeURIComponent(String(route.params.key)))
-const row = computed(() => rowsByKey.get(key.value))
+const detail = await useCharDetail(key)
+const row = computed(() => detail.value?.row)
 
 if (!row.value) {
   throw createError({
@@ -269,14 +269,15 @@ const alsoSee = computed(() => {
 
   // A column of this row that heads a group of its own. Every one of these
   // names a region, so a region off the page has nothing to say here either.
+  const canonicalKeys = new Set(detail.value?.canonicalKeys ?? [])
   for (const region of visibleRegions.value) {
     const char = here.chars[REGIONS.indexOf(region)]!
-    if (rowsByKey.has(char))
+    if (canonicalKeys.has(char))
       add(char, t('char.alsoOut', { region: t(`region.${region}.full`), char }))
   }
 
   // Groups that write one of their columns with this row's key
-  for (const other of rowsNaming(here.key)) {
+  for (const other of detail.value?.namingRows ?? []) {
     const index = other.chars.indexOf(here.key)
     const region = REGIONS[index]
     if (region && visibleRegions.value.includes(region))
@@ -345,15 +346,17 @@ const morph = computed(() =>
   morphing.value?.key === key.value ? morphName(key.value) : undefined,
 )
 
-const seoDescription = computed(
-  () =>
-    `${key.value} — ${list(
-      cells.value.map(
-        (c) => `${t(`region.${c.column}.full`)} ${c.char} ${c.codePoint}`,
-      ),
-      'narrow',
-    )}`,
-)
+const seoDescription = computed(() => {
+  const here = row.value!
+  const forms = list(
+    REGIONS.map((region, index) => {
+      const char = here.chars[index]!
+      return `${t(`region.${region}.full`)}「${char}」（${hex(char)}）`
+    }),
+    'narrow',
+  )
+  return t('meta.charDescription', { char: key.value, forms })
+})
 const seoTitle = computed(() => `${key.value} · ${t('meta.title')}`)
 const ogImageAlt = computed(() => t('meta.charImageAlt', { char: key.value }))
 
@@ -378,6 +381,7 @@ usePageSeo({
   <article v-if="row" class="flex flex-col gap-8 pb-6">
     <NuxtLink
       :to="backTo"
+      :prefetch="false"
       class="focus-ring inline-flex items-center self-start gap-1.5 text-sm text-mute transition-colors duration-150 hover:text-ink"
     >
       <span class="i-ri-arrow-left-line block" />

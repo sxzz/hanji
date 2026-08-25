@@ -41,11 +41,11 @@ jobs:
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: |
-            app/assets/fonts/*.woff2
-            app/assets/fonts/fonts-*.css
+            public/fonts/*.woff2
+            public/fonts/fonts-*.css
           # chars.json exists here because Build dataset runs first, even
           # though the generated file is ignored by Git.
-          key: fonts-v2-${{ runner.os }}-${{ hashFiles('data/sources.lock.json', 'package.json', 'pnpm-lock.yaml', 'scripts/build-fonts.ts', 'scripts/sources.ts', 'shared/links.ts', 'shared/row.ts', 'shared/types.ts', 'app/locales/*.ts', 'app/assets/data/chars.json') }}
+          key: fonts-${{ runner.os }}-${{ hashFiles('data/sources.lock.json', 'package.json', 'pnpm-lock.yaml', 'scripts/build-fonts.ts', 'scripts/sources.ts', 'shared/links.ts', 'shared/listings.ts', 'shared/row.ts', 'shared/types.ts', 'app/locales/*.ts', 'app/assets/data/chars.json') }}
 
       - name: Build fonts
         if: steps.fonts-cache.outputs.cache-hit != 'true'

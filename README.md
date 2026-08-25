@@ -84,7 +84,7 @@ pnpm build:og # 可选；生成完整 OG 图片
 
 每一行的地址是它的行名（`/char/着`）。五地展示形、`aka` 和 `alternatives` 也可作为地址，由客户端跳到所属的行——例如 `/char/国`、`/char/郞`、`/char/缐`，页面用 `rel=canonical` 指回行名地址；未确认关系不是地址别名。
 
-字表 `app/assets/data/chars.json` 由 `pnpm build:dataset` 生成，**不提交**；应用直接导入它，Vite 也会输出带内容哈希的下载地址。静态生成结束后，字表会额外复制到固定的 `/data/chars.json` 供外部网站引用，“关于”页链接的也是这个地址。该地址已设置 `Access-Control-Allow-Origin: *`，可在遵守下文许可与第三方条款的前提下，通过 `fetch`、XHR 或直接链接跨域取用。它缓存 1 小时，过期后可在后台重新验证期间继续使用旧版本 1 天。来源与许可元数据直接维护在 `shared/sources.ts`，由页面和构建脚本共同导入，不再生成 `sources.json`。约 12MB 的字体子集生成到 `app/assets/fonts/`，同样不提交；字表、笔顺、字体和旗帜都进入 Vite 资源图，由 `/_nuxt/*` 的长期 immutable 缓存安全复用。会变动而又需要稳定 URL 的 NOTICE 与 license 文本单独放在 `public/notices/`，每次使用前必须重新验证。构建前需先运行 `pnpm build:data`。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`、`strokes/`），已 gitignore；构建会清理从旧缓存恢复、但已不在当前来源清单中的文件。
+字表 `app/assets/data/chars.json` 由 `pnpm build:dataset` 生成，**不提交**；静态生成直接读取源文件，浏览器则从固定的 `/data/chars.json` 加载，避免把约 3MiB JSON 当作 JavaScript 解析。“关于”页链接的也是这个地址。该地址已设置 `Access-Control-Allow-Origin: *`，可在遵守下文许可与第三方条款的前提下，通过 `fetch`、XHR 或直接链接跨域取用。它缓存 1 小时，过期后可在后台重新验证期间继续使用旧版本 1 天。来源与许可元数据直接维护在 `shared/sources.ts`，由页面和构建脚本共同导入，不再生成 `sources.json`。约 14MB 的字体子集生成到 `public/fonts/`，同样不提交，并通过固定的 `/fonts/*` URL 按需加载、每次复用前重新验证；笔顺与旗帜进入 Vite 资源图，由 `/_nuxt/*` 的长期 immutable 缓存安全复用。会变动而又需要稳定 URL 的 NOTICE 与 license 文本单独放在 `public/notices/`，每次使用前必须重新验证。构建前需先运行 `pnpm build:data`。原始下载缓存在 `data/raw/` 下按类别存放（`charlist/`、`opencc/`、`cmap/`、`font/`、`unihan/`、`frequency/`、`strokes/`），已 gitignore；构建会清理从旧缓存恢复、但已不在当前来源清单中的文件。
 
 ## 部署
 
@@ -104,7 +104,7 @@ Cloudflare Worker 名称须为 `hanji`，与 `wrangler.json` 中的 `name` 一�
 
 需要页面访问量和 Web Vitals 时，请在实际域名所属账户的 **Web Analytics → Add a site** 中选择已由 Cloudflare 代理的 hostname，并使用 automatic setup。Cloudflare 会在边缘自动注入 beacon。
 
-每个字组详情页都会生成独立 HTML；页面数据在本地 bundle 中，因此关闭了每路由额外生成 `_payload.json` 的 payload extraction。地区异体别名不另外生成跳转页：它先由 Static Assets 返回 `404.html` 和 HTTP 404，再由 Nuxt 客户端中间件跳到所属行；搜索引擎不会把 alias 当作成功页面重复收录。真正未知的地址保持 HTTP 404。`@nuxtjs/sitemap` 会在静态生成时把全部 canonical 页面写入 `/sitemap.xml`，`@nuxtjs/robots` 生成 `/robots.txt` 并公布 sitemap 地址。两者的绝对 URL 默认使用 `https://hanji.sxzz.moe`，也可通过 `NUXT_SITE_URL` 覆盖；GitHub Actions 优先读取同名仓库变量，未设置时使用仓库 homepage。PR 预览构建通过 `NUXT_SITE_ENV=preview` 禁止索引。`public/_headers` 给带内容哈希的 `_nuxt/*` 设长期 immutable 缓存，让稳定的 `/notices/*`、sitemap 和 robots URL 使用 `no-cache`，并为 `/data/chars.json` 设置 1 小时的 `max-age` 与 1 天的 `stale-while-revalidate`。
+每个字组详情页都会生成独立 HTML；客户端页面共用 `/data/chars.json`，没有逐路由数据需要提取，因此关闭了会为每个字页额外生成空 `_payload.json` 的 payload extraction。地区异体别名不另外生成跳转页：它先由 Static Assets 返回 `404.html` 和 HTTP 404，再由 Nuxt 客户端中间件跳到所属行；搜索引擎不会把 alias 当作成功页面重复收录。真正未知的地址保持 HTTP 404。`@nuxtjs/sitemap` 会在静态生成时把全部 canonical 页面写入 `/sitemap.xml`，`@nuxtjs/robots` 生成 `/robots.txt` 并公布 sitemap 地址。两者的绝对 URL 默认使用 `https://hanji.sxzz.moe`，也可通过 `NUXT_SITE_URL` 覆盖；GitHub Actions 优先读取同名仓库变量，未设置时使用仓库 homepage。PR 预览构建通过 `NUXT_SITE_ENV=preview` 禁止索引。`public/_headers` 给带内容哈希的 `_nuxt/*` 设长期 immutable 缓存，让固定的 `/fonts/*`、`/notices/*`、sitemap 和 robots URL 使用 `no-cache`，并为 `/data/chars.json` 设置 1 小时的 `max-age` 与 1 天的 `stale-while-revalidate`。
 
 第三方资产的具体 commit、GitHub release tag、官方附件标识与 SHA-256 记录在 `data/sources.lock.json`；需要升级时运行 `pnpm update:sources`。它会解析 GitHub 分支、最新 release 与 Unicode 版本，并重新校验没有版本号的官方直链；内容有变化时更新 lockfile 并直接重新生成数据，完全未变则跳过生成。构建时 `pnpm build:data` 会按 lockfile 下载并校验约 **302 MiB** 原始数据（其中 195 MiB 是十份 Noto CJK 字体，另有约 40 MiB 的两份补充字体）；任何未显式更新的直链内容变化都会因校验和不符而失败，不会静默进入数据。Actions 分开缓存原始下载与生成字体：前者只由 lockfile 决定，后者由 lockfile、实际生成脚本、相关依赖、locale 与字表决定；字体输入完全不变时跳过数据生成。
 

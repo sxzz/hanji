@@ -6,6 +6,8 @@ export const zhCN = {
     name: 'Hanji',
     slogan: BRAND_SLOGAN,
     description: BRAND_DESCRIPTION,
+    charDescription:
+      '对照「{char}」在中国大陆、香港、台湾、日本与韩国的字形、Unicode码点、笔画、字频、读音、字表收录与笔顺；各地写法为：{forms}。',
     charImageAlt: '{char}在中国大陆、香港、台湾和日本的字形叠印',
   },
   region: {
@@ -119,6 +121,7 @@ export const zhCN = {
     page: '第{page}/{total}页',
     prev: '上一页',
     next: '下一页',
+    perPage: '每页',
     showAll: '显示全部{n}字',
     paginate: '分页显示',
   },
