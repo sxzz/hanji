@@ -197,8 +197,6 @@ function toggleRegion(region: string) {
 <template>
   <div class="filter-form text-sm">
     <div class="filter-line">
-      <!-- role="status" announces the changing count to screen readers while
-           focus stays in the filter controls -->
       <span
         role="status"
         class="filter-count tabular text-xs text-mute font-mono"
