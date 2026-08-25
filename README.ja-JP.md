@@ -2,9 +2,9 @@
 
 # 漢智 · Hanji
 
-[简体中文](README.md) | 日本語
+[简体中文](README.md) | [English](README.en-US.md) | 日本語
 
-<!-- When editing this file, update README.md in the same change. -->
+<!-- When editing this file, update README.md and README.en-US.md in the same change. -->
 
 > 一字のあいだに、五地域の字形が見える
 

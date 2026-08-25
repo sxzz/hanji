@@ -5,11 +5,16 @@ import { provideChars } from '~/composables/chars.ts'
 const { t } = useT()
 provideChars()
 
+const brandName = computed(() =>
+  t('meta.title') === t('meta.name')
+    ? t('meta.title')
+    : `${t('meta.title')} ${t('meta.name')}`,
+)
+
 usePageSeo({
   path: '/',
   pageType: 'CollectionPage',
-  socialTitle: () =>
-    `${t('meta.title')} ${t('meta.name')} · ${t('meta.slogan')}`,
+  socialTitle: () => `${brandName.value} · ${t('meta.slogan')}`,
   description: () => t('meta.description'),
   imagePath: HOME_OG_PATH,
   imageAlt: () => `${t('meta.title')} — ${t('meta.slogan')}`,

@@ -10,7 +10,7 @@ import {
 } from '~/composables/chars.ts'
 
 const chars = injectChars()
-const { t, locale } = useT()
+const { t, list, number, locale } = useT()
 const { flagsOn, visibleColumns, visibleRegions } = usePrefs()
 
 // Every label has to be computed, not built once: t() reads the active locale
@@ -32,7 +32,7 @@ const sorts = computed(() =>
       label,
       suffix: active ? (chars.order.value === 'asc' ? '↑' : '↓') : undefined,
       title: active ? `${label} · ${direction}` : undefined,
-      ariaLabel: active ? `${label}，${direction}` : label,
+      ariaLabel: active ? list([label, direction]) : label,
     }
   }),
 )
@@ -80,7 +80,7 @@ function patternLabel(signature: string): string {
     .map((regions) => regions.join('+'))
     .join(' | ')
   return `${partition} · ${t('filter.matched', {
-    n: (chars.counts.value[signature] ?? 0).toLocaleString(),
+    n: number(chars.counts.value[signature] ?? 0),
   })}`
 }
 
@@ -151,9 +151,13 @@ const listingOptions = computed(() =>
   listingOptionsFor(visibleColumns.value).map((entry) => {
     const oldFull = t('region.old.full')
     const japanFull = t('region.jp.full')
-    const oldFlagSuffix = oldFull.startsWith(japanFull)
-      ? oldFull.slice(japanFull.length).trimStart()
-      : undefined
+    const oldRemainder = oldFull.slice(japanFull.length)
+    // Do not treat an English adjective such as "Japanese" as the region
+    // name "Japan" followed by a suffix.
+    const oldFlagSuffix =
+      oldFull.startsWith(japanFull) && !/^[a-z]/i.test(oldRemainder)
+        ? oldRemainder.trimStart()
+        : undefined
     const label =
       entry.kind === 'old'
         ? oldFull
@@ -201,9 +205,7 @@ function toggleRegion(region: string) {
         role="status"
         class="filter-count tabular text-xs text-mute font-mono"
       >
-        {{
-          t('filter.matched', { n: chars.rows.value.length.toLocaleString() })
-        }}
+        {{ t('filter.matched', { n: number(chars.rows.value.length) }) }}
       </span>
 
       <label class="filter-field">

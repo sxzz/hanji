@@ -23,7 +23,7 @@ Always write the project's English name as `Hanji` in user-facing copy and visua
 
 ## README Localizations
 
-`README.md` is the Simplified Chinese source and `README.ja-JP.md` is its Japanese translation. Whenever either file changes, update the other in the same change. Keep their structure, facts, commands, links, and data-source tables synchronized.
+`README.md` is the Simplified Chinese source, `README.en-US.md` is its English translation, and `README.ja-JP.md` is its Japanese translation. Whenever any of these files changes, update the other two in the same change. Keep their structure, facts, commands, links, and data-source tables synchronized.
 
 ## Testing Guidelines
 

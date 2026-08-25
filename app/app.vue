@@ -5,6 +5,11 @@ import { revealRestoredPreferences } from '~/utils/preference-restore.ts'
 const { t, meta } = useT()
 const route = useRoute()
 const style = useStyle()
+const brandName = computed(() =>
+  t('meta.title') === t('meta.name')
+    ? t('meta.title')
+    : `${t('meta.title')} ${t('meta.name')}`,
+)
 
 const isHome = computed(() => route.name === 'index')
 const showFooter = computed(() => route.name !== 'about')
@@ -58,7 +63,7 @@ useHead({
   titleTemplate: (title) =>
     title
       ? `${title} \u00B7 ${t('meta.title')}`
-      : `${t('meta.title')} ${t('meta.name')} \u00B7 ${t('meta.slogan')}`,
+      : `${brandName.value} \u00B7 ${t('meta.slogan')}`,
   // Font-face declarations do not style the fallback frame themselves. Fetch
   // later unicode ranges at high priority without making their CSS block the
   // first paint; each preload becomes a stylesheet as soon as it arrives. A

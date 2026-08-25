@@ -151,7 +151,8 @@ const litRegions = computed(() =>
 const label = computed(() =>
   list(
     forms.value.map(
-      (form) => `${t(`region.${form.region}.full`)}：${form.char}`,
+      (form) =>
+        `${t(`region.${form.region}.full`)}${locale.value === 'en-US' ? ': ' : '：'}${form.char}`,
     ),
     'narrow',
   ),
@@ -178,10 +179,7 @@ const body = computed(() => {
       named(form.region),
     ])
   const groups = [...byGroup.values()]
-  const everywhere = list(
-    visibleRegions.value.map((region) => named(region)),
-    'narrow',
-  )
+  const everywhere = list(visibleRegions.value.map((region) => named(region)))
 
   if (groups.length === 1) return t('hero.same', { regions: everywhere })
   if (groups.every((group) => group.length === 1))
@@ -196,7 +194,7 @@ const body = computed(() => {
     .map((group) => t('hero.share', { regions: list(group) }))
   if (alone.length === 1) parts.push(t('hero.only', { region: alone[0]! }))
   else if (alone.length > 1)
-    parts.push(t('hero.rest', { regions: list(alone, 'narrow') }))
+    parts.push(t('hero.rest', { regions: list(alone) }))
 
   return t('hero.mixed', { parts: parts.join(t('hero.join')) })
 })

@@ -14,11 +14,16 @@ const shortName: Record<Locale, string> = {
   'zh-HK': '香港',
   'ja-JP': '日本',
   'ko-KR': '한국',
+  'en-US': 'EN',
 }
 const languages = locales.map((code) => ({
   code,
   label: localeName(code),
 }))
+const currentLanguageLabel = computed(
+  () =>
+    `${t('options.language')}${locale.value === 'en-US' ? ': ' : '：'}${localeName(locale.value)}`,
+)
 
 const open = ref(false)
 const root = ref<HTMLElement>()
@@ -44,8 +49,8 @@ async function select(code: Locale) {
       ref="trigger"
       type="button"
       class="focus-ring h-8 inline-flex items-center gap-1 rounded-md px-1.5 text-mute transition-colors duration-150 hover:bg-sunk hover:text-ink"
-      :title="`${t('options.language')}：${localeName(locale)}`"
-      :aria-label="`${t('options.language')}：${localeName(locale)}`"
+      :title="currentLanguageLabel"
+      :aria-label="currentLanguageLabel"
       aria-haspopup="menu"
       :aria-expanded="open"
       @click="open = !open"

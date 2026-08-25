@@ -47,7 +47,9 @@ export function schemaOrgPage({
         '@id': websiteId,
         url: rootUrl,
         name: siteName,
-        alternateName: alternateSiteName,
+        ...(alternateSiteName === siteName
+          ? {}
+          : { alternateName: alternateSiteName }),
         description: siteDescription,
         inLanguage,
       },

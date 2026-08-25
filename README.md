@@ -2,9 +2,9 @@
 
 # 汉智 · Hanji
 
-简体中文 | [日本語](README.ja-JP.md)
+简体中文 | [English](README.en-US.md) | [日本語](README.ja-JP.md)
 
-<!-- When editing this file, update README.ja-JP.md in the same change. -->
+<!-- When editing this file, update README.en-US.md and README.ja-JP.md in the same change. -->
 
 > 一字之间，照见五地字形
 

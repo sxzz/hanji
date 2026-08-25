@@ -35,6 +35,7 @@ assert.deepEqual(manifest.name_localized, {
   'zh-HK': '漢智',
   'ja-JP': '漢智',
   'ko-KR': '漢智',
+  'en-US': 'Hanji',
 })
 assert.deepEqual(manifest.short_name_localized, manifest.name_localized)
 assert.deepEqual(manifest.description_localized, {
@@ -48,6 +49,8 @@ assert.deepEqual(manifest.description_localized, {
     'Hanji（漢智）は、一つの漢字を並べて重ね、中国大陸・香港・台湾・日本・韓国の字形差を比較できるツールです。Unicodeコードポイント、画数、字頻、読み、字表への収録状況、筆順も確認できます。',
   'ko-KR':
     'Hanji(漢智)는 한 글자를 나란히 놓고 겹쳐 중국 대륙·홍콩·대만·일본·한국의 자형 차이를 비교하는 도구입니다. Unicode 코드 포인트, 획수, 글자 빈도, 독음, 자표 수록 여부와 필순도 확인할 수 있습니다.',
+  'en-US':
+    'Hanji compares the printed glyph forms of the same Han character across Mainland China, Hong Kong, Taiwan, Japan, and South Korea, with Unicode code points, stroke counts, frequency ranks, readings, character-list status, and stroke order.',
 })
 assert.equal(manifest.id, '/')
 assert.equal(manifest.start_url, '/')

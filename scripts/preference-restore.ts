@@ -25,7 +25,7 @@ export const PREFERENCE_RESTORE_SCRIPT = `
 try{
 var d=document.documentElement,o=d.lang,g=function(k){var v=localStorage.getItem(k);return v===null?'':v.replace(/^"|"$/g,'')};
 var a=${JSON.stringify(LOCALES)},l=g(${JSON.stringify(LOCALE_KEY)}),w='';
-if(a.indexOf(l)>=0)w=l;else{var n=navigator.languages||[navigator.language||''];for(var i=0;i<n.length;i++){var x=String(n[i]).toLowerCase(),b=x.split('-'),z=b[0];if(z==='ja'){w='ja-JP';break}if(z==='ko'){w='ko-KR';break}if(z==='zh'){w=b.indexOf('hk')>=0||b.indexOf('mo')>=0?'zh-HK':b.indexOf('tw')>=0||b.indexOf('hant')>=0?'zh-TW':'zh-CN';break}}}
+if(a.indexOf(l)>=0)w=l;else{var n=navigator.languages||[navigator.language||''];for(var i=0;i<n.length;i++){var x=String(n[i]).toLowerCase(),b=x.split('-'),z=b[0];if(z==='en'){w='en-US';break}if(z==='ja'){w='ja-JP';break}if(z==='ko'){w='ko-KR';break}if(z==='zh'){w=b.indexOf('hk')>=0||b.indexOf('mo')>=0?'zh-HK':b.indexOf('tw')>=0||b.indexOf('hant')>=0?'zh-TW':'zh-CN';break}}}
 var p=!!w&&w!==${JSON.stringify(DEFAULT_LOCALE)};
 if(g(${JSON.stringify(FLAGS_KEY)})==='true'||g(${JSON.stringify(OUTLINE_KEY)})==='true')p=true;
 var h,r=localStorage.getItem(${JSON.stringify(HIDDEN_KEY)});try{h=r===null?${JSON.stringify(DEFAULT_HIDDEN_COLUMNS)}:JSON.parse(r)}catch(e){h=${JSON.stringify(DEFAULT_HIDDEN_COLUMNS)}}if(!Array.isArray(h))h=${JSON.stringify(DEFAULT_HIDDEN_COLUMNS)};

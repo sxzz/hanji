@@ -11,6 +11,8 @@ const hanNumberFormat = new Intl.NumberFormat('zh', {
 const KOREAN_COUNTERS = ['영', '한', '두', '세', '네', '다섯']
 
 export const hanNumber = (value: number, locale = 'zh-CN'): string =>
-  locale.startsWith('ko')
-    ? (KOREAN_COUNTERS[value] ?? String(value))
-    : hanNumberFormat.format(value)
+  locale.startsWith('en')
+    ? String(value)
+    : locale.startsWith('ko')
+      ? (KOREAN_COUNTERS[value] ?? String(value))
+      : hanNumberFormat.format(value)

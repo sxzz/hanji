@@ -69,4 +69,30 @@ describe('Schema.org page metadata', () => {
       expect(schema['@graph'][1]['@type']).toBe(pageType)
     },
   )
+
+  it('uses en-US throughout English structured data', () => {
+    const schema = schemaOrgPage({
+      alternateSiteName: 'Hanji',
+      description: 'Compare regional glyph forms.',
+      imageAlt: 'Regional glyph forms',
+      imageUrl: 'https://hanji.example/og/home.png',
+      inLanguage: 'en-US',
+      name: 'Hanji · One character across five regions',
+      pageType: 'CollectionPage',
+      pageUrl: 'https://hanji.example/',
+      siteDescription: 'Compare regional glyph forms.',
+      siteName: 'Hanji',
+      siteUrl: 'https://hanji.example/',
+    })
+
+    expect(schema['@graph']).toMatchObject([
+      { name: 'Hanji', inLanguage: 'en-US' },
+      {
+        name: 'Hanji · One character across five regions',
+        inLanguage: 'en-US',
+      },
+      { caption: 'Regional glyph forms', inLanguage: 'en-US' },
+    ])
+    expect(schema['@graph'][0]).not.toHaveProperty('alternateName')
+  })
 })

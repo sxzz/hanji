@@ -37,6 +37,7 @@ export const SOURCES: Source[] = [
       'zh-HK': '判定五地字形差異',
       'ja-JP': '5地域の字形差を判定',
       'ko-KR': '다섯 지역의 자형 차이 판정',
+      'en-US': 'Determine five-region glyph differences',
     },
     name: 'Adobe Source Han Sans / Serif（CMap 资源）',
     localizedName: {
@@ -45,6 +46,7 @@ export const SOURCES: Source[] = [
       'zh-HK': 'Adobe Source Han Sans / Serif（CMap資源）',
       'ja-JP': 'Adobe Source Han Sans / Serif（CMapリソース）',
       'ko-KR': 'Adobe Source Han Sans / Serif(CMap 리소스)',
+      'en-US': 'Adobe Source Han Sans / Serif (CMap resources)',
     },
     homepage: 'https://github.com/adobe-fonts/source-han-sans',
     license: 'SIL OFL 1.1',
@@ -60,6 +62,8 @@ export const SOURCES: Source[] = [
         '各書体の5地域向けCMapには「コードポイント → CID」の対応があり、同じ字形プール内でCIDが同じなら同一字形です。判定にはゴシック体と明朝体の和集合を使います。',
       'ko-KR':
         '각 글꼴의 다섯 지역용 CMap은 ‘코드 포인트 → CID’ 매핑을 제공합니다. 같은 자형 풀에서 CID가 같으면 같은 자형입니다. 판정에는 고딕체와 명조체의 합집합을 사용합니다.',
+      'en-US':
+        'The five regional CMaps for each typeface map Unicode code points to CIDs. Equal CIDs within one glyph pool identify the same glyph. Hanji takes the union of the sans-serif and serif classifications.',
     },
   },
   {
@@ -70,6 +74,7 @@ export const SOURCES: Source[] = [
       'zh-HK': '頁面顯示用字體',
       'ja-JP': '画面表示用フォント',
       'ko-KR': '화면 표시용 글꼴',
+      'en-US': 'Display typefaces',
     },
     name: 'Noto Sans / Noto Serif（含 CJK）',
     localizedName: {
@@ -78,6 +83,7 @@ export const SOURCES: Source[] = [
       'zh-HK': 'Noto Sans / Noto Serif（含CJK）',
       'ja-JP': 'Noto Sans / Noto Serif（CJK対応）',
       'ko-KR': 'Noto Sans / Noto Serif(CJK 지원)',
+      'en-US': 'Noto Sans / Noto Serif (including CJK)',
     },
     homepage: 'https://github.com/notofonts/noto-cjk',
     license: 'SIL OFL 1.1',
@@ -93,6 +99,8 @@ export const SOURCES: Source[] = [
         '漢字はCJK版、ラテン文字と数字はラテン版を使用し、アプリ内で使う文字だけにサブセット化してセルフホストしています。OFLの表記は/notices/noto-ofl.txtに同梱しています。',
       'ko-KR':
         '한자는 CJK 버전, 라틴 문자와 숫자는 라틴 버전을 사용합니다. 앱에서 쓰는 문자만 서브셋으로 만들어 자체 호스팅하며, OFL 고지문은 /notices/noto-ofl.txt에 함께 제공합니다.',
+      'en-US':
+        'Han glyphs come from the CJK versions, and Latin letters and digits from the Latin versions. All are subset to the characters used by the application and self-hosted; the OFL notice is provided at /notices/noto-ofl.txt.',
     },
   },
   {
@@ -103,6 +111,7 @@ export const SOURCES: Source[] = [
       'zh-HK': '補充Noto未收錄的黑體字形',
       'ja-JP': 'Noto未収録字のゴシック体補完',
       'ko-KR': 'Noto 미수록 글자의 고딕체 보완',
+      'en-US': 'Supplemental sans-serif glyphs absent from Noto',
     },
     name: 'Plangothic P1',
     homepage:
@@ -121,6 +130,8 @@ export const SOURCES: Source[] = [
         '現在のデータで表示が必要ながらNotoにないコードポイントから、名称を変更したWebフォントサブセットを動的に生成します。これらの字形は地域差の判定には使いません。OFL表記は/notices/plangothic-ofl.txtに同梱しています。',
       'ko-KR':
         '현재 데이터에서 표시해야 하지만 Noto에 없는 코드 포인트를 동적으로 수집해 이름을 바꾼 웹 글꼴 서브셋을 생성합니다. 이 자형은 지역 차이 판정에 사용하지 않습니다. OFL 고지문은 /notices/plangothic-ofl.txt에 있습니다.',
+      'en-US':
+        'A renamed webfont subset is generated dynamically from code points required by the current data but absent from Noto. These glyphs do not participate in regional-difference classification. The OFL notice is provided at /notices/plangothic-ofl.txt.',
     },
   },
   {
@@ -131,6 +142,7 @@ export const SOURCES: Source[] = [
       'zh-HK': '補充Noto未收錄的宋體字形',
       'ja-JP': 'Noto未収録字の明朝体補完',
       'ko-KR': 'Noto 미수록 글자의 명조체 보완',
+      'en-US': 'Supplemental serif glyphs absent from Noto',
     },
     name: 'WenJin Mincho P2',
     homepage: 'https://github.com/takushun-wu/WenJinMincho',
@@ -148,6 +160,8 @@ export const SOURCES: Source[] = [
         '現在のデータで表示が必要ながらNotoにないコードポイントから、名称を変更したWebフォントサブセットを動的に生成します。これらの字形は地域差の判定には使いません。OFL表記は/notices/wenjin-mincho-ofl.mdに同梱しています。',
       'ko-KR':
         '현재 데이터에서 표시해야 하지만 Noto에 없는 코드 포인트를 동적으로 수집해 이름을 바꾼 웹 글꼴 서브셋을 생성합니다. 이 자형은 지역 차이 판정에 사용하지 않습니다. OFL 고지문은 /notices/wenjin-mincho-ofl.md에 있습니다.',
+      'en-US':
+        'A renamed webfont subset is generated dynamically from code points required by the current data but absent from Noto. These glyphs do not participate in regional-difference classification. The OFL notice is provided at /notices/wenjin-mincho-ofl.md.',
     },
   },
   {
@@ -158,6 +172,8 @@ export const SOURCES: Source[] = [
       'zh-HK': '簡繁、港台異體、日本新舊字體對應',
       'ja-JP': '簡体字・繁体字、香港・台湾の異体字、日本の新字体・旧字体の対応',
       'ko-KR': '간체·번체, 홍콩·대만 이체자, 일본 신자체·구자체 대응',
+      'en-US':
+        'Map simplified and traditional forms, Hong Kong and Taiwan variants, and Japanese shinjitai and kyūjitai',
     },
     name: 'OpenCC 开放中文转换',
     localizedName: {
@@ -166,6 +182,7 @@ export const SOURCES: Source[] = [
       'zh-HK': 'OpenCC開放中文轉換',
       'ja-JP': 'OpenCC（Open Chinese Convert）',
       'ko-KR': 'OpenCC(Open Chinese Convert)',
+      'en-US': 'OpenCC (Open Chinese Convert)',
     },
     homepage: 'https://github.com/BYVoid/OpenCC',
     license: 'Apache-2.0',
@@ -179,6 +196,8 @@ export const SOURCES: Source[] = [
       'zh-HK': '中、台、日、韓筆順動畫與筆畫數',
       'ja-JP': '中国・台湾・日本・韓国の筆順と画数',
       'ko-KR': '중국·대만·일본·한국 필순과 획수',
+      'en-US':
+        'Stroke-order animations and stroke counts for Mainland China, Taiwan, Japan, and South Korea',
     },
     name: 'AnimCJK',
     homepage: 'https://github.com/parsimonhi/animCJK',
@@ -196,6 +215,8 @@ export const SOURCES: Source[] = [
         '本アプリの字グループが参照する中国・台湾・日本・韓国の字形だけを抽出し、元の筆画輪郭と中心線を保持したまま、字グループキーをハッシュした32個のシャードへ変換します。アニメーションは公式サンプルと同じ輪郭クリッピング方式で描画し、同じ字グループ内の地域切替は1シャードだけで済みます。筆画順に並べた輪郭が完全に一致する場合は最初のバリアントとその中心線だけを保存し、画面上でも1つの選択肢にまとめます。香港は本アプリのSource Han字形グループに基づいて既存データを流用し、台湾、中国大陸、日本、韓国の順に優先します。サイト全体の地域別画数は解析したバリアントの輪郭数を第一候補とし、データがなければUnihanへフォールバックします。シャードはビルドスクリプトがapp/assets/strokesへ生成し、Viteが内容ハッシュ付きのアセットとして出力します。付属ライセンスは/notices/配下の安定URLで提供し、再検証を必須にします。変更後のAnimCJKデータもAPLで提供します。',
       'ko-KR':
         '이 앱의 글자 그룹이 참조하는 중국·대만·일본·한국 자형만 추출하고 원본 획 윤곽과 중심선을 유지한 채 글자 그룹 키를 해시한 32개 샤드로 변환합니다. 애니메이션은 공식 예제와 같은 윤곽 클리핑 방식으로 그리며 같은 글자 그룹의 지역 전환은 샤드 하나만 사용합니다. 획순대로 배열한 윤곽이 완전히 같으면 첫 번째 변형과 그 중심선만 저장하고 화면에서도 하나의 선택 항목으로 합칩니다. 홍콩은 이 앱의 Source Han 자형 그룹에 따라 기존 데이터를 재사용하며 대만, 중국 대륙, 일본, 한국 순으로 우선합니다. 사이트 전체의 지역별 획수는 분석한 변형의 윤곽 수를 우선 사용하고, 데이터가 없으면 Unihan으로 대체합니다. 샤드는 빌드 스크립트가 app/assets/strokes에 생성하고 Vite가 콘텐츠 해시가 붙은 에셋으로 출력합니다. 동봉 라이선스는 /notices/ 아래의 안정적인 URL로 제공하며 재검증을 요구합니다. 수정한 AnimCJK 데이터도 APL로 제공합니다.',
+      'en-US':
+        'Only the Mainland Chinese, Taiwanese, Japanese, and South Korean glyphs referenced by Hanji character groups are extracted. Original stroke outlines and centerlines are retained and converted into 32 shards keyed by a hash of the group key. Animations use the outline-clipping method from the official example, so switching regions within one group requires only one shard. When ordered stroke outlines are identical, only the first variant and its centerlines are stored, and the interface merges the regions into one choice. Hong Kong reuses existing data according to Hanji’s Source Han glyph groups, preferring Taiwan, Mainland China, Japan, then South Korea. Regional stroke counts throughout the site first use the outline count of the resolved variant and fall back to Unihan when no data is available. Build scripts write the shards to app/assets/strokes, and Vite emits content-hashed assets. Accompanying licenses are served at stable URLs under /notices/ and must be revalidated. Modified AnimCJK data remains available under the APL.',
     },
   },
   {
@@ -206,6 +227,7 @@ export const SOURCES: Source[] = [
       'zh-HK': '五地標準字表',
       'ja-JP': '5地域の標準字表',
       'ko-KR': '다섯 지역의 표준 한자표',
+      'en-US': 'Five regional standard character lists',
     },
     name: 'zispace/hanzi-chars',
     homepage: 'https://github.com/zispace/hanzi-chars',
@@ -213,6 +235,7 @@ export const SOURCES: Source[] = [
     localizedLicense: {
       'ja-JP': 'リポジトリに記載なし',
       'ko-KR': '저장소에 명시되지 않음',
+      'en-US': 'Not stated by the repository',
     },
     licenseUrl: 'https://github.com/zispace/hanzi-chars',
     note: {
@@ -226,6 +249,8 @@ export const SOURCES: Source[] = [
         '各地域の公式規範である中国大陸の『通用規範漢字表』（2013年）、台湾の『常用國字標準字體表』（1982年）、香港の『常用字字形表』、日本の『常用漢字表』（2010年）と『学年別漢字配当表』（2017年）、韓国の『漢文教育用基礎漢字』（2000年）から転記されています。',
       'ko-KR':
         '각 지역의 공식 규범인 중국 대륙의 《통용규범한자표》(通用規範漢字表, 2013), 대만의 《상용국자표준자체표》(常用國字標準字體表, 1982), 홍콩의 《상용자자형표》(常用字字形表), 일본의 《상용한자표》(常用漢字表, 2010)와 《학년별한자배당표》(学年別漢字配当表, 2017), 한국의 《한문교육용기초한자》(漢文教育用基礎漢字, 2000)에서 옮긴 자료입니다.',
+      'en-US':
+        'Transcribed from official regional standards: Mainland China’s List of Commonly Used Standard Chinese Characters (2013), Taiwan’s Standard Form of National Characters (1982), Hong Kong’s List of Graphemes of Commonly-used Chinese Characters, Japan’s Jōyō Kanji List (2010) and Grade-wise Kanji Allocation Table (2017), and South Korea’s Basic Hanja for Educational Use (2000).',
     },
   },
   {
@@ -236,6 +261,7 @@ export const SOURCES: Source[] = [
       'zh-HK': '筆畫數回退、讀音',
       'ja-JP': '画数の補完・読み',
       'ko-KR': '획수 대체·독음',
+      'en-US': 'Fallback stroke counts and readings',
     },
     name: 'Unicode Han Database (Unihan)',
     homepage: 'https://www.unicode.org/reports/tr38/',
@@ -250,6 +276,7 @@ export const SOURCES: Source[] = [
       'zh-HK': '韓式異體對應',
       'ja-JP': '韓国の異体字対応',
       'ko-KR': '한국식 이체자 대응',
+      'en-US': 'Map Korean variant forms',
     },
     name: 'Unicode IRG N2200（韩国教育用汉字提案）',
     localizedName: {
@@ -257,6 +284,7 @@ export const SOURCES: Source[] = [
       'zh-HK': 'Unicode IRG N2200（韓國教育用漢字提案）',
       'ja-JP': 'Unicode IRG N2200（韓国の教育用漢字提案）',
       'ko-KR': 'Unicode IRG N2200(한국 교육용 한자 제안)',
+      'en-US': 'Unicode IRG N2200 (Korean educational Hanja proposal)',
     },
     homepage: 'https://www.unicode.org/L2/L2017/17173-irgn2200-unihan-db.pdf',
     license: 'Unicode License v3',
@@ -272,6 +300,8 @@ export const SOURCES: Source[] = [
         '韓国の字表にあるコードポイントの異なる旧字形を同じ文字グループへ統合するために使用します。「衰」の旧字形はU+2E569で符号化されています。',
       'ko-KR':
         '한국 한자표에서 코드 포인트가 다른 구자형을 같은 글자 그룹으로 통합하는 데 사용합니다. ‘衰’의 구자형은 U+2E569로 인코딩되어 있습니다.',
+      'en-US':
+        'Used to merge old forms encoded at different code points in the South Korean character list into the same character group, including the old form of 衰 encoded at U+2E569.',
     },
   },
   {
@@ -282,6 +312,7 @@ export const SOURCES: Source[] = [
       'zh-HK': '大陸字頻排名',
       'ja-JP': '中国大陸の文字頻度順位',
       'ko-KR': '중국 대륙 글자 빈도 순위',
+      'en-US': 'Mainland Chinese character-frequency ranks',
     },
     name: 'hanziDB.csv（Jun Da《现代汉语单字频率列表》）',
     localizedName: {
@@ -289,6 +320,7 @@ export const SOURCES: Source[] = [
         'hanziDB.csv（Jun Da『Modern Chinese Character Frequency List』）',
       'ko-KR':
         'hanziDB.csv(Jun Da, 《Modern Chinese Character Frequency List》)',
+      'en-US': 'hanziDB.csv (Jun Da, Modern Chinese Character Frequency List)',
     },
     homepage: 'https://github.com/ruddfawcett/hanziDB.csv',
     license: 'MIT',
@@ -302,12 +334,14 @@ export const SOURCES: Source[] = [
       'zh-HK': '香港字頻排名',
       'ja-JP': '香港の文字頻度順位',
       'ko-KR': '홍콩 글자 빈도 순위',
+      'en-US': 'Hong Kong character-frequency ranks',
     },
     name: '粵典「語料庫單字使用頻率」',
     localizedName: {
       'zh-CN': '粤典「语料库单字使用频率」',
       'ja-JP': 'words.hk「コーパス文字使用頻度」',
       'ko-KR': 'words.hk ‘말뭉치 글자 사용 빈도’',
+      'en-US': 'words.hk “Corpus Character Usage Frequency”',
     },
     homepage: 'https://words.hk/faiman/analysis/charcount/',
     license: 'Public Domain',
@@ -323,6 +357,8 @@ export const SOURCES: Source[] = [
         '粵文庫の書き言葉の広東語を集計したものです。本アプリでは漢字だけを抽出し、出現数から1始まりの順位を再計算しています。データはパブリックドメインで、公開者の希望に沿ってwords.hkを表示しています。',
       'ko-KR':
         '粵文庫의 문어 광둥어를 집계한 자료입니다. 이 앱은 한자만 추려 출현 횟수로 1부터 시작하는 순위를 다시 계산합니다. 데이터는 퍼블릭 도메인이며 배포자의 요청에 따라 words.hk를 표시합니다.',
+      'en-US':
+        'Counts written Cantonese in the jyut.net corpus. Hanji filters the data to Han characters and recalculates one-based ranks from occurrence counts. The data is identified as public domain, and words.hk is credited as requested by the publisher.',
     },
   },
   {
@@ -333,6 +369,7 @@ export const SOURCES: Source[] = [
       'zh-HK': '台灣字頻排名',
       'ja-JP': '台湾の文字頻度順位',
       'ko-KR': '대만 글자 빈도 순위',
+      'en-US': 'Taiwanese character-frequency ranks',
     },
     name: '国家教育研究院《民國112年語料字頻表》',
     localizedName: {
@@ -340,6 +377,8 @@ export const SOURCES: Source[] = [
       'zh-HK': '國家教育研究院《民國112年語料字頻表》',
       'ja-JP': '国家教育研究院『民国112年コーパス文字頻度表』',
       'ko-KR': '국가교육연구원 《민국 112년 말뭉치 글자 빈도표》',
+      'en-US':
+        'National Academy for Educational Research, Corpus Character Frequency Table for ROC Year 112',
     },
     homepage:
       'https://teric.naer.edu.tw/wSite/ct?ctNode=645&mp=teric_b&xItem=2068770',
@@ -349,6 +388,7 @@ export const SOURCES: Source[] = [
       'zh-HK': '網站資料開放宣告（須註明出處）',
       'ja-JP': 'ウェブサイト資料開放宣言（出典表示必須）',
       'ko-KR': '웹사이트 자료 개방 선언(출처 표시 필수)',
+      'en-US': 'Website Data Open Declaration (attribution required)',
     },
     licenseUrl:
       'https://teric.naer.edu.tw/wSite/ct?xItem=2000016&ctNode=624&mp=teric_b&idPath=588_623_624',
@@ -363,6 +403,8 @@ export const SOURCES: Source[] = [
         '添付資料1は、2023年の新聞5媒体とPTT・DCardのコーパスを統合したものです。本アプリでは漢字だけを抽出し、文字頻度から1始まりの順位を再計算しています。',
       'ko-KR':
         '첨부 자료 1은 2023년 5개 신문 매체와 PTT·DCard 말뭉치를 합친 자료입니다. 이 앱은 한자만 추려 글자 빈도로 1부터 시작하는 순위를 다시 계산합니다.',
+      'en-US':
+        'Attachment 1 combines 2023 corpora from five news organizations, PTT, and DCard. Hanji filters the data to Han characters and recalculates one-based ranks from character frequencies.',
     },
   },
   {
@@ -373,11 +415,13 @@ export const SOURCES: Source[] = [
       'zh-HK': '日本字頻排名',
       'ja-JP': '日本の文字頻度順位',
       'ko-KR': '일본 글자 빈도 순위',
+      'en-US': 'Japanese character-frequency ranks',
     },
     name: 'scriptin/kanji-frequency（Japanese Wikipedia）',
     localizedName: {
       'ja-JP': 'scriptin/kanji-frequency（日本語版Wikipedia）',
       'ko-KR': 'scriptin/kanji-frequency(일본어 위키백과)',
+      'en-US': 'scriptin/kanji-frequency (Japanese Wikipedia)',
     },
     homepage: 'https://scriptin.github.io/kanji-frequency/',
     license: 'CC BY 4.0',
@@ -393,6 +437,8 @@ export const SOURCES: Source[] = [
         '2023年1月に日本語版Wikipediaから無作為抽出した10万記事を使用しています。本アプリではwikipedia_characters.csvの漢字出現数から1始まりの順位を再計算し、地域字形に対応付けています。',
       'ko-KR':
         '2023년 1월 일본어 위키백과에서 무작위로 뽑은 문서 10만 건을 사용합니다. 이 앱은 wikipedia_characters.csv의 한자 출현 횟수로 1부터 시작하는 순위를 다시 계산해 지역 자형에 연결합니다.',
+      'en-US':
+        'Uses 100,000 articles sampled at random from Japanese Wikipedia in January 2023. Hanji recalculates one-based ranks from Han-character counts in wikipedia_characters.csv and associates them with regional glyphs.',
     },
   },
 ]
