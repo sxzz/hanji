@@ -6,7 +6,9 @@ set -euo pipefail
 
 source_tree="${CODEX_SOURCE_TREE_PATH:-$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)}"
 source_assets="$source_tree/app/assets"
+source_raw="$source_tree/data/raw"
 worktree_assets="$CODEX_WORKTREE_PATH/app/assets"
+worktree_raw="$CODEX_WORKTREE_PATH/data/raw"
 source_fonts="$source_tree/public/fonts"
 worktree_fonts="$CODEX_WORKTREE_PATH/public/fonts"
 source_notices="$source_tree/public/notices"
@@ -46,25 +48,34 @@ if (
     ((${#font_binaries[@]} == 0)) ||
     ((${#font_stylesheets[@]} != 4))
 ); then
-  echo \
-    "No complete data build found in $source_tree; run 'pnpm build:data' in the source tree first." \
-    >&2
-  exit 1
+  complete=false
 fi
 
-mkdir -p \
-  "$worktree_assets/data" \
-  "$worktree_assets/strokes" \
-  "$worktree_fonts" \
-  "$worktree_notices"
-cp -p "${data_files[@]}" "$worktree_assets/data/"
-cp -p "${stroke_shards[@]}" "$worktree_assets/strokes/"
-cp -p \
-  "${font_binaries[@]}" \
-  "${font_stylesheets[@]}" \
-  "$worktree_fonts/"
-cp -p "${notice_files[@]}" "$worktree_notices/"
-cp -p "$face_marks" "$CODEX_WORKTREE_PATH/app/generated/face-marks.ts"
+if [[ "$complete" == true ]]; then
+  mkdir -p \
+    "$worktree_assets/data" \
+    "$worktree_assets/strokes" \
+    "$worktree_fonts" \
+    "$worktree_notices"
+  cp -p "${data_files[@]}" "$worktree_assets/data/"
+  cp -p "${stroke_shards[@]}" "$worktree_assets/strokes/"
+  cp -p \
+    "${font_binaries[@]}" \
+    "${font_stylesheets[@]}" \
+    "$worktree_fonts/"
+  cp -p "${notice_files[@]}" "$worktree_notices/"
+  cp -p "$face_marks" "$CODEX_WORKTREE_PATH/app/generated/face-marks.ts"
+else
+  echo "No complete data build found in $source_tree; rebuilding it in the worktree."
+  if [[ -d "$source_raw" && "$source_raw" != "$worktree_raw" ]]; then
+    mkdir -p "$worktree_raw"
+    cp -Rp "$source_raw/." "$worktree_raw/"
+  fi
+fi
 
 cd "$CODEX_WORKTREE_PATH"
 pnpm install --frozen-lockfile
+
+if [[ "$complete" != true ]]; then
+  pnpm build:data
+fi

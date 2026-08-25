@@ -753,6 +753,7 @@ onBeforeUnmount(() => {
 
 .stroke-reveal {
   fill: none;
+  stroke: var(--c-ink);
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -774,17 +775,12 @@ onBeforeUnmount(() => {
   fill: var(--c-ink);
 }
 
-.stroke-reveal {
-  stroke: var(--c-g1);
-}
-
 .stroke-reveal path {
   visibility: hidden;
 }
 
 .stroke-reveal .stroke-current {
   visibility: visible;
-  stroke: var(--c-g1);
   will-change: stroke-dashoffset;
 }
 
