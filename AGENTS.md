@@ -31,4 +31,27 @@ Vitest discovers `scripts/tests/*.test.ts`. Add focused regression cases near th
 
 ## Commit & Pull Request Guidelines
 
-Recent commits use concise, imperative subjects such as `Add Japanese localization support` and `Fix character route fallback redirects`. Use an optional `chore:` prefix only for maintenance work. Before committing, run `pnpm format`, `pnpm lint`, `pnpm typecheck`, and `pnpm test`. Write GitHub content in English. Pull requests should explain intent and data-impact, link relevant issues, list verification commands, and include screenshots for visible UI changes. Commit updated lockfiles and generated datasets when applicable, but never ignored raw downloads or generated fonts.
+Recent commits use concise, imperative subjects such as `Add Japanese localization support` and `Fix character route fallback redirects`. Use an optional `chore:` prefix only for maintenance work. Write all GitHub content in English. Commit updated lockfiles and generated datasets when applicable, but never ignored raw downloads or generated fonts.
+
+### Required Checks Before Submission
+
+Every contributor, including an AI coding agent, must run the following commands from the repository root after the final code change and before the final commit or PR submission:
+
+```sh
+pnpm format
+pnpm lint
+pnpm typecheck
+pnpm test
+```
+
+`pnpm format` can modify files, so review and include its output before running the remaining checks. On a clean checkout, or after changing dataset/font inputs or generators, run `pnpm build:data` before the checks above. If a later edit can affect a completed check, rerun that check. Do not claim that a command passed unless it was actually run to completion. Do not submit with known failures; if a check cannot run because of an environmental limitation, record the exact command and error in the PR's `Additional context` section.
+
+### Pull Request Template
+
+All PRs must follow the account-wide [pull request template](https://github.com/sxzz/.github/blob/main/.github/PULL_REQUEST_TEMPLATE.md). This requirement also applies when a PR is created through a CLI, an API, or an AI coding agent: explicitly load and preserve the template instead of replacing it with a custom PR body.
+
+- Keep the `AI usage`, `Description`, `Linked Issues`, and `Additional context` sections.
+- Complete the AI disclosure truthfully. If AI contributed to code, tests, documentation, commit messages, or the PR description, select `AI was used` and identify the tool and model in one short line.
+- An AI agent must never check `I have carefully reviewed the AI-generated content myself`; only the human contributor may check it after personally reviewing the work.
+- Keep the description concise and explain what problem the PR solves. Link the relevant issue and add focused regression tests when appropriate.
+- List the commands actually run and their results in `Additional context`. Include screenshots for visible UI changes, or state that they are not applicable.
