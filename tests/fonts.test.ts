@@ -11,15 +11,17 @@ import { readdirSync, readFileSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import * as fontkit from 'fontkit'
 import { describe, expect, it } from 'vitest'
-import { frequencyRankOf } from '../../shared/frequency.ts'
-import { formsOf } from '../../shared/links.ts'
+import { partitionSignature } from '../scripts/cmap.ts'
+import { DATA_DIR, FONT_DIR } from '../scripts/sources.ts'
+import { frequencyRankOf } from '../shared/frequency.ts'
+import { formsOf } from '../shared/links.ts'
 import {
   fontIndexOf,
   fontRegionOf,
   projectSignature,
   usesSupplementalFont,
   varietyOf,
-} from '../../shared/row.ts'
+} from '../shared/row.ts'
 import {
   FREQUENCY_REGIONS,
   REGIONS,
@@ -27,9 +29,7 @@ import {
   type CharsData,
   type FrequencyRegion,
   type Style,
-} from '../../shared/types.ts'
-import { partitionSignature } from '../cmap.ts'
-import { DATA_DIR, FONT_DIR } from '../sources.ts'
+} from '../shared/types.ts'
 
 const data: CharsData = JSON.parse(
   readFileSync(join(DATA_DIR, 'chars.json'), 'utf8'),

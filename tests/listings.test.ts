@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { createListingMatcher } from '../../shared/listings.ts'
-import { DATA_DIR } from '../sources.ts'
-import type { CharRow, CharsData } from '../../shared/types.ts'
+import { DATA_DIR } from '../scripts/sources.ts'
+import { createListingMatcher } from '../shared/listings.ts'
+import type { CharRow, CharsData } from '../shared/types.ts'
 
 const data: CharsData = JSON.parse(
   readFileSync(join(DATA_DIR, 'chars.json'), 'utf8'),

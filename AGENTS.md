@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-Hanji is a Nuxt 4/Vue 3 static app. Route components live in `app/pages/`, reusable UI in `app/components/`, stateful helpers in `app/composables/`, and global styling in `app/styles/`. Keep framework-independent data models and lookup logic in `shared/` so both the app and build scripts can import them. Data and font pipelines live in `scripts/`; their Vitest suites are in `scripts/tests/`. Generated character data, stroke shards, and font subsets under `app/assets/` are ignored and fingerprinted by Vite; stable legal texts live under `public/notices/`. Downloaded inputs under `data/raw/` are also ignored. Do not hand-edit generated outputs; change the relevant script or source lock instead.
+Hanji is a Nuxt 4/Vue 3 static app. Route components live in `app/pages/`, reusable UI in `app/components/`, stateful helpers in `app/composables/`, and global styling in `app/styles/`. Keep framework-independent data models and lookup logic in `shared/` so both the app and build scripts can import them. Data and font pipelines live in `scripts/`; their Vitest suites are in `tests/`. Generated character data, stroke shards, and font subsets under `app/assets/` are ignored and fingerprinted by Vite; stable legal texts live under `public/notices/`. Downloaded inputs under `data/raw/` are also ignored. Do not hand-edit generated outputs; change the relevant script or source lock instead.
 
 ## Build, Test, and Development Commands
 
@@ -27,7 +27,7 @@ Always write the project's English name as `Hanji` in user-facing copy and visua
 
 ## Testing Guidelines
 
-Vitest discovers `scripts/tests/*.test.ts`. Add focused regression cases near the pipeline or utility being changed; use table-driven `it.each` cases for data variants. Dataset and font tests validate generated artifacts, so run `pnpm build:data` when inputs or generators change. No coverage threshold is configured; meaningful behavioral assertions are expected.
+Vitest discovers `tests/*.test.ts`. Add focused regression cases near the pipeline or utility being changed; use table-driven `it.each` cases for data variants. Dataset and font tests validate generated artifacts, so run `pnpm build:data` when inputs or generators change. No coverage threshold is configured; meaningful behavioral assertions are expected.
 
 ## Commit & Pull Request Guidelines
 

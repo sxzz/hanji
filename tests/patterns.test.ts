@@ -6,7 +6,7 @@ import {
   serializePatternChoices,
   toggleExactPatternChoice,
   toggleVarietyChoice,
-} from '../../shared/patterns.ts'
+} from '../shared/patterns.ts'
 
 const FOUR_COLUMN_PATTERNS = [
   '0000',

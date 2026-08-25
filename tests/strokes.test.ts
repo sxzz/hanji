@@ -8,7 +8,9 @@ import {
   ANIMCJK_VIEW_BOX,
   animCJKMedianPath,
   unpackAnimCJK,
-} from '../../app/utils/animcjk.ts'
+} from '../app/utils/animcjk.ts'
+import { parseAnimCJKGraphics } from '../scripts/build-strokes.ts'
+import { DATA_DIR, NOTICES_DIR, STROKE_DIR } from '../scripts/sources.ts'
 import {
   setStrokeVariant,
   STROKE_SHARD_COUNT,
@@ -16,15 +18,13 @@ import {
   strokeShardId,
   type AnimCJKRegion,
   type PackedStrokeShard,
-} from '../../shared/strokes.ts'
+} from '../shared/strokes.ts'
 import {
   COLUMNS,
   REGIONS,
   type CharRow,
   type CharsData,
-} from '../../shared/types.ts'
-import { parseAnimCJKGraphics } from '../build-strokes.ts'
-import { DATA_DIR, NOTICES_DIR, STROKE_DIR } from '../sources.ts'
+} from '../shared/types.ts'
 
 describe('stroke source parsing', () => {
   it('keeps selected AnimCJK outlines and flattens their medians', () => {

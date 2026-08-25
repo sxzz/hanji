@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { plainReading } from '../../shared/readings.ts'
+import { plainReading } from '../shared/readings.ts'
 
 describe('reading normalization', () => {
   it.each(['ü', 'ǖ', 'ǘ', 'ǚ', 'ǜ'])(

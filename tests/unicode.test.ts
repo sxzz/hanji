@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isUnicodeScalarValue } from '../../app/utils/unicode.ts'
+import { isUnicodeScalarValue } from '../app/utils/unicode.ts'
 
 describe('Unicode scalar values', () => {
   it.each([0, 0xd7ff, 0xe000, 0x10ffff])('accepts U+%s', (codePoint) => {

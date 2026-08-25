@@ -3,7 +3,7 @@ import { resolve } from 'node:path'
 import sharp from 'sharp'
 import { describe, expect, it } from 'vitest'
 
-const ROOT = resolve(import.meta.dirname, '../..')
+const ROOT = resolve(import.meta.dirname, '..')
 const PROOF_RED = [0xd1, 0x50, 0x3f, 0xff]
 
 async function pixel(file: string, x: number, y: number): Promise<number[]> {

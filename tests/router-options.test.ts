@@ -25,7 +25,7 @@ function route(fullPath: string): Route {
 
 beforeAll(async () => {
   vi.stubGlobal('ref', ref)
-  const config = (await import('../../app/router.options.ts')).default
+  const config = (await import('../app/router.options.ts')).default
   scrollBehavior = config.scrollBehavior!
 })
 

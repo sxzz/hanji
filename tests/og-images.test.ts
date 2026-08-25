@@ -1,12 +1,15 @@
 import { Buffer } from 'node:buffer'
 import { readFileSync } from 'node:fs'
 import { beforeAll, describe, expect, it } from 'vitest'
-import { createOgRenderer, type OgRenderer } from '../build-og-images.ts'
-import type { CharsData } from '../../shared/types.ts'
+import {
+  createOgRenderer,
+  type OgRenderer,
+} from '../scripts/build-og-images.ts'
+import type { CharsData } from '../shared/types.ts'
 
 const data: CharsData = JSON.parse(
   readFileSync(
-    new URL('../../app/assets/data/chars.json', import.meta.url),
+    new URL('../app/assets/data/chars.json', import.meta.url),
     'utf8',
   ),
 )

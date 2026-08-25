@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
-import { dictionaryRegionsFor, matchLocale } from '../../app/locales/index.ts'
-import { jaJP } from '../../app/locales/ja-jp.ts'
-import { koKR } from '../../app/locales/ko-kr.ts'
-import { zhCN } from '../../app/locales/zh-cn.ts'
-import { zhHK } from '../../app/locales/zh-hk.ts'
-import { zhTW } from '../../app/locales/zh-tw.ts'
-import { hanNumber } from '../../app/utils/han-number.ts'
-import { SOURCES } from '../../shared/sources.ts'
+import { dictionaryRegionsFor, matchLocale } from '../app/locales/index.ts'
+import { jaJP } from '../app/locales/ja-jp.ts'
+import { koKR } from '../app/locales/ko-kr.ts'
+import { zhCN } from '../app/locales/zh-cn.ts'
+import { zhHK } from '../app/locales/zh-hk.ts'
+import { zhTW } from '../app/locales/zh-tw.ts'
+import { hanNumber } from '../app/utils/han-number.ts'
+import { SOURCES } from '../shared/sources.ts'
 
 function leaves(value: unknown, prefix = ''): Record<string, string> {
   if (typeof value === 'string') return { [prefix]: value }

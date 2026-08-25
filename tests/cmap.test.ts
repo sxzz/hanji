@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest'
-import { parseCMap, partitionSignature } from '../cmap.ts'
+import { parseCMap, partitionSignature } from '../scripts/cmap.ts'
 
 it('expands cidrange blocks incrementally', () => {
   const map = parseCMap(`

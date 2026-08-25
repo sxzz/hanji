@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { asRange } from '../../app/composables/query-state.ts'
+import { asRange } from '../app/composables/query-state.ts'
 
 describe('stroke range query parsing', () => {
   it.each([

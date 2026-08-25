@@ -6,8 +6,8 @@ import {
   LOCALE_KEY,
   OUTLINE_KEY,
   RESTORING_ATTRIBUTE,
-} from '../../app/utils/preference-restore.ts'
-import { PREFERENCE_RESTORE_SCRIPT } from '../preference-restore.ts'
+} from '../app/utils/preference-restore.ts'
+import { PREFERENCE_RESTORE_SCRIPT } from '../scripts/preference-restore.ts'
 
 interface RunOptions {
   storage?: Record<string, string>

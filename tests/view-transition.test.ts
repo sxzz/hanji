@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { shouldUseViewTransition } from '../../app/utils/view-transition.ts'
+import { shouldUseViewTransition } from '../app/utils/view-transition.ts'
 
 describe('route view transitions', () => {
   it.each([

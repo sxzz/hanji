@@ -5,7 +5,7 @@ import {
   PWA_INSTALL_CAPTURE_SCRIPT,
   PWA_INSTALL_PROMPT_READY_EVENT,
   type PwaInstallEnvironment,
-} from '../../app/utils/pwa-install.ts'
+} from '../app/utils/pwa-install.ts'
 
 const base: PwaInstallEnvironment = {
   promptAvailable: false,

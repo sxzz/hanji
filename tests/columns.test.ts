@@ -1,14 +1,15 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { formsOf } from '../../shared/links.ts'
-import { listingOptionsFor } from '../../shared/listings.ts'
+import { DATA_DIR } from '../scripts/sources.ts'
+import { formsOf } from '../shared/links.ts'
+import { listingOptionsFor } from '../shared/listings.ts'
 import {
   glyphSignature,
   projectSignature,
   signatureIndexOf,
   varietyOf,
-} from '../../shared/row.ts'
+} from '../shared/row.ts'
 import {
   applyKoreanColumnDefault,
   COLUMNS,
@@ -17,8 +18,7 @@ import {
   type CharsData,
   type Column,
   type Region,
-} from '../../shared/types.ts'
-import { DATA_DIR } from '../sources.ts'
+} from '../shared/types.ts'
 
 const data: CharsData = JSON.parse(
   readFileSync(join(DATA_DIR, 'chars.json'), 'utf8'),

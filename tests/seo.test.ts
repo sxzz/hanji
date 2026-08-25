@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { schemaOrgPage } from '../../shared/seo.ts'
+import { schemaOrgPage } from '../shared/seo.ts'
 
 describe('Schema.org page metadata', () => {
   it('links the site, current page, and primary social image', () => {

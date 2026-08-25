@@ -1,9 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import {
-  loadAnimCJK,
-  mergeStrokeOrderChoices,
-} from '../../app/utils/animcjk.ts'
-import { strokeDataUrl, strokeDuration } from '../../app/utils/stroke-data.ts'
+import { loadAnimCJK, mergeStrokeOrderChoices } from '../app/utils/animcjk.ts'
+import { strokeDataUrl, strokeDuration } from '../app/utils/stroke-data.ts'
 
 describe('stroke data', () => {
   afterEach(() => vi.unstubAllGlobals())

@@ -7,16 +7,16 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { dictGroups, dictLinks, formsOf } from '../../shared/links.ts'
-import { strokeDataRef } from '../../shared/strokes.ts'
-import { REGIONS, type CharRow, type CharsData } from '../../shared/types.ts'
 import {
   DATA_DIR,
   parseCharList,
   parseDict,
   parsePrimaryCharList,
   RAW_DIR,
-} from '../sources.ts'
+} from '../scripts/sources.ts'
+import { dictGroups, dictLinks, formsOf } from '../shared/links.ts'
+import { strokeDataRef } from '../shared/strokes.ts'
+import { REGIONS, type CharRow, type CharsData } from '../shared/types.ts'
 
 const data: CharsData = JSON.parse(
   readFileSync(join(DATA_DIR, 'chars.json'), 'utf8'),

@@ -1,14 +1,14 @@
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { frequencyRankOf } from '../../shared/frequency.ts'
 import {
   DATA_DIR,
   parseCountFrequencyCsv,
   parseTaiwanFrequency,
   RAW_DIR,
-} from '../sources.ts'
-import type { CharRow, CharsData } from '../../shared/types.ts'
+} from '../scripts/sources.ts'
+import { frequencyRankOf } from '../shared/frequency.ts'
+import type { CharRow, CharsData } from '../shared/types.ts'
 
 const data: CharsData = JSON.parse(
   readFileSync(join(DATA_DIR, 'chars.json'), 'utf8'),
