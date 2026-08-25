@@ -197,7 +197,10 @@ function toggleRegion(region: string) {
 <template>
   <div class="filter-form text-sm">
     <div class="filter-line">
-      <span class="filter-count tabular text-xs text-mute font-mono">
+      <span
+        role="status"
+        class="filter-count tabular text-xs text-mute font-mono"
+      >
         {{
           t('filter.matched', { n: chars.rows.value.length.toLocaleString() })
         }}
