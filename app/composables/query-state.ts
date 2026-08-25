@@ -56,16 +56,21 @@ export function asOneOf<T extends string>(options: readonly T[]) {
 
 export const asRange = {
   parse: (raw: string): [number, number] => {
-    // Validate the raw segments first: Number('') is 0, so an empty segment
-    // would otherwise slip through as a zero bound and rebuild the very
-    // legitimate-looking empty result this parser exists to prevent.
-    const parts = raw.split('-')
-    if (parts.length !== 2 || parts.some((part) => part.trim() === ''))
+    const [loRaw, hiRaw, ...rest] = raw.split('-')
+    if (
+      loRaw === undefined ||
+      hiRaw === undefined ||
+      rest.length > 0 ||
+      loRaw.trim() === '' ||
+      hiRaw.trim() === ''
+    )
       throw new Error('bad range')
-    const [lo, hi] = parts.map(Number)
-    if (!Number.isFinite(lo) || !Number.isFinite(hi))
+
+    const lo = Number(loRaw)
+    const hi = Number(hiRaw)
+    if (!Number.isFinite(lo) || !Number.isFinite(hi) || lo > hi)
       throw new Error('bad range')
-    if (lo > hi) throw new Error('bad range')
+
     return [lo, hi]
   },
   serialize: ([lo, hi]: [number, number]) => `${lo}-${hi}`,
