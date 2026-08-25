@@ -27,7 +27,7 @@ export const enUS: typeof zhCN = {
     },
   },
   hero: {
-    title: 'Distinct glyphs: {n}',
+    title: '{n} distinct glyphs',
     // The standfirst is assembled from these: see HeroOverprint's `body`.
     same: '{regions} share the same glyph.',
     allDiffer: '{regions} all use different glyphs.',
