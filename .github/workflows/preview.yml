@@ -1,0 +1,170 @@
+name: Deploy PR preview
+
+on:
+  workflow_run:
+    workflows: [Deploy]
+    types: [completed]
+
+# Never execute files from the untrusted PR artifact in this privileged workflow.
+permissions:
+  actions: read
+  contents: read
+  deployments: write
+  pull-requests: read
+
+concurrency:
+  group: workers-preview-${{ github.event.workflow_run.head_repository.id }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  resolve:
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    outputs:
+      found: ${{ steps.pr.outputs.found }}
+      number: ${{ steps.pr.outputs.number }}
+      sha: ${{ steps.pr.outputs.sha }}
+
+    steps:
+      # workflow_run.pull_requests can be empty for fork PRs.
+      - name: Resolve pull request
+        id: pr
+        env:
+          BASE_BRANCH: ${{ github.event.repository.default_branch }}
+          BASE_REPOSITORY: ${{ github.repository }}
+          GH_TOKEN: ${{ github.token }}
+          HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          HEAD_REPOSITORY: ${{ github.event.workflow_run.head_repository.full_name }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          head_owner="${HEAD_REPOSITORY%%/*}"
+          pulls="$(
+            gh api \
+              --method GET \
+              "repos/$BASE_REPOSITORY/pulls" \
+              -f state=open \
+              -f head="$head_owner:$HEAD_BRANCH" \
+              -f base="$BASE_BRANCH"
+          )"
+          count="$(jq length <<<"$pulls")"
+
+          if test "$count" -eq 0; then
+            echo 'found=false' >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if test "$count" -ne 1; then
+            echo "::error::Expected one matching pull request, found $count"
+            exit 1
+          fi
+
+          number="$(jq -r '.[0].number' <<<"$pulls")"
+          sha="$(jq -r '.[0].head.sha' <<<"$pulls")"
+          repository="$(jq -r '.[0].head.repo.full_name' <<<"$pulls")"
+          if test "$sha" != "$HEAD_SHA" || test "$repository" != "$HEAD_REPOSITORY"; then
+            echo '::error::Pull request metadata does not match the completed build'
+            exit 1
+          fi
+
+          echo 'found=true' >> "$GITHUB_OUTPUT"
+          echo "number=$number" >> "$GITHUB_OUTPUT"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+  deploy:
+    needs: resolve
+    if: needs.resolve.outputs.found == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup trusted deploy tools
+        uses: sxzz/workflows/setup-js@ea00b206fd53ae8f6d75c72fb1f67b8673ab8959
+
+      - name: Download PR preview artifact
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: pr-preview
+          path: ${{ runner.temp }}/pr-preview
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Validate PR preview artifact
+        env:
+          PREVIEW_DIR: ${{ runner.temp }}/pr-preview
+        run: |
+          test -f "$PREVIEW_DIR/index.html"
+          test -f "$PREVIEW_DIR/404.html"
+          if find "$PREVIEW_DIR" -mindepth 1 ! -type f ! -type d -print -quit | grep -q .; then
+            echo '::error::Preview artifact contains a non-regular entry'
+            exit 1
+          fi
+
+          file_count="$(find "$PREVIEW_DIR" -type f | wc -l | tr -d ' ')"
+          size_kib="$(du -sk "$PREVIEW_DIR" | cut -f1)"
+          if test "$file_count" -gt 20000; then
+            echo "::error::Preview artifact has too many files: $file_count"
+            exit 1
+          fi
+          if test "$size_kib" -gt 524288; then
+            echo "::error::Preview artifact is too large: $size_kib KiB"
+            exit 1
+          fi
+
+          test ! -e .output/public
+          mkdir -p .output
+          mv "$PREVIEW_DIR" .output/public
+
+      - name: Upload Cloudflare Workers preview
+        id: deploy_preview
+        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: versions upload --preview-alias=pr-${{ needs.resolve.outputs.number }}
+
+      - name: Publish GitHub deployment
+        env:
+          DEPLOYED_SHA: ${{ needs.resolve.outputs.sha }}
+          DEPLOYMENT_URL: ${{ steps.deploy_preview.outputs.deployment-url }}
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ needs.resolve.outputs.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          version_host="${DEPLOYMENT_URL#https://}"
+          preview_host="${version_host#*-}"
+          test "$preview_host" != "$version_host"
+          deployment_url="https://pr-$PR_NUMBER-$preview_host"
+
+          deployment_id="$(
+            jq -n \
+              --arg ref "$DEPLOYED_SHA" \
+              '{
+                ref: $ref,
+                environment: "preview",
+                auto_merge: false,
+                required_contexts: [],
+                transient_environment: true,
+                production_environment: false,
+                description: "Cloudflare Workers preview"
+              }' |
+              gh api \
+                --method POST \
+                "repos/${GITHUB_REPOSITORY}/deployments" \
+                --input - \
+                --jq '.id'
+          )"
+
+          jq -n \
+            --arg environment_url "$deployment_url" \
+            --arg log_url "$RUN_URL" \
+            '{
+              state: "success",
+              environment: "preview",
+              environment_url: $environment_url,
+              log_url: $log_url,
+              description: "Cloudflare Workers preview is ready"
+            }' |
+            gh api \
+              --method POST \
+              "repos/${GITHUB_REPOSITORY}/deployments/${deployment_id}/statuses" \
+              --input -

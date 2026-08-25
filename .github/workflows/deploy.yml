@@ -84,14 +84,14 @@ jobs:
         if: github.event_name == 'push' && steps.og-cache.outputs.cache-hit != 'true'
         run: pnpm build:og
 
-      - name: Upload Cloudflare Workers preview
-        if: github.event_name == 'pull_request'
-        id: deploy_preview
-        uses: cloudflare/wrangler-action@ebbaa1584979971c8614a24965b4405ff95890e0 # v4.0.0
+      - name: Upload PR preview artifact
+        if: github.event_name == 'pull_request' && steps.unit_test.outcome == 'success'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: versions upload --preview-alias=pr-${{ github.event.pull_request.number }}
+          name: pr-preview
+          path: .output/public
+          if-no-files-found: error
+          retention-days: 1
 
       - name: Deploy to Cloudflare Workers
         if: github.event_name == 'push'
@@ -103,21 +103,14 @@ jobs:
           command: deploy
 
       - name: Publish GitHub deployment
+        if: github.event_name == 'push'
         env:
-          DEPLOYED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-          DEPLOYMENT_ENVIRONMENT: ${{ github.event_name == 'pull_request' && 'preview' || 'production' }}
-          DEPLOYMENT_URL: ${{ steps.deploy_preview.outputs.deployment-url || 'https://hanji.sxzz.moe' }}
+          DEPLOYED_SHA: ${{ github.sha }}
+          DEPLOYMENT_ENVIRONMENT: production
+          DEPLOYMENT_URL: https://hanji.sxzz.moe
           GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ github.event.pull_request.number }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          if test "$DEPLOYMENT_ENVIRONMENT" = "preview"; then
-            version_host="${DEPLOYMENT_URL#https://}"
-            preview_host="${version_host#*-}"
-            test "$preview_host" != "$version_host"
-            DEPLOYMENT_URL="https://pr-$PR_NUMBER-$preview_host"
-          fi
-
           deployment_id="$(
             jq -n \
               --arg ref "$DEPLOYED_SHA" \
