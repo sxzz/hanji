@@ -108,6 +108,22 @@ function turnTo(page: number) {
       <div
         class="ml-auto w-full flex flex-wrap items-center justify-end gap-3 sm:w-auto"
       >
+        <label
+          class="h-8 inline-flex items-center gap-1.5 border border-rule rounded-md bg-sunk px-2 text-xs text-mute"
+        >
+          <span>{{ t('table.perPage') }}</span>
+          <select
+            v-model.number="chars.pageSize.value"
+            class="focus-ring min-w-11 cursor-pointer bg-transparent text-right text-xs text-ink font-mono"
+            :aria-label="t('table.perPage')"
+            :title="t('table.perPage')"
+          >
+            <option v-for="size in chars.pageSizes" :key="size" :value="size">
+              {{ size }}
+            </option>
+          </select>
+        </label>
+
         <div
           v-if="chars.paged.value"
           class="grid grid-cols-[auto_1fr_auto] items-center gap-2 sm:flex sm:gap-3"
@@ -152,22 +168,6 @@ function turnTo(page: number) {
             {{ t('table.next') }}
           </button>
         </div>
-
-        <label
-          class="h-8 inline-flex items-center gap-1.5 border border-rule rounded-md bg-sunk px-2 text-xs text-mute"
-        >
-          <span>{{ t('table.perPage') }}</span>
-          <select
-            v-model.number="chars.pageSize.value"
-            class="focus-ring min-w-11 cursor-pointer bg-transparent text-right text-xs text-ink font-mono"
-            :aria-label="t('table.perPage')"
-            :title="t('table.perPage')"
-          >
-            <option v-for="size in chars.pageSizes" :key="size" :value="size">
-              {{ size }}
-            </option>
-          </select>
-        </label>
       </div>
     </nav>
   </div>
