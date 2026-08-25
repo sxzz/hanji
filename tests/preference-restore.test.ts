@@ -67,7 +67,7 @@ describe('preference restoration screen', () => {
   })
 
   it.each([
-    ['stored locale', { [LOCALE_KEY]: '"ja-JP"' }],
+    ['stored English locale', { [LOCALE_KEY]: '"en-US"' }],
     ['flag labels', { [FLAGS_KEY]: 'true' }],
     ['outlines', { [OUTLINE_KEY]: '"true"' }],
     ['comparison scope', { [HIDDEN_KEY]: '[]' }],
@@ -76,15 +76,24 @@ describe('preference restoration screen', () => {
   })
 
   it('covers a browser-selected locale when no choice is stored', () => {
-    const page = runRestore({ languages: ['en-US', 'zh-TW'] })
+    const page = runRestore({ languages: ['en-GB', 'zh-TW'] })
     expect(page.isRestoring()).toBe(true)
-    expect(page.htmlLang()).toBe('zh-TW')
+    expect(page.htmlLang()).toBe('en-US')
+  })
+
+  it('restores a saved English choice ahead of browser preferences', () => {
+    const page = runRestore({
+      languages: ['ja-JP'],
+      storage: { [LOCALE_KEY]: '"en-US"' },
+    })
+    expect(page.isRestoring()).toBe(true)
+    expect(page.htmlLang()).toBe('en-US')
   })
 
   it('reveals the default page if the application never finishes', () => {
-    const page = runRestore({ storage: { [LOCALE_KEY]: 'ja-JP' } })
+    const page = runRestore({ storage: { [LOCALE_KEY]: 'en-US' } })
     expect(page.isRestoring()).toBe(true)
-    expect(page.htmlLang()).toBe('ja-JP')
+    expect(page.htmlLang()).toBe('en-US')
     page.runFallback()
     expect(page.isRestoring()).toBe(false)
     expect(page.htmlLang()).toBe('zh-CN')

@@ -30,6 +30,7 @@ import { Worker } from 'node:worker_threads'
 import * as fontkit from 'fontkit'
 import { messages } from '../app/locales/all.ts'
 import {
+  LOCALE_DICTIONARY_REGION,
   LOCALE_META,
   localeName,
   LOCALES,
@@ -366,8 +367,9 @@ for (const style of STYLES) {
  * characters of interface copy would otherwise pull a dozen upstream chunks
  * and several hundred KB. Local unicode-range chunks keep the first page
  * small while still putting complete self-hosted coverage ahead of the Google
- * family. Each locale is cut from its own regional font, which is also what
- * keeps the interface from displaying the wrong regional glyphs.
+ * family. Each UI family is cut from its regional font, which is also what
+ * keeps the interface from displaying the wrong regional glyphs. Locales
+ * that deliberately share a UI family contribute copy to the same subsets.
  */
 const KANA = String.fromCodePoint(
   // Hiragana and katakana in full: Japanese readings are data, so the set of
@@ -380,13 +382,17 @@ const KOREAN_READINGS = data.rows
   .flatMap((row) => row.readings?.korean ?? [])
   .join('')
 
-const UI_FONT: Record<string, (style: Style) => string> = {
-  'zh-CN': (style) => otf(style, 'cn'),
-  'zh-TW': (style) => otf(style, 'tw'),
-  'zh-HK': (style) => otf(style, 'hk'),
-  'ja-JP': (style) => otf(style, 'jp'),
-  'ko-KR': (style) => otf(style, 'kr'),
-}
+const uiFont = (locale: Locale, style: Style): string =>
+  otf(style, LOCALE_DICTIONARY_REGION[locale])
+
+/** One generated CJK subset family per distinct interface fallback family. */
+const UI_FONT_LOCALES = LOCALES.filter(
+  (locale, index) =>
+    LOCALES.findIndex(
+      (candidate) =>
+        LOCALE_META[candidate].uiFamily === LOCALE_META[locale].uiFamily,
+    ) === index,
+)
 
 /**
  * Group interface characters by where they can appear. Unicode ranges within
@@ -442,18 +448,26 @@ function uiTextGroups(locale: Locale): string[] {
   ]
 }
 
+/** Merge copy from locales that deliberately share one CJK UI family. */
+function uiFamilyTextGroups(locale: Locale): string[] {
+  const family = LOCALE_META[locale].uiFamily
+  const groups = LOCALES.filter(
+    (candidate) => LOCALE_META[candidate].uiFamily === family,
+  ).map(uiTextGroups)
+  return groups[0]!.map((_, index) =>
+    groups.map((group) => group[index]!).join(''),
+  )
+}
+
 /** Everything that can reach the Latin face, across lazy-loaded locales. */
 const uiText = (): string =>
   LOCALES.flatMap((locale) => uiTextGroups(locale)).join('')
 
 const uiSubsets: { index: number; file: string; chars: number }[] = []
 
-for (const locale of Object.keys(messages) as Locale[]) {
-  const source = UI_FONT[locale]
-  if (!source) continue
-
+for (const locale of UI_FONT_LOCALES) {
   const seen = new Set<string>()
-  const groups = uiTextGroups(locale).flatMap((text, groupIndex) => {
+  const groups = uiFamilyTextGroups(locale).flatMap((text, groupIndex) => {
     const chars = [...new Set(text)].filter((char) => !seen.has(char))
     for (const char of chars) seen.add(char)
     if (groupIndex < 4) return chars.length ? [chars] : []
@@ -468,7 +482,11 @@ for (const locale of Object.keys(messages) as Locale[]) {
     for (const [chunkIndex, chunk] of groups.entries()) {
       const file = `ui-${style}-${locale}-${chunkIndex}.woff2`
       uiSubsets.push({
-        index: queue({ font: source(style), text: chunk.join(''), file }),
+        index: queue({
+          font: uiFont(locale, style),
+          text: chunk.join(''),
+          file,
+        }),
         file,
         chars: chunk.length,
       })
@@ -575,10 +593,10 @@ async function faceMarks(): Promise<string> {
       // keeps the existing Chinese marks on the default face, while unique
       // Japanese and Korean labels come from their respective faces.
       if (marks[style]?.[char]) continue
-      const source = UI_FONT[locale]
-      if (!source) continue
+      const source =
+        locale === 'en-US' ? LATIN_SOURCE[style] : uiFont(locale, style)
       const font = fontkit.create(
-        Buffer.from(await raw(source(style))),
+        Buffer.from(await raw(source)),
       ) as fontkit.Font
       const scale = 1000 / font.unitsPerEm
       const glyph = font.glyphForCodePoint(char.codePointAt(0)!)

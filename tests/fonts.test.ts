@@ -12,6 +12,7 @@ import { join } from 'node:path'
 import * as fontkit from 'fontkit'
 import { describe, expect, it } from 'vitest'
 import { messages } from '../app/locales/all.ts'
+import { LOCALE_META, type Locale } from '../app/locales/index.ts'
 import { partitionSignature } from '../scripts/cmap.ts'
 import { DATA_DIR, FONT_DIR } from '../scripts/sources.ts'
 import { frequencyRankOf } from '../shared/frequency.ts'
@@ -24,6 +25,7 @@ import {
   usesSupplementalFont,
   varietyOf,
 } from '../shared/row.ts'
+import { SOURCES } from '../shared/sources.ts'
 import {
   FREQUENCY_REGIONS,
   REGIONS,
@@ -37,6 +39,14 @@ const data: CharsData = JSON.parse(
   readFileSync(join(DATA_DIR, 'chars.json'), 'utf8'),
 )
 const rows = new Map(data.rows.map((row) => [row.key, row]))
+const locales = Object.keys(messages) as Locale[]
+const uiFontLocales = locales.filter(
+  (locale, index) =>
+    locales.findIndex(
+      (candidate) =>
+        LOCALE_META[candidate].uiFamily === LOCALE_META[locale].uiFamily,
+    ) === index,
+)
 
 /** The data, rather than this test, decides which codepoints Noto cannot draw. */
 const supplementalChars = Object.fromEntries(
@@ -259,7 +269,7 @@ describe('subset loading', () => {
     for (const style of STYLES) {
       for (const region of REGIONS)
         expect(css).toContain(`hanji-${style}-${region}-0.woff2`)
-      for (const locale of Object.keys(messages)) {
+      for (const locale of uiFontLocales) {
         for (let index = 0; index < 4; index++) {
           const stylesheet =
             style === 'sans' && locale === 'zh-CN' ? css : uiCss
@@ -276,30 +286,32 @@ describe('subset loading', () => {
 })
 
 describe('interface subset coverage', () => {
-  it('carries every Korean reading in every locale font', () => {
+  const uiFontsFor = (style: Style, locale: Locale) =>
+    readdirSync(FONT_DIR)
+      .filter((name) =>
+        new RegExp(String.raw`^ui-${style}-${locale}-\d+\.woff2$`).test(name),
+      )
+      .map((name) => ({
+        name,
+        font: fontkit.create(
+          readFileSync(join(FONT_DIR, name)),
+        ) as fontkit.Font,
+      }))
+
+  it('carries every Korean reading in every distinct UI font family', () => {
     const hangul = [
       ...new Set(
         data.rows.flatMap((row) => row.readings?.korean ?? []).join(''),
       ),
     ]
     const uiFonts = Object.fromEntries(
-      ['zh-CN', 'zh-TW', 'zh-HK', 'ja-JP', 'ko-KR'].map((locale) => [
-        locale,
-        readdirSync(FONT_DIR)
-          .filter((name) =>
-            new RegExp(String.raw`^ui-sans-${locale}-\d+\.woff2$`).test(name),
-          )
-          .map((name) => ({
-            name,
-            font: fontkit.create(
-              readFileSync(join(FONT_DIR, name)),
-            ) as fontkit.Font,
-          })),
-      ]),
+      uiFontLocales.map((locale) => [locale, uiFontsFor('sans', locale)]),
     )
 
     expect(hangul.length).toBeGreaterThan(300)
-    expect(Object.keys(uiFonts)).toHaveLength(5)
+    expect(Object.keys(uiFonts)).toHaveLength(
+      new Set(locales.map((locale) => LOCALE_META[locale].uiFamily)).size,
+    )
     for (const [locale, fonts] of Object.entries(uiFonts)) {
       expect(fonts.length).toBeGreaterThan(1)
       for (const char of hangul)
@@ -308,6 +320,37 @@ describe('interface subset coverage', () => {
             ({ font }) => font.glyphForCodePoint(char.codePointAt(0)!).id !== 0,
           ),
           `${locale} UI subsets do not carry ${char}`,
+        ).toBe(true)
+    }
+  })
+
+  it('merges English Han copy into the Simplified Chinese UI family', () => {
+    const englishCopy = [
+      JSON.stringify(messages['en-US']),
+      ...SOURCES.flatMap((source) => [
+        source.use['en-US'],
+        source.localizedName?.['en-US'] ?? source.name,
+        source.localizedLicense?.['en-US'] ?? source.license,
+        source.note?.['en-US'] ?? '',
+      ]),
+    ].join('')
+    const han = /\p{Script=Han}/u
+    const characters = [
+      ...new Set([...englishCopy].filter((char) => han.test(char))),
+    ]
+
+    expect(characters.length).toBeGreaterThan(0)
+    expect(
+      readdirSync(FONT_DIR).filter((name) => name.includes('-en-US-')),
+    ).toEqual([])
+    for (const style of STYLES) {
+      const fonts = uiFontsFor(style, 'zh-CN')
+      for (const char of characters)
+        expect(
+          fonts.some(
+            ({ font }) => font.glyphForCodePoint(char.codePointAt(0)!).id !== 0,
+          ),
+          `UI zh-CN ${style} subsets do not carry English-copy character ${char}`,
         ).toBe(true)
     }
   })

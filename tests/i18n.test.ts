@@ -1,11 +1,19 @@
 import { describe, expect, it } from 'vitest'
-import { dictionaryRegionsFor, matchLocale } from '../app/locales/index.ts'
+import { enUS } from '../app/locales/en-us.ts'
+import {
+  dictionaryRegionsFor,
+  LOCALE_DICTIONARY_REGION,
+  LOCALE_FREQUENCY_REGION,
+  LOCALE_META,
+  matchLocale,
+} from '../app/locales/index.ts'
 import { jaJP } from '../app/locales/ja-jp.ts'
 import { koKR } from '../app/locales/ko-kr.ts'
 import { zhCN } from '../app/locales/zh-cn.ts'
 import { zhHK } from '../app/locales/zh-hk.ts'
 import { zhTW } from '../app/locales/zh-tw.ts'
 import { hanNumber } from '../app/utils/han-number.ts'
+import { formatList, formatNumber } from '../app/utils/locale-format.ts'
 import { SOURCES } from '../shared/sources.ts'
 
 function leaves(value: unknown, prefix = ''): Record<string, string> {
@@ -66,6 +74,13 @@ describe('Chinese typography', () => {
 })
 
 describe('browser locale matching', () => {
+  it.each(['en', 'en-US', 'en-GB', 'en-Latn-GB'])(
+    'matches %s to US English',
+    (tag) => {
+      expect(matchLocale([tag])).toBe('en-US')
+    },
+  )
+
   it.each(['ja', 'ja-JP', 'ja-Jpan-JP'])('matches %s to Japanese', (tag) => {
     expect(matchLocale([tag])).toBe('ja-JP')
   })
@@ -75,7 +90,8 @@ describe('browser locale matching', () => {
   })
 
   it('uses the first supported language in browser preference order', () => {
-    expect(matchLocale(['en-US', 'ja-JP', 'zh-TW'])).toBe('ja-JP')
+    expect(matchLocale(['fr-FR', 'en-GB', 'ja-JP', 'zh-TW'])).toBe('en-US')
+    expect(matchLocale(['fr-FR', 'ja-JP', 'en-US'])).toBe('ja-JP')
   })
 
   it('keeps the existing Chinese region matching', () => {
@@ -98,6 +114,16 @@ describe('locale-aware dictionaries', () => {
       'jp',
     ])
   })
+
+  it('uses Mainland Chinese regional defaults for English', () => {
+    expect(LOCALE_DICTIONARY_REGION['en-US']).toBe('cn')
+    expect(LOCALE_FREQUENCY_REGION['en-US']).toBe('cn')
+    expect(dictionaryRegionsFor('en-US', ['jp'])).toEqual(['cn', 'jp'])
+    expect(LOCALE_META['en-US']).toMatchObject({
+      htmlLang: 'en-US',
+      uiFamily: 'UI zh-CN',
+    })
+  })
 })
 
 describe('locale-aware small numbers', () => {
@@ -114,6 +140,20 @@ describe('locale-aware small numbers', () => {
 
   it('keeps Han numerals for the existing locales', () => {
     expect(hanNumber(3, 'ja-JP')).toBe('三')
+  })
+
+  it('uses Arabic numerals in English copy', () => {
+    expect(hanNumber(1, 'en-US')).toBe('1')
+    expect(hanNumber(5, 'en-US')).toBe('5')
+    expect(formatNumber(8449, 'en-US')).toBe('8,449')
+  })
+})
+
+describe('locale-aware lists', () => {
+  it('uses natural US English conjunctions', () => {
+    expect(formatList(['Mainland China', 'Hong Kong', 'Taiwan'], 'en-US')).toBe(
+      'Mainland China, Hong Kong, and Taiwan',
+    )
   })
 })
 
@@ -140,5 +180,34 @@ describe('Korean messages', () => {
     )
     for (const [key, message] of Object.entries(base))
       expect(params(translated[key]!), key).toEqual(params(message))
+  })
+})
+
+describe('English messages', () => {
+  it('has every message and interpolation parameter in the default locale', () => {
+    const base = leaves(zhCN)
+    const translated = leaves(enUS)
+
+    expect(Object.keys(translated).toSorted()).toEqual(
+      Object.keys(base).toSorted(),
+    )
+    for (const [key, message] of Object.entries(base))
+      expect(params(translated[key]!), key).toEqual(params(message))
+  })
+
+  it('localizes every data-source field used by the interface', () => {
+    for (const source of SOURCES) {
+      expect(source.use['en-US'], `${source.id}.use`).toBeTruthy()
+      expect(
+        source.localizedName?.['en-US'] ?? source.name,
+        `${source.id}.name`,
+      ).toBeTruthy()
+      expect(
+        source.localizedLicense?.['en-US'] ?? source.license,
+        `${source.id}.license`,
+      ).toBeTruthy()
+      if (source.note)
+        expect(source.note['en-US'], `${source.id}.note`).toBeTruthy()
+    }
   })
 })

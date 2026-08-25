@@ -8,6 +8,7 @@ import {
   type Messages,
 } from '~/locales/index.ts'
 import { zhCN } from '~/locales/zh-cn.ts'
+import { formatList, formatNumber } from '~/utils/locale-format.ts'
 import { LOCALE_KEY } from '~/utils/preference-restore.ts'
 
 /**
@@ -70,14 +71,15 @@ export function useT() {
    * keeps a bare enumeration, the default reads as prose.
    */
   function list(items: string[], style: Intl.ListFormatStyle = 'long'): string {
-    return new Intl.ListFormat(locale.value, {
-      style,
-      type: 'conjunction',
-    }).format(items)
+    return formatList(items, locale.value, style)
+  }
+
+  function number(value: number): string {
+    return formatNumber(value, locale.value)
   }
 
   const meta = computed(() => LOCALE_META[locale.value])
-  return { t, list, locale, meta }
+  return { t, list, number, locale, meta }
 }
 
 /**

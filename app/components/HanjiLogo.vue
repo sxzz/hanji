@@ -1,12 +1,18 @@
 <script setup lang="ts">
 const { t } = useT()
+const hasDistinctEnglishName = computed(
+  () => t('meta.title') !== t('meta.name'),
+)
 </script>
 
 <template>
   <span class="inline-flex items-center gap-2.5">
     <HanjiMark class="size-8 md:size-9" />
     <span class="sr-only xs:hidden">
-      {{ t('meta.title') }} · {{ t('meta.name') }}
+      {{ t('meta.title')
+      }}<template v-if="hasDistinctEnglishName">
+        · {{ t('meta.name') }}</template
+      >
     </span>
     <span class="hidden flex-col justify-center leading-none xs:flex">
       <span
@@ -15,6 +21,7 @@ const { t } = useT()
         {{ t('meta.title') }}
       </span>
       <span
+        v-if="hasDistinctEnglishName"
         class="mt-1 whitespace-nowrap text-[0.6875rem] text-mute tracking-[0.16em]"
       >
         {{ t('meta.name') }}

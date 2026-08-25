@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { LOCALE_DICTIONARY_REGION } from '~/locales/index.ts'
 import {
   ANIMCJK_HOME,
   ANIMCJK_LICENSE,
@@ -27,14 +28,6 @@ type StrokeSpeed = (typeof STROKE_SPEEDS)[number]
 
 const SKELETON_DELAY_MS = 100
 const STROKE_SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2] as const
-
-const LOCALE_COLUMN = {
-  'zh-CN': 'cn',
-  'zh-HK': 'hk',
-  'zh-TW': 'tw',
-  'ja-JP': 'jp',
-  'ko-KR': 'kr',
-} as const
 
 const selected = ref<Column>()
 const status = ref<Status>('loading')
@@ -167,7 +160,7 @@ const isStrokeSpeed = (value: number): value is StrokeSpeed =>
   STROKE_SPEEDS.includes(value as StrokeSpeed)
 
 function selectPreferred() {
-  const preferred = LOCALE_COLUMN[locale.value]
+  const preferred = LOCALE_DICTIONARY_REGION[locale.value]
   const next = props.choices.find((choice) =>
     choice.columns.includes(preferred),
   )
@@ -419,7 +412,7 @@ onBeforeUnmount(() => {
         </span>
       </div>
       <p v-if="status === 'ready'" class="text-xs text-mute">
-        {{ t('char.strokeSource') }}：
+        {{ t('char.strokeSource') }}{{ locale === 'en-US' ? ': ' : '：' }}
         <a
           :href="ANIMCJK_HOME"
           target="_blank"

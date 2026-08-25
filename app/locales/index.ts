@@ -11,7 +11,14 @@ import { zhCN } from './zh-cn.ts'
  * not indexed, and cannot be linked to -- hence no hreflang either. Switching
  * to locale-prefixed routes means changing this file and useT, nothing else.
  */
-export const LOCALES = ['zh-CN', 'zh-TW', 'zh-HK', 'ja-JP', 'ko-KR'] as const
+export const LOCALES = [
+  'zh-CN',
+  'zh-TW',
+  'zh-HK',
+  'ja-JP',
+  'ko-KR',
+  'en-US',
+] as const
 export type Locale = (typeof LOCALES)[number]
 
 /** What the prerendered HTML carries, and what anything unmatched falls back to. */
@@ -24,6 +31,7 @@ export const LOCALE_DICTIONARY_REGION = {
   'zh-HK': 'hk',
   'ja-JP': 'jp',
   'ko-KR': 'kr',
+  'en-US': 'cn',
 } as const satisfies Record<Locale, Region>
 
 /**
@@ -34,6 +42,7 @@ export const LOCALE_DICTIONARY_REGION = {
 export const LOCALE_FREQUENCY_REGION = {
   ...LOCALE_DICTIONARY_REGION,
   'ko-KR': 'cn',
+  'en-US': 'cn',
 } as const satisfies Record<Locale, FrequencyRegion>
 
 /** The old-form explainer follows the reader to the matching Wikipedia. */
@@ -43,6 +52,7 @@ export const LOCALE_OLD_FORM_WIKIPEDIA = {
   'zh-HK': 'https://zh.wikipedia.org/zh-hk/%E8%88%8A%E5%AD%97%E9%AB%94',
   'ja-JP': 'https://ja.wikipedia.org/wiki/%E6%97%A7%E5%AD%97%E4%BD%93',
   'ko-KR': 'https://ko.wikipedia.org/wiki/%EA%B5%AC%EC%9E%90%EC%B2%B4',
+  'en-US': 'https://en.wikipedia.org/wiki/Ky%C5%ABjitai',
 } as const satisfies Record<Locale, string>
 
 /** Dictionaries follow either the comparison or the active interface locale. */
@@ -102,6 +112,13 @@ export const LOCALE_META: Record<Locale, LocaleMeta> = {
     sans: "'Noto Sans KR'",
     uiFamily: 'UI ko-KR',
   },
+  'en-US': {
+    htmlLang: 'en-US',
+    // English UI text uses the shared Latin face. Any Han fallback follows
+    // the Simplified Chinese interface and shares its existing CJK subsets.
+    sans: "'Noto Sans SC'",
+    uiFamily: 'UI zh-CN',
+  },
 }
 
 /**
@@ -123,20 +140,22 @@ export const LOADERS: Record<Locale, () => Promise<Messages>> = {
   'zh-HK': async () => (await import('./zh-hk.ts')).zhHK,
   'ja-JP': async () => (await import('./ja-jp.ts')).jaJP,
   'ko-KR': async () => (await import('./ko-kr.ts')).koKR,
+  'en-US': async () => (await import('./en-us.ts')).enUS,
 }
 
 /**
  * The best locale for a browser's language list, in the browser's own order of
- * preference. Japanese and Korean tags take their respective copy. A Chinese
- * tag naming Hong Kong or Macao takes the Hong Kong copy, one naming Taiwan or
- * the traditional script takes the Taiwanese copy, and any other Chinese tag
- * takes the simplified. Anything else leaves it undecided, so the caller can
- * fall back.
+ * preference. English, Japanese, and Korean tags take their respective copy.
+ * A Chinese tag naming Hong Kong or Macao takes the Hong Kong copy, one naming
+ * Taiwan or the traditional script takes the Taiwanese copy, and any other
+ * Chinese tag takes the simplified. Anything else leaves it undecided, so the
+ * caller can fall back.
  */
 export function matchLocale(tags: readonly string[]): Locale | undefined {
   for (const tag of tags) {
     const lower = tag.toLowerCase()
     const language = lower.split('-', 1)[0]
+    if (language === 'en') return 'en-US'
     if (language === 'ja') return 'ja-JP'
     if (language === 'ko') return 'ko-KR'
     if (language !== 'zh') continue

@@ -27,7 +27,7 @@ import { listPlace } from '~/utils/list-place.ts'
 definePageMeta({ middleware: 'char-alias' })
 
 const route = useRoute()
-const { t, list, locale } = useT()
+const { t, list, number, locale } = useT()
 const { flagsOn, visibleColumns, visibleRegions } = usePrefs()
 
 const key = computed(() => decodeURIComponent(String(route.params.key)))
@@ -351,9 +351,11 @@ const seoDescription = computed(() => {
   const forms = list(
     REGIONS.map((region, index) => {
       const char = here.chars[index]!
-      return `${t(`region.${region}.full`)}「${char}」（${hex(char)}）`
+      const name = t(`region.${region}.full`)
+      return locale.value === 'en-US'
+        ? `${name} “${char}” (${hex(char)})`
+        : `${name}「${char}」（${hex(char)}）`
     }),
-    'narrow',
   )
   return t('meta.charDescription', { char: key.value, forms })
 })
@@ -519,7 +521,7 @@ usePageSeo({
                     class="tabular border-l border-rule/40 py-3 text-center text-sm text-mute font-mono first:border-l-0"
                   >
                     <template v-if="run.cell.freq !== null">
-                      #{{ run.cell.freq.toLocaleString() }}
+                      #{{ number(run.cell.freq) }}
                     </template>
                     <template v-else>—</template>
                   </td>

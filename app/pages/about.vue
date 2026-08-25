@@ -2,7 +2,7 @@
 import { ABOUT_OG_PATH } from '~~/shared/brand.ts'
 import { ISSUES_URL, REPO_URL } from '~~/shared/links.ts'
 
-const { t } = useT()
+const { t, number } = useT()
 const { buildInfo, datasetStats } = useAppConfig()
 const LICENSE_URL = `${REPO_URL}/blob/main/LICENSE`
 const CC_BY_URL = 'https://creativecommons.org/licenses/by/4.0/'
@@ -11,9 +11,9 @@ const shortBuildSha = buildInfo.sha.slice(0, 7)
 const buildCommitUrl = `${REPO_URL}/commit/${buildInfo.sha}`
 
 const numbers = computed(() => ({
-  rows: datasetStats.rows.toLocaleString(),
-  identical: datasetStats.identical.toLocaleString(),
-  allDiffer: datasetStats.allDiffer.toLocaleString(),
+  rows: number(datasetStats.rows),
+  identical: number(datasetStats.identical),
+  allDiffer: number(datasetStats.allDiffer),
 }))
 
 usePageSeo({

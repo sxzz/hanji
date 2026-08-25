@@ -23,6 +23,9 @@ const description = computed(() =>
     isNotFound.value ? 'error.notFoundDescription' : 'error.genericDescription',
   ),
 )
+const pageTitle = computed(
+  () => `${statusCode.value} · ${title.value} · ${t('meta.title')}`,
+)
 
 // app.vue is not mounted while Nuxt renders error.vue. Finish the same locale
 // restoration here so a saved language never waits for the four-second
@@ -50,15 +53,25 @@ useHead({
     lang: () => meta.value.htmlLang,
     'data-style': () => style.value,
   },
-  title: () => `${statusCode.value} · ${title.value} · ${t('meta.title')}`,
+  title: pageTitle,
   meta: [
-    {
-      name: 'description',
-      content: () => description.value,
-    },
+    { name: 'apple-mobile-web-app-title', content: () => t('meta.title') },
   ],
   link: () =>
     serifWanted.value ? [{ rel: 'stylesheet', href: serifStylesheetUrl }] : [],
+})
+
+useSeoMeta({
+  applicationName: () => t('meta.title'),
+  description,
+  ogTitle: pageTitle,
+  ogDescription: description,
+  ogLocale: () => meta.value.htmlLang.replace('-', '_'),
+  ogSiteName: () => t('meta.title'),
+  ogType: 'website',
+  twitterCard: 'summary',
+  twitterTitle: pageTitle,
+  twitterDescription: description,
 })
 
 function goBack(): void {

@@ -2,7 +2,7 @@
 import { injectChars } from '~/composables/chars.ts'
 
 const chars = injectChars()
-const { t } = useT()
+const { t, number } = useT()
 const { flagsOn, visibleRegions, columnTracks } = usePrefs()
 const scrollToTop = useScrollToTop()
 
@@ -100,7 +100,7 @@ function turnTo(page: number) {
       >
         {{
           chars.paged.value
-            ? t('table.showAll', { n: chars.rows.value.length })
+            ? t('table.showAll', { n: number(chars.rows.value.length) })
             : t('table.paginate')
         }}
       </button>
