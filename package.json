@@ -36,7 +36,8 @@
     "build:data": "pnpm build:dataset && pnpm build:fonts",
     "build:og": "node scripts/build-og-images.ts",
     "update:sources": "node scripts/update-sources.ts",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "prepare": "husky"
   },
   "dependencies": {
     "@iconify-json/ooui": "catalog:",
@@ -67,6 +68,8 @@
     "eslint": "catalog:",
     "fflate": "catalog:",
     "fontkit": "catalog:",
+    "husky": "catalog:",
+    "lint-staged": "catalog:",
     "prettier": "catalog:",
     "satori": "catalog:",
     "sharp": "catalog:",
@@ -76,6 +79,13 @@
     "vitest": "catalog:",
     "vue-tsc": "catalog:",
     "wrangler": "catalog:"
+  },
+  "lint-staged": {
+    "*.md": [
+      "prettier --write",
+      "eslint --cache --fix"
+    ],
+    "!(*.md)": "eslint --cache --fix"
   },
   "prettier": "@sxzz/prettier-config"
 }

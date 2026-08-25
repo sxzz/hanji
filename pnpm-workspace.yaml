@@ -20,6 +20,8 @@ catalog:
   eslint: ^10.8.1
   fflate: ^0.8.3
   fontkit: ^2.0.4
+  husky: ^9.1.7
+  lint-staged: ^17.3.0
   nuxt: ^4.5.2
   nuxt-site-config: ^4.2.3
   prettier: ^3.9.6
