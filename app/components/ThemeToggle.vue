@@ -31,8 +31,13 @@ function toggleDarkClick() {
     at prerender time and hydration does not rewrite it, so the button would
     show the wrong icon to anyone returning in dark mode.
   -->
-  <button type="button" class="focus-ring icon-btn" :title="t('nav.theme')" :aria-label="t('nav.theme')"
-    @click="toggleDarkClick()">
+  <button
+    type="button"
+    class="focus-ring icon-btn"
+    :title="t('nav.theme')"
+    :aria-label="t('nav.theme')"
+    @click="toggleDarkClick()"
+  >
     <span class="i-ri-moon-line theme-icon theme-icon-light" />
     <span class="i-ri-sun-line theme-icon theme-icon-dark" />
   </button>
