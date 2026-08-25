@@ -405,6 +405,11 @@ export default {
         { innerHTML: RESTORE_SCRIPT, tagPosition: 'head' },
         { innerHTML: PREFERENCE_RESTORE_SCRIPT, tagPosition: 'head' },
         { innerHTML: PWA_INSTALL_CAPTURE_SCRIPT, tagPosition: 'head' },
+        {
+          'data-goatcounter': 'https://hanji.goatcounter.com/count',
+          async: true,
+          src: '//gc.zgo.at/count.js',
+        },
       ],
       link: [
         { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
