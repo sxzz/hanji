@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { GOATCOUNTER_EVENTS } from '~/utils/goatcounter.ts'
 import {
   detectPwaInstallMode,
   PWA_INSTALL_PROMPT_READY_EVENT,
@@ -15,6 +16,7 @@ const props = withDefaults(
 
 const { t } = useT()
 const { $pwa } = useNuxtApp()
+const goatCounter = useGoatCounter()
 const displayStandalone = useMediaQuery('(display-mode: standalone)')
 const deferredPrompt = useState<BeforeInstallPromptEvent | null>(
   'pwa-install-prompt',
@@ -50,9 +52,11 @@ useEventListener(window, PWA_INSTALL_PROMPT_READY_EVENT, () => {
 })
 
 useEventListener(window, 'appinstalled', () => {
+  const firstNotice = !appInstalled.value
   pwaWindow.__hanjiPwaInstallPrompt = null
   deferredPrompt.value = null
   appInstalled.value = true
+  if (firstNotice) goatCounter?.event(...GOATCOUNTER_EVENTS.pwaInstall)
 })
 
 onMounted(() => {

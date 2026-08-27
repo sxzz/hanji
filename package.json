@@ -51,6 +51,7 @@
     "@vueuse/core": "catalog:",
     "@vueuse/nuxt": "catalog:",
     "@vueuse/router": "catalog:",
+    "goat-counter": "catalog:",
     "nuxt": "catalog:",
     "nuxt-site-config": "catalog:",
     "unocss": "catalog:",

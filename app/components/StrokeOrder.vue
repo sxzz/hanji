@@ -8,6 +8,7 @@ import {
   unpackAnimCJK,
   type StrokeOrderChoice,
 } from '~/utils/animcjk.ts'
+import { GOATCOUNTER_EVENTS } from '~/utils/goatcounter.ts'
 import { STROKE_SPEED_KEY } from '~/utils/preference-restore.ts'
 import { loadStrokeGroup, strokeDuration } from '~/utils/stroke-data.ts'
 import type { ComponentPublicInstance } from 'vue'
@@ -20,6 +21,7 @@ import type { Column, Region } from '~~/shared/types.ts'
 
 const props = defineProps<{ choices: readonly StrokeOrderChoice[] }>()
 const { t, locale } = useT()
+const goatCounter = useGoatCounter()
 const { flagsOn } = usePrefs()
 
 type Status = 'loading' | 'ready' | 'error'
@@ -280,6 +282,7 @@ async function play() {
     return
   }
 
+  goatCounter?.event(...GOATCOUNTER_EVENTS.strokePlay)
   if (phase.value === 'done') completed.value = 0
   const thisRun = ++run
   phase.value = 'playing'
