@@ -6,6 +6,8 @@ import {
   useMorphingKey,
   useMorphTo,
 } from '~/composables/char-navigation.ts'
+import { injectChars } from '~/composables/chars.ts'
+import { GOATCOUNTER_EVENTS } from '~/utils/goatcounter.ts'
 import type { CharRow } from '~~/shared/types.ts'
 
 const props = defineProps<{
@@ -15,7 +17,9 @@ const props = defineProps<{
 
 const morphing = useMorphingKey()
 const morphTo = useMorphTo()
+const chars = injectChars()
 const route = useRoute()
+const goatCounter = useGoatCounter()
 
 /**
  * Opening a row records where the reader was standing in the list, which is
@@ -23,6 +27,8 @@ const route = useRoute()
  * same one the hero performs, and lives with it.
  */
 async function open(event: MouseEvent) {
+  if (chars.query.value.trim())
+    goatCounter?.event(...GOATCOUNTER_EVENTS.searchResultOpen)
   if (opensElsewhere(event)) return
   event.preventDefault()
   listPlace.value = { fullPath: route.fullPath, scrollY: window.scrollY }

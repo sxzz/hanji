@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { GOATCOUNTER_EVENTS } from '~/utils/goatcounter.ts'
+
 type CopyState = 'idle' | 'copying' | 'copied' | 'failed'
 
 const { t } = useT()
+const goatCounter = useGoatCounter()
 const route = useRoute()
 const menuId = useId()
 const root = useTemplateRef<HTMLElement>('root')
@@ -162,12 +165,18 @@ async function copyLogo() {
   try {
     await writeLogo(fetchLogoSource())
     copyState.value = 'copied'
+    goatCounter?.event(...GOATCOUNTER_EVENTS.logoCopy)
   } catch {
     copyState.value = 'failed'
   }
 
   scheduleCopyReset()
   nextTick(() => copyButton.value?.focus())
+}
+
+function downloadLogo() {
+  goatCounter?.event(...GOATCOUNTER_EVENTS.logoDownload)
+  closeMenu()
 }
 
 onClickOutside(root, () => closeMenu())
@@ -252,7 +261,7 @@ watch(
             download="hanji-logo.svg"
             role="menuitem"
             class="focus-ring w-full flex items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-soft transition-colors duration-150 hover:bg-sunk hover:text-ink"
-            @click="closeMenu()"
+            @click="downloadLogo"
           >
             <span
               class="i-ri-download-2-line block shrink-0"
