@@ -37,7 +37,7 @@
     "build:og": "node scripts/build-og-images.ts",
     "update:sources": "node scripts/update-sources.ts",
     "postinstall": "nuxt prepare",
-    "prepare": "husky"
+    "prepare": "simple-git-hooks"
   },
   "dependencies": {
     "@iconify-json/ooui": "catalog:",
@@ -69,17 +69,20 @@
     "eslint": "catalog:",
     "fflate": "catalog:",
     "fontkit": "catalog:",
-    "husky": "catalog:",
     "lint-staged": "catalog:",
     "prettier": "catalog:",
     "satori": "catalog:",
     "sharp": "catalog:",
+    "simple-git-hooks": "catalog:",
     "subset-font": "catalog:",
     "svgo": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:",
     "vue-tsc": "catalog:",
     "wrangler": "catalog:"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "pnpm lint-staged"
   },
   "lint-staged": {
     "*.md": [
