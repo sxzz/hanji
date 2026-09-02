@@ -21,13 +21,13 @@ catalog:
   fflate: ^0.8.3
   fontkit: ^2.0.4
   goat-counter: 0.1.0
-  husky: ^9.1.7
   lint-staged: ^17.3.0
   nuxt: ^4.5.2
   nuxt-site-config: ^4.2.3
   prettier: ^3.9.6
   satori: ^0.33.4
   sharp: ^0.35.3
+  simple-git-hooks: ^2.14.0
   subset-font: ^2.5.0
   svgo: ^4.1.0
   typescript: ~6.0.3
@@ -39,6 +39,7 @@ catalog:
   wrangler: 4.125.0
 allowBuilds:
   esbuild: true
+  simple-git-hooks: true
   workerd: true
 minimumReleaseAge: 0
 packageExtensions:
