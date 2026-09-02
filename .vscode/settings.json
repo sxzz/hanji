@@ -1,6 +1,6 @@
 {
   "prettier.enable": true,
-  "editor.formatOnSave": false,
+  "editor.formatOnSave": true,
 
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
@@ -8,7 +8,10 @@
   },
 
   "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "[html][vue][javascript][typescript]": {
+  "[html][javascript][typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[vue]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   }
 }
