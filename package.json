@@ -3,7 +3,6 @@
   "type": "module",
   "version": "0.0.0",
   "private": true,
-  "packageManager": "pnpm@11.24.0",
   "description": "把同一个汉字并排、叠印，照见中国大陆、香港、台湾、日本与韩国之间细微而真实的字形差异。",
   "author": "Kevin Deng <sxzz@sxzz.moe>",
   "license": "MIT",
@@ -12,6 +11,13 @@
   },
   "engines": {
     "node": "^24.11.0 || >=26.0.0"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "pnpm",
+      "version": "12.3.1",
+      "onFail": "download"
+    }
   },
   "scripts": {
     "dev": "nuxt dev",
