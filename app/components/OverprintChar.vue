@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { overprintColor, overprintOpacity } from '~~/shared/overprint.ts'
+import {
+  overprintColor,
+  overprintCommonGroups,
+  overprintOpacity,
+} from '~~/shared/overprint.ts'
 import {
   fontRegionOf,
   glyphSignature,
@@ -30,6 +34,8 @@ const props = withDefaults(
     withOld?: boolean
     /** Keep this glyph group vivid and hold the other overprint layers back. */
     focusGroup?: number
+    /** Favor forms listed in these regions while the stack is at rest. */
+    commonRegions?: readonly string[]
     /** Answer to a resting pointer by fanning and walking the forms. */
     interactive?: boolean
     /** Let a press-and-drag pull the layers out of register by hand. */
@@ -41,6 +47,7 @@ const props = withDefaults(
     only: undefined,
     withOld: false,
     focusGroup: undefined,
+    commonRegions: () => [],
     interactive: true,
     scrub: false,
   },
@@ -164,6 +171,21 @@ const activeFocus = computed(() =>
     ? focused.value
     : undefined,
 )
+
+const commonGroups = computed(() => {
+  if (activeFocus.value !== undefined || cycle.scrubbing.value)
+    return new Set<number>()
+  const selected = overprintCommonGroups(
+    props.row,
+    basis.value,
+    props.commonRegions,
+  )
+  return new Set(
+    layers.value
+      .filter((layer) => selected.has(layer.group))
+      .map((layer) => layer.group),
+  )
+})
 </script>
 
 <template>
@@ -200,6 +222,8 @@ const activeFocus = computed(() =>
         `hanji-${layer.region}`,
         {
           dimmed: activeFocus !== undefined && layer.group !== activeFocus,
+          emphasized: commonGroups.has(layer.group),
+          subdued: commonGroups.size > 0 && !commonGroups.has(layer.group),
         },
       ]"
       :style="{

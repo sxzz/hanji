@@ -1,4 +1,26 @@
+import { glyphSignature, projectSignature, signatureIndexOf } from './row.ts'
 import { REGIONS, type CharRow, type Column } from './types.ts'
+
+/** Visible glyph groups listed in the regions selected under “Used in”. */
+export function overprintCommonGroups(
+  row: CharRow,
+  columns: readonly Column[],
+  selected: readonly string[],
+): Set<number> {
+  const signature = projectSignature(
+    glyphSignature(row),
+    columns.map(signatureIndexOf),
+  )
+  return new Set(
+    columns.flatMap((column, position) =>
+      column !== 'old' &&
+      selected.includes(column) &&
+      row.tier[REGIONS.indexOf(column)]
+        ? [Number(signature[position])]
+        : [],
+    ),
+  )
+}
 
 /**
  * sRGB equivalents of the light-paper overprint inks in vars.css. Resvg does

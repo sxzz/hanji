@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { overprintColor, overprintOpacity } from '~~/shared/overprint.ts'
+import {
+  overprintColor,
+  overprintCommonGroups,
+  overprintOpacity,
+} from '~~/shared/overprint.ts'
 import { projectSignature } from '~~/shared/row.ts'
 import { REGIONS, type CharRow } from '~~/shared/types.ts'
 import {
@@ -9,8 +13,14 @@ import {
   useMorphingKey,
   useMorphTo,
 } from '~/composables/char-navigation.ts'
-import { HERO_ROW, rowsByKey, rowsNaming } from '~/composables/chars.ts'
+import {
+  HERO_ROW,
+  injectChars,
+  rowsByKey,
+  rowsNaming,
+} from '~/composables/chars.ts'
 
+const chars = injectChars()
 const { t, list, locale } = useT()
 const { flagsOn, outlineOn, visibleRegions, regionIndices } = usePrefs()
 const split = ref(false)
@@ -115,6 +125,16 @@ const plateColor = (group: number) =>
 const cycle = useOverprintCycle(
   () => [...new Set(forms.value.map((form) => form.group))],
   { enabled: () => !split.value, scrub: () => !split.value },
+)
+
+const commonGroups = computed(() =>
+  split.value || cycle.scrubbing.value || cycle.lit.value !== undefined
+    ? new Set<number>()
+    : overprintCommonGroups(
+        shown.value,
+        visibleRegions.value,
+        chars.common.value,
+      ),
 )
 
 /**
@@ -269,6 +289,8 @@ async function openFromField(event: KeyboardEvent) {
               duplicate: !form.lead,
               dimmed:
                 cycle.lit.value !== undefined && form.group !== cycle.lit.value,
+              emphasized: commonGroups.has(form.group),
+              subdued: commonGroups.size > 0 && !commonGroups.has(form.group),
             }"
             :style="{
               '--i': index,

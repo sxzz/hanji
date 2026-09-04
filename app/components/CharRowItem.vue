@@ -49,6 +49,7 @@ async function open(event: MouseEvent) {
     <div class="flex-center">
       <OverprintChar
         :row="row"
+        :common-regions="chars.common.value"
         size="clamp(1.75rem, 7vw, 60px)"
         :morph="
           morphing?.from === 'row' && morphing.key === row.key
