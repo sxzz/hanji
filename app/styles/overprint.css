@@ -26,6 +26,7 @@
      balance against one another. */
   --overprint-opacity: 0.54;
   --overprint-active-opacity: var(--overprint-opacity);
+  --overprint-emphasis-opacity: min(1, calc(var(--overprint-opacity) + 0.3));
 
   /* Positioned so the layers have something to sit in, and so a stack being
      scrubbed can be raised above the copy it fans across. */
@@ -43,6 +44,7 @@
 
 .overprint.outlined {
   --overprint-active-opacity: 0.82;
+  --overprint-emphasis-opacity: 1;
 }
 
 /*
@@ -131,6 +133,15 @@
     color-mix(in oklch, var(--layer-color) 76%, transparent);
   opacity: 1;
   paint-order: stroke fill;
+}
+
+/* “Used in” gives the selected forms more ink while retaining the comparison. */
+.overprint-layer.emphasized {
+  --overprint-active-opacity: var(--overprint-emphasis-opacity);
+}
+
+.overprint-layer.subdued {
+  opacity: 0.35;
 }
 
 /*

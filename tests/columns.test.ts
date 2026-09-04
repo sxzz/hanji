@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest'
 import { DATA_DIR } from '../scripts/sources.ts'
 import { formsOf } from '../shared/links.ts'
 import { listingOptionsFor } from '../shared/listings.ts'
+import { overprintCommonGroups } from '../shared/overprint.ts'
 import {
   glyphSignature,
   projectSignature,
@@ -37,6 +38,40 @@ const without = (...hidden: Region[]) =>
   )
 
 const ALL_COLUMNS = [...REGIONS].map((region) => REGIONS.indexOf(region))
+
+describe('overprint emphasis from common-region filters', () => {
+  const columns: Column[] = ['cn', 'jp', 'hk', 'tw']
+
+  it('uses displayed group numbers when the region order changes', () => {
+    expect(overprintCommonGroups(row('返'), columns, ['jp'])).toEqual(
+      new Set([1]),
+    )
+  })
+
+  it('keeps every selected form prominent and deduplicates shared forms', () => {
+    expect(overprintCommonGroups(row('國'), columns, ['hk', 'tw'])).toEqual(
+      new Set([1]),
+    )
+    expect(overprintCommonGroups(row('國'), columns, ['cn', 'tw'])).toEqual(
+      new Set([0, 1]),
+    )
+  })
+
+  it('ignores hidden and unknown regions and clears emphasis with the filter', () => {
+    for (const selected of [[], ['kr'], ['unknown']])
+      expect(overprintCommonGroups(row('返'), columns, selected)).toEqual(
+        new Set(),
+      )
+    expect(
+      overprintCommonGroups(row('返'), ['jp', 'hk', 'tw'], ['jp']),
+    ).toEqual(new Set([0]))
+  })
+
+  it('does not promote an unlisted reference form in the hero', () => {
+    const unlisted: CharRow = { ...row('返'), tier: [1, 1, 1, 0, 0] }
+    expect(overprintCommonGroups(unlisted, columns, ['jp'])).toEqual(new Set())
+  })
+})
 
 describe('locale-aware column defaults', () => {
   it('shows Korea for Korean while preserving every other hidden column', () => {
